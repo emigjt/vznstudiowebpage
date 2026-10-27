@@ -3,6 +3,9 @@
 
   var projects = Array.isArray(window.VZN_PORTFOLIO) ? window.VZN_PORTFOLIO : [];
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  var narrow = window.matchMedia("(max-width: 900px)");
+  var LOGO = "assets/brand/logo-white.svg";
 
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
@@ -12,6 +15,10 @@
     if (className) node.className = className;
     if (text != null) node.textContent = text;
     return node;
+  }
+
+  function slug(str) {
+    return String(str).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   }
 
   // Stable number from a string, used to vary generated covers per project.
@@ -26,121 +33,86 @@
   var nav = $("[data-nav]");
   var toggle = $("[data-nav-toggle]");
 
-  function onScroll() { header.classList.toggle("is-scrolled", window.scrollY > 10); }
-  window.addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
-
   function setNav(open) {
     nav.classList.toggle("is-open", open);
+    document.body.classList.toggle("nav-open", open);
     toggle.setAttribute("aria-expanded", String(open));
+    toggle.textContent = open ? "Close" : "Menu";
   }
   toggle.addEventListener("click", function () { setNav(!nav.classList.contains("is-open")); });
   $$("a", nav).forEach(function (a) { a.addEventListener("click", function () { setNav(false); }); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") setNav(false); });
 
-  /* Hero equalizer --------------------------------------------------------- */
-  var eq = $("[data-eq]");
-  if (eq) {
-    var bars = Math.min(96, Math.floor(window.innerWidth / 14));
-    for (var i = 0; i < bars; i++) {
-      var bar = document.createElement("span");
-      var h = 20 + Math.abs(Math.sin(i * 0.35) * 55) + Math.random() * 25;
-      bar.style.setProperty("--h", Math.min(h, 100) + "%");
-      bar.style.setProperty("--d", (-Math.random() * 1.6).toFixed(2) + "s");
-      eq.appendChild(bar);
+  /* Scroll effects: header state + hero logo parallax ---------------------- */
+  var heroMark = $("[data-parallax]");
+  var pointer = { x: 0, y: 0 };
+  var ticking = false;
+
+  function render() {
+    ticking = false;
+    var y = window.scrollY;
+    header.classList.toggle("is-scrolled", y > 40);
+    if (heroMark && !reduceMotion) {
+      var p = Math.min(y / window.innerHeight, 1);
+      heroMark.style.transform =
+        "translate3d(" + (pointer.x * 16).toFixed(1) + "px," + (pointer.y * 12 - y * 0.15).toFixed(1) + "px,0)" +
+        " rotate(" + (pointer.x * 4).toFixed(2) + "deg) scale(" + (1 + p * 0.15).toFixed(3) + ")";
     }
   }
+  function requestRender() {
+    if (!ticking) { ticking = true; window.requestAnimationFrame(render); }
+  }
+  window.addEventListener("scroll", requestRender, { passive: true });
+  if (finePointer) {
+    window.addEventListener("mousemove", function (e) {
+      pointer.x = e.clientX / window.innerWidth - 0.5;
+      pointer.y = e.clientY / window.innerHeight - 0.5;
+      requestRender();
+    }, { passive: true });
+  }
+  render();
 
-  /* Generated covers (used until real thumbnails are added) ---------------- */
-  function makeCover(project) {
-    var seed = hash(project.title + project.type);
-    var hueA = seed % 360;
-    var hueB = (hueA + 40 + (seed % 80)) % 360;
+  /* Generated covers (used until real images are added) -------------------- */
+  function makeCover(project, variant) {
+    var seed = hash(project.title + project.type + variant);
     var cover = el("div", "cover");
+    var x = 10 + (seed % 80);
+    var y = 10 + ((seed >> 4) % 80);
+    var light = 18 + (seed % 14);
     cover.style.background =
-      "radial-gradient(120% 90% at " + (seed % 100) + "% 0%, hsl(" + hueA + " 70% 55%), transparent 60%)," +
-      "linear-gradient(135deg, hsl(" + hueB + " 55% 22%), hsl(" + hueA + " 40% 10%))";
+      "radial-gradient(60% 50% at " + x + "% " + y + "%, hsl(30 3% " + light + "%), transparent 70%)," +
+      "radial-gradient(80% 60% at " + (100 - x) + "% " + (100 - y) + "%, hsl(220 4% 12%), transparent 70%)," +
+      "#0a0a0a";
 
-    if (project.category === "audio") {
-      var wave = el("div", "cover-wave");
-      for (var i = 0; i < 48; i++) {
-        var bar = document.createElement("i");
-        var amp = 0.15 + Math.abs(Math.sin((i + seed) * 0.42) * Math.cos(i * 0.13)) * 0.85;
-        bar.style.height = Math.round(amp * 100) + "%";
-        wave.appendChild(bar);
+    var label = el("div", "cover-label");
+    label.appendChild(el("span", null, project.title));
+    label.appendChild(el("span", null, project.year || ""));
+    cover.appendChild(label);
+
+    if (variant === 1) {
+      if (project.category === "audio") {
+        var wave = el("div", "cover-wave");
+        for (var i = 0; i < 64; i++) {
+          var bar = document.createElement("i");
+          var amp = 0.06 + Math.abs(Math.sin((i + seed) * 0.37) * Math.cos(i * 0.11)) * 0.94;
+          bar.style.height = Math.round(amp * 100) + "%";
+          wave.appendChild(bar);
+        }
+        cover.appendChild(wave);
+      } else {
+        cover.appendChild(el("div", "cover-play"));
       }
-      cover.appendChild(wave);
     } else {
-      cover.appendChild(el("div", "cover-frame"));
+      var mark = document.createElement("img");
+      mark.className = "cover-mark";
+      mark.src = LOGO;
+      mark.alt = "";
+      cover.appendChild(mark);
     }
     return cover;
   }
 
-  /* Portfolio grid --------------------------------------------------------- */
-  var grid = $("[data-work-grid]");
-  var empty = $("[data-work-empty]");
-
-  projects.forEach(function (project, index) {
-    var li = el("li", "work-card reveal");
-    li.dataset.category = project.category;
-
-    var btn = document.createElement("button");
-    btn.type = "button";
-    btn.setAttribute("aria-label", "Open " + project.title + " — " + project.type);
-    btn.addEventListener("click", function () { openViewer(project); });
-
-    var thumb = el("div", "work-thumb");
-    if (project.thumbnail) {
-      var img = document.createElement("img");
-      img.src = project.thumbnail;
-      img.alt = "";
-      img.loading = "lazy";
-      thumb.appendChild(img);
-    } else {
-      thumb.appendChild(makeCover(project));
-    }
-    var badge = el("span", "work-badge");
-    badge.appendChild(el("span", "dot dot-" + project.category));
-    badge.appendChild(document.createTextNode(project.type));
-    thumb.appendChild(badge);
-
-    var meta = el("div", "work-meta");
-    var text = el("div");
-    text.appendChild(el("h3", "work-title", project.title));
-    if (project.client) text.appendChild(el("p", "work-client", project.client));
-    meta.appendChild(text);
-    if (project.year) meta.appendChild(el("span", "work-year", project.year));
-
-    btn.appendChild(thumb);
-    btn.appendChild(meta);
-    li.appendChild(btn);
-    li.style.transitionDelay = (index % 3) * 80 + "ms";
-    grid.appendChild(li);
-  });
-
-  /* Filters ---------------------------------------------------------------- */
-  var filterButtons = $$("[data-filter]");
-  filterButtons.forEach(function (button) {
-    button.addEventListener("click", function () {
-      var value = button.dataset.filter;
-      filterButtons.forEach(function (b) {
-        var active = b === button;
-        b.classList.toggle("is-active", active);
-        b.setAttribute("aria-selected", String(active));
-      });
-      var shown = 0;
-      $$(".work-card", grid).forEach(function (card) {
-        var match = value === "all" || card.dataset.category === value;
-        card.hidden = !match;
-        if (match) shown++;
-      });
-      empty.hidden = shown > 0;
-    });
-  });
-
-  /* Viewer ----------------------------------------------------------------- */
-  var viewer = $("[data-viewer]");
-  var viewerMedia = $("[data-viewer-media]");
-
+  /* Media embeds ----------------------------------------------------------- */
   function youtubeId(src) {
     var m = String(src).match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/);
     return m ? m[1] : src;
@@ -149,10 +121,10 @@
     var m = String(src).match(/vimeo\.com\/(?:video\/)?(\d+)/);
     return m ? m[1] : src;
   }
-
-  function iframe(src, className) {
+  function iframe(src, className, title) {
     var frame = document.createElement("iframe");
     frame.src = src;
+    frame.title = title;
     frame.loading = "lazy";
     frame.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
     frame.allowFullscreen = true;
@@ -160,23 +132,21 @@
     return frame;
   }
 
-  function buildMedia(project) {
+  function buildEmbed(project) {
     var media = project.media;
-    if (!media || !media.src) {
-      var wrap = makeCover(project);
-      wrap.appendChild(el("div", "viewer-placeholder", "Media coming soon"));
-      return wrap;
-    }
+    if (!media || !media.src) return null;
+    var title = project.title + " — player";
     switch (media.kind) {
       case "youtube":
-        return iframe("https://www.youtube-nocookie.com/embed/" + encodeURIComponent(youtubeId(media.src)) + "?rel=0");
+        return iframe("https://www.youtube-nocookie.com/embed/" + encodeURIComponent(youtubeId(media.src)) + "?rel=0", null, title);
       case "vimeo":
-        return iframe("https://player.vimeo.com/video/" + encodeURIComponent(vimeoId(media.src)));
+        return iframe("https://player.vimeo.com/video/" + encodeURIComponent(vimeoId(media.src)) + "?color=ff3b2f", null, title);
       case "soundcloud":
         return iframe("https://w.soundcloud.com/player/?url=" + encodeURIComponent(media.src) +
-          "&color=%23c8ff3d&visual=false&show_comments=false", "is-audio");
+          "&color=%23ff3b2f&visual=false&show_comments=false", "is-audio", title);
       case "spotify":
-        return iframe(String(media.src).replace("open.spotify.com/", "open.spotify.com/embed/"), "is-spotify");
+        return iframe(String(media.src).replace("open.spotify.com/", "open.spotify.com/embed/") +
+          (String(media.src).indexOf("?") === -1 ? "?theme=0" : ""), "is-spotify", title);
       case "audio":
         var audio = document.createElement("audio");
         audio.controls = true;
@@ -187,38 +157,141 @@
         video.controls = true;
         video.playsInline = true;
         video.src = media.src;
-        if (project.thumbnail) video.poster = project.thumbnail;
         return video;
-      case "image":
-        var img = document.createElement("img");
-        img.src = media.src;
-        img.alt = project.title;
-        return img;
       default:
-        return makeCover(project);
+        return null;
     }
   }
 
-  function openViewer(project) {
-    viewerMedia.replaceChildren(buildMedia(project));
-    $("[data-viewer-title]").textContent = project.title;
-    $("[data-viewer-meta]").textContent =
-      [project.type, project.client, project.year].filter(Boolean).join(" · ");
-    $("[data-viewer-desc]").textContent = project.description || "";
-    var tags = $("[data-viewer-tags]");
-    tags.replaceChildren();
-    (project.tags || []).forEach(function (t) { tags.appendChild(el("li", null, t)); });
-    viewer.showModal();
+  // Column spans (out of 12) for the gallery: varied sizes, top-aligned.
+  function spansFor(count) {
+    if (count === 1) return [8];
+    if (count === 2) return [5, 7];
+    if (count === 3) return [3, 5, 4];
+    var cycle = [3, 5, 4, 7, 5, 4, 8];
+    var out = [];
+    for (var i = 0; i < count; i++) out.push(cycle[i % cycle.length]);
+    return out;
   }
 
-  function closeViewer() { viewer.close(); }
-  // Stop playback when the viewer closes (Esc, button or backdrop).
-  viewer.addEventListener("close", function () { viewerMedia.replaceChildren(); });
-  $("[data-viewer-close]").addEventListener("click", closeViewer);
-  viewer.addEventListener("click", function (e) { if (e.target === viewer) closeViewer(); });
+  /* Work index ------------------------------------------------------------- */
+  var list = $("[data-work-list]");
+  var empty = $("[data-work-empty]");
+  var details = $("[data-work-details]");
+  var desc = $("[data-work-desc]");
+  var stage = $("[data-work-stage]");
+  var current = -1;
+
+  projects.forEach(function (project, index) {
+    project.slug = project.slug || slug(project.title);
+    var li = el("li");
+    li.dataset.category = project.category;
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.dataset.index = index;
+    btn.appendChild(el("span", "cat", project.category === "audio" ? "A" : "V"));
+    btn.appendChild(el("span", "title", project.title));
+    btn.appendChild(el("span", "year", project.year || ""));
+    btn.addEventListener("click", function () {
+      select(index, true);
+      if (narrow.matches) $("[data-work-info]").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    });
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+
+  function addDetail(term, value) {
+    if (!value) return;
+    var row = el("div");
+    row.appendChild(el("dt", null, term));
+    row.appendChild(el("dd", null, value));
+    details.appendChild(row);
+  }
+
+  function select(index, fromUser) {
+    var project = projects[index];
+    if (!project) return;
+    current = index;
+
+    $$("button", list).forEach(function (b) {
+      b.setAttribute("aria-current", String(Number(b.dataset.index) === index));
+    });
+
+    details.replaceChildren();
+    addDetail("Client", project.client);
+    addDetail("Year", project.year);
+    addDetail("Type", project.type);
+    addDetail("Discipline", project.category === "audio" ? "Audio" : "Visual");
+    addDetail("Role", project.role);
+    addDetail("Status", project.status);
+    desc.textContent = project.description || "";
+
+    stage.replaceChildren();
+    var embed = buildEmbed(project);
+    if (embed) {
+      var embedWrap = el("div", "stage-item stage-embed");
+      embedWrap.appendChild(embed);
+      stage.appendChild(embedWrap);
+    }
+
+    var images = (project.images || []).map(function (img) {
+      return typeof img === "string" ? { src: img } : img;
+    });
+    var count = images.length || 3;
+    var spans = spansFor(count);
+    for (var i = 0; i < count; i++) {
+      var fig = el("figure", "stage-item span-" + spans[i]);
+      if (images.length) {
+        var img = document.createElement("img");
+        img.src = images[i].src;
+        img.alt = images[i].alt || project.title;
+        img.loading = "lazy";
+        fig.appendChild(img);
+      } else {
+        fig.appendChild(makeCover(project, i));
+      }
+      stage.appendChild(fig);
+    }
+
+    if (fromUser && window.history.replaceState) {
+      window.history.replaceState(null, "", "#work/" + project.slug);
+    }
+  }
+
+  /* Filters ---------------------------------------------------------------- */
+  var filterButtons = $$("[data-filter]");
+  filterButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      var value = button.dataset.filter;
+      filterButtons.forEach(function (b) {
+        var active = b === button;
+        b.classList.toggle("is-active", active);
+        b.setAttribute("aria-pressed", String(active));
+      });
+      var firstVisible = -1;
+      $$("li", list).forEach(function (li, i) {
+        var match = value === "all" || li.dataset.category === value;
+        li.hidden = !match;
+        if (match && firstVisible === -1) firstVisible = i;
+      });
+      empty.hidden = firstVisible !== -1;
+      var currentVisible = current !== -1 && !$$("li", list)[current].hidden;
+      if (!currentVisible && firstVisible !== -1) select(firstVisible, true);
+    });
+  });
+
+  // Open a project from a shared link (#work/project-slug), else the first one.
+  var initial = 0;
+  var match = window.location.hash.match(/^#work\/(.+)$/);
+  if (match) {
+    projects.forEach(function (p, i) { if (p.slug === decodeURIComponent(match[1])) initial = i; });
+    window.addEventListener("load", function () { $("#work").scrollIntoView(); });
+  }
+  if (projects.length) select(initial, false);
+  else empty.hidden = false;
 
   /* Reveal on scroll ------------------------------------------------------- */
-  $$(".section-head, .about-grid, .service-group, .process li, .contact-grid").forEach(function (n) {
+  $$(".section-label, .statement, .studio-grid, .service-group, .process, .contact-headline, .contact-grid, .footer-mark").forEach(function (n) {
     n.classList.add("reveal");
   });
   var revealables = $$(".reveal");
@@ -232,7 +305,7 @@
           io.unobserve(entry.target);
         }
       });
-    }, { rootMargin: "0px 0px -10% 0px" });
+    }, { rootMargin: "0px 0px -8% 0px" });
     revealables.forEach(function (n) { io.observe(n); });
   }
 
@@ -270,5 +343,5 @@
       });
   });
 
-  $("[data-year]").textContent = new Date().getFullYear();
+  $$("[data-year]").forEach(function (n) { n.textContent = new Date().getFullYear(); });
 })();

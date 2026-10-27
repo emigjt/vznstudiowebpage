@@ -1,50 +1,54 @@
 /*
-  VZN Studios portfolio
-  ---------------------
-  Add, remove or reorder projects here. Items show on the site in this order.
+  VZN — Vision Studio Co. portfolio
+  ---------------------------------
+  Add, remove or reorder projects here. They appear in the "Selected Works"
+  list in this order; the first one is shown when the page loads.
 
   Fields
-    title        Project name.
-    category     "audio" or "visual" (drives the filter tabs).
-    type         Short label shown on the card, e.g. "Single", "Music Video".
-    year         Year as text.
+    title        Project name (shown in the list).
+    category     "audio" or "visual" (drives the filter).
+    type         e.g. "Single", "EP", "Music Video", "Photography".
+    year         Year as text, e.g. "2026" or "2025–ongoing".
     client       Artist / brand (optional).
-    description  One or two sentences shown in the viewer.
-    thumbnail    Path to an image in assets/media/thumbs/ (optional — a
-                 generated cover is used when empty).
-    tags         List of short labels (optional).
-    media        What plays/opens in the viewer (optional):
+    role         What VZN did, e.g. "Production, Mix, Master" (optional).
+    status       e.g. "Released", "Out soon" (optional).
+    description  A sentence or two about the project (optional).
+    images       Gallery shown beside the list, e.g.
+                   ["assets/media/my-project/cover.jpg", "assets/media/my-project/still-1.jpg"]
+                 Leave empty to show generated placeholder covers.
+    media        Player shown above the images (optional):
                    { kind: "youtube",    src: "VIDEO_ID or full URL" }
                    { kind: "vimeo",      src: "VIDEO_ID or full URL" }
                    { kind: "soundcloud", src: "https://soundcloud.com/artist/track" }
                    { kind: "spotify",    src: "https://open.spotify.com/track/..." }
                    { kind: "audio",      src: "assets/media/audio/file.mp3" }
                    { kind: "video",      src: "assets/media/file.mp4" }
-                   { kind: "image",      src: "assets/media/file.jpg" }
 
   The entries below are placeholders — replace them with real work.
 */
 window.VZN_PORTFOLIO = [
   {
-    title: "Project Title",
+    title: "Music Video Title",
     category: "visual",
     type: "Music Video",
     year: "2026",
     client: "Artist Name",
+    role: "Direction, Shoot, Edit, Colour",
+    status: "Released",
     description: "Placeholder — concept, direction, shoot and edit for a single release.",
-    thumbnail: "",
-    tags: ["Direction", "Edit", "Colour"],
+    images: [],
     media: null
   },
   {
-    title: "Track Title",
+    title: "Single Title",
     category: "audio",
     type: "Single",
     year: "2026",
     client: "Artist Name",
+    role: "Production, Mix, Master",
+    status: "Released",
     description: "Placeholder — production, mixing and mastering.",
-    thumbnail: "",
-    tags: ["Production", "Mix", "Master"],
+    images: [],
     media: null
   },
   {
@@ -53,9 +57,9 @@ window.VZN_PORTFOLIO = [
     type: "Photography",
     year: "2026",
     client: "Brand Name",
+    role: "Photography, Art Direction",
     description: "Placeholder — press photography and cover art.",
-    thumbnail: "",
-    tags: ["Photo", "Cover Art"],
+    images: [],
     media: null
   },
   {
@@ -64,9 +68,10 @@ window.VZN_PORTFOLIO = [
     type: "EP",
     year: "2025",
     client: "Artist Name",
+    role: "Production, Recording, Mix",
+    status: "Released",
     description: "Placeholder — five-track EP, produced and mixed in-house.",
-    thumbnail: "",
-    tags: ["Production", "Mix"],
+    images: [],
     media: null
   },
   {
@@ -75,20 +80,43 @@ window.VZN_PORTFOLIO = [
     type: "Short Film",
     year: "2025",
     client: "Brand Name",
+    role: "Direction, Edit, Original Score",
     description: "Placeholder — short brand film with original score.",
-    thumbnail: "",
-    tags: ["Film", "Score"],
+    images: [],
     media: null
   },
   {
-    title: "Sonic Logo",
+    title: "Sonic Identity",
     category: "audio",
     type: "Sound Design",
     year: "2025",
     client: "Brand Name",
-    description: "Placeholder — sonic branding and sound design package.",
-    thumbnail: "",
-    tags: ["Sound Design"],
+    role: "Sound Design, Sonic Branding",
+    description: "Placeholder — sonic logo and sound design package.",
+    images: [],
+    media: null
+  },
+  {
+    title: "Cover Art Series",
+    category: "visual",
+    type: "Art Direction",
+    year: "2025–ongoing",
+    client: "Artist Name",
+    role: "Cover Art, Visual Identity",
+    status: "Ongoing",
+    description: "Placeholder — cover art and visual identity across a release cycle.",
+    images: [],
+    media: null
+  },
+  {
+    title: "Live Session",
+    category: "audio",
+    type: "Recording",
+    year: "2024",
+    client: "Artist Name",
+    role: "Recording, Mix, Video",
+    description: "Placeholder — live session recorded and filmed in the studio.",
+    images: [],
     media: null
   }
 ];

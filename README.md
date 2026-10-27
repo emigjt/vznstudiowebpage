@@ -1,7 +1,13 @@
 # vznstudiowebpage
 Webpage for all things VZN studios and jozemi productions.
 
-A static, single-page portfolio and studio site. No build step: plain HTML, CSS and JavaScript.
+The site for **VZN — Vision Studio Co.**: a single-page portfolio and studio site.
+No build step: plain HTML, CSS and JavaScript.
+
+Design direction: black and bone like the ink logo, one red signal accent, a condensed
+serif (Instrument Serif) for display type and a monospace (IBM Plex Mono) for everything
+else. The work section is an index — a list of projects with a details table and a
+gallery of varied-size images beside it.
 
 ## Preview locally
 
@@ -13,26 +19,33 @@ python3 -m http.server 8000
 ## Structure
 
 ```
-index.html              Page content: hero, work, about, services, process, contact
+index.html              Page content: hero, work, studio, services, contact
 data/portfolio.js       Portfolio entries (edit this to add work)
 assets/css/styles.css   All styles; brand colours and fonts live in :root at the top
-assets/js/main.js       Portfolio grid, filters, viewer, nav, contact form
-assets/brand/           Logo, favicon, social share image
-assets/media/           Your thumbnails, audio and video files
+assets/js/main.js       Work index, filters, gallery/players, nav, contact form
+assets/brand/           Logo (traced SVG, white/black), favicon, social share image
+assets/brand/source/    Original logo file
+assets/media/           Your project images, audio and video files
 ```
 
 ## Adding work
 
-Open `data/portfolio.js` and add an entry. Each entry can point to a YouTube, Vimeo,
-SoundCloud or Spotify link, or to an audio, video or image file in `assets/media/`.
-The field reference is at the top of that file. Projects without a thumbnail get a
-generated cover automatically.
+1. Put the project's images in a folder such as `assets/media/project-name/`.
+2. Open `data/portfolio.js` and add an entry: title, client, year, type, role, the list
+   of images, and optionally a YouTube, Vimeo, SoundCloud, Spotify or local audio/video
+   player. The field reference is at the top of that file.
+
+Projects without images get generated placeholder covers. Each project has its own
+shareable link, e.g. `/#work/project-name`.
 
 ## Rebranding
 
 - **Colours and fonts:** edit the variables at the top of `assets/css/styles.css`.
-- **Logo:** replace `assets/brand/logo.svg` and `assets/brand/favicon.svg`.
-- **Social preview:** replace `assets/brand/og-image.svg` with a 1200×630 image.
+- **Logo:** `assets/brand/logo-white.svg` is used on the site (`logo-black.svg` for light
+  backgrounds, `logo.svg` takes the surrounding text colour when inlined).
+- **Hero image/reel:** add an `<img>` or `<video>` inside `.hero-media` in `index.html`;
+  it is shown desaturated behind the headline.
+- **Social preview:** `assets/brand/og-image.png` (1200×630).
 
 ## Contact form
 

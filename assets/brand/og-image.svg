@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
-  <!-- Placeholder social share image. Replace with a 1200x630 PNG/JPG of your brand and update the og:image tag. -->
-  <rect width="1200" height="630" fill="#0b0b0d"/>
-  <rect x="80" y="80" width="120" height="120" rx="26" fill="#c8ff3d"/>
-  <path d="M108 118h13l19 42 19-42h13l-26 56h-12z" fill="#0b0b0d"/>
-  <text x="80" y="420" fill="#f3f2ef" font-family="Helvetica, Arial, sans-serif" font-size="120" font-weight="700">VZN Studios</text>
-  <text x="84" y="500" fill="#9b9aa3" font-family="Helvetica, Arial, sans-serif" font-size="40">Audio · Visual · Creative Direction</text>
-</svg>

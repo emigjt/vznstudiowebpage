@@ -3,238 +3,219 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>VZN Studios — Audio &amp; Visual Production</title>
-  <meta name="description" content="VZN Studios is a creative studio producing music, sound, film and visual work. Explore the portfolio and services.">
-  <meta name="theme-color" content="#0b0b0d">
+  <title>VZN — Vision Studio Co. | Audio &amp; Visual Production</title>
+  <meta name="description" content="VZN (Vision Studio Co.) is a creative studio producing music, sound, film and visual work. Explore the portfolio and services.">
+  <meta name="theme-color" content="#000000">
 
-  <meta property="og:title" content="VZN Studios — Audio &amp; Visual Production">
-  <meta property="og:description" content="Music, sound, film and visual work from VZN Studios.">
+  <meta property="og:title" content="VZN — Vision Studio Co.">
+  <meta property="og:description" content="Music, sound, film and visual work from Vision Studio Co.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="assets/brand/og-image.svg">
+  <meta property="og:image" content="assets/brand/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/brand/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
+  <link rel="preload" href="assets/brand/logo-white.svg" as="image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
+  <div class="grain" aria-hidden="true"></div>
 
   <header class="site-header" data-header>
-    <div class="container header-inner">
-      <a class="brand" href="#top" aria-label="VZN Studios home">
-        <img src="assets/brand/logo.svg" alt="" width="36" height="36">
-        <span class="brand-name">VZN <span class="brand-sub">Studios</span></span>
-      </a>
+    <a class="brand" href="#top" aria-label="Vision Studio Co. — home">
+      <img src="assets/brand/logo-white.svg" alt="" width="1075" height="1056">
+    </a>
+    <p class="header-blurb">
+      Vision Studio Co. (VZN) — an independent studio for sound
+      and picture. Records, films and visual worlds.
+    </p>
+    <p class="header-contact">
+      <a href="mailto:hello@vznstudios.com" data-contact-email>hello@vznstudios.com</a><br>
+      Booking new projects
+    </p>
 
-      <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>
-        <span class="sr-only">Menu</span>
-        <span class="nav-toggle-bar"></span>
-        <span class="nav-toggle-bar"></span>
-      </button>
-
-      <nav id="site-nav" class="site-nav" data-nav>
-        <a href="#work">Work</a>
-        <a href="#about">About</a>
-        <a href="#services">Services</a>
-        <a href="#process">Process</a>
-        <a class="btn btn-small" href="#contact">Start a project</a>
-      </nav>
-    </div>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>Menu</button>
+    <nav id="site-nav" class="site-nav" data-nav>
+      <a href="#work">Work</a>
+      <a href="#studio">Studio</a>
+      <a href="#services">Services</a>
+      <a href="#contact">Contact</a>
+    </nav>
   </header>
 
   <main id="main">
     <!-- HERO -->
     <section class="hero" id="top">
-      <div class="container hero-inner">
-        <p class="eyebrow">Audio · Visual · Creative Direction</p>
-        <h1 class="hero-title">
-          Sound you can see.<br>
-          <span class="accent-text">Vision you can hear.</span>
-        </h1>
-        <p class="hero-lede">
-          VZN Studios is a creative studio building records, films and visual
-          identities from the first idea to the final master.
-        </p>
-        <div class="hero-actions">
-          <a class="btn" href="#work">View the work</a>
-          <a class="btn btn-ghost" href="#services">What we do</a>
-        </div>
-      </div>
-      <div class="hero-visual" aria-hidden="true" data-eq></div>
-    </section>
+      <!-- Optional: drop a studio photo or reel here, e.g.
+           <img src="assets/media/hero.jpg" alt="">  or
+           <video src="assets/media/reel.mp4" autoplay muted loop playsinline></video>
+           It is shown desaturated behind the headline. -->
+      <div class="hero-media" aria-hidden="true"></div>
 
-    <!-- MARQUEE -->
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee-track">
-        <span>Music Production</span><span>Mixing &amp; Mastering</span><span>Sound Design</span>
-        <span>Music Videos</span><span>Photography</span><span>Creative Direction</span>
-        <span>Music Production</span><span>Mixing &amp; Mastering</span><span>Sound Design</span>
-        <span>Music Videos</span><span>Photography</span><span>Creative Direction</span>
+      <div class="hero-content">
+        <img class="hero-mark" data-parallax src="assets/brand/logo-white.svg"
+             alt="VZN logo — an ink-drawn eye with the letters VZN" width="1075" height="1056">
+        <h1 class="hero-title">
+          <span class="line"><span>Sound you can see,</span></span>
+          <span class="line"><span><em>vision</em> you can hear</span></span>
+        </h1>
+        <ul class="hero-links">
+          <li><a href="#work">Work</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
       </div>
-    </div>
+
+      <p class="hero-foot"><span>Audio</span><span>©<span data-year></span></span><span>Visual</span></p>
+    </section>
 
     <!-- WORK -->
-    <section class="section" id="work">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Portfolio</p>
-            <h2 class="section-title">Selected work</h2>
-          </div>
-          <div class="filters" role="tablist" aria-label="Filter work" data-filters>
-            <button class="filter is-active" role="tab" aria-selected="true" data-filter="all">All</button>
-            <button class="filter" role="tab" aria-selected="false" data-filter="audio">Audio</button>
-            <button class="filter" role="tab" aria-selected="false" data-filter="visual">Visual</button>
+    <section class="work" id="work">
+      <div class="work-index">
+        <div class="work-head">
+          <h2 class="mono-title">Selected Works</h2>
+          <div class="filters" role="group" aria-label="Filter work" data-filters>
+            <button class="filter is-active" aria-pressed="true" data-filter="all">All</button>
+            <button class="filter" aria-pressed="false" data-filter="audio">Audio</button>
+            <button class="filter" aria-pressed="false" data-filter="visual">Visual</button>
           </div>
         </div>
 
-        <ul class="work-grid" data-work-grid></ul>
+        <ol class="work-list" data-work-list></ol>
         <p class="work-empty" data-work-empty hidden>No projects in this category yet.</p>
+
+        <div class="work-info" data-work-info aria-live="polite">
+          <dl class="details" data-work-details></dl>
+          <p class="work-desc" data-work-desc></p>
+        </div>
       </div>
+
+      <div class="work-stage" data-work-stage aria-live="polite"></div>
     </section>
 
-    <!-- ABOUT -->
-    <section class="section section-alt" id="about">
-      <div class="container about-grid">
-        <div>
-          <p class="eyebrow">About</p>
-          <h2 class="section-title">One studio for the sound and the picture.</h2>
-        </div>
-        <div class="about-copy">
+    <!-- STUDIO -->
+    <section class="section studio" id="studio">
+      <p class="mono-title section-label">Studio</p>
+      <p class="statement">
+        One studio for the sound <em>and</em> the picture
+      </p>
+
+      <div class="studio-grid">
+        <div class="studio-copy">
           <p>
-            VZN Studios brings audio and visual production under one roof. Instead of
-            handing a project between a producer, an engineer, a videographer and a
-            designer who never talk to each other, we build the whole thing together —
-            so the record, the video and the artwork all feel like the same idea.
+            VZN — Vision Studio Co. — builds the record, the video and the
+            artwork together, so every piece of a release feels like the same idea.
+            No hand-offs between people who never talk; one creative direction from
+            the first session to the final export.
           </p>
           <p>
-            We work with artists, brands and creators who care about how their work
-            looks <em>and</em> sounds, from a single track to a full release campaign.
+            We work with artists, labels, brands and creators who care how their
+            work looks <em>and</em> sounds — from a single track to a full release
+            campaign.
           </p>
-          <ul class="pillars">
-            <li><strong>Vision first.</strong> Every project starts with the story, not the gear.</li>
-            <li><strong>In-house.</strong> Audio and visual teams share one creative direction.</li>
-            <li><strong>Release-ready.</strong> Deliverables formatted for streaming, social and broadcast.</li>
-          </ul>
         </div>
+        <dl class="details">
+          <div><dt>Studio</dt><dd>Vision Studio Co. (VZN)</dd></div>
+          <div><dt>Practice</dt><dd>Audio / Visual</dd></div>
+          <div><dt>Disciplines</dt><dd>Production, Recording, Mixing, Mastering, Sound Design, Film, Photography, Art Direction</dd></div>
+          <div><dt>Clients</dt><dd>Artists, Labels, Brands, Creators</dd></div>
+          <div><dt>Status</dt><dd><span class="pulse" aria-hidden="true"></span>Booking new projects</dd></div>
+        </dl>
       </div>
     </section>
 
     <!-- SERVICES -->
     <section class="section" id="services">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Services</p>
-            <h2 class="section-title">What we make</h2>
-          </div>
+      <p class="mono-title section-label">Services</p>
+
+      <div class="services">
+        <div class="service-group">
+          <h2 class="service-group-title">Audio</h2>
+          <ol class="service-list">
+            <li class="service">
+              <span class="service-num">A.01</span>
+              <h3>Music Production</h3>
+              <p>Beats, arrangements and full productions built around your sound, from demo to finished record.</p>
+            </li>
+            <li class="service">
+              <span class="service-num">A.02</span>
+              <h3>Recording</h3>
+              <p>Vocal and instrument tracking with direction to get the take that carries the song.</p>
+            </li>
+            <li class="service">
+              <span class="service-num">A.03</span>
+              <h3>Mixing &amp; Mastering</h3>
+              <p>Balanced, loud and clear mixes, mastered for streaming, radio and vinyl.</p>
+            </li>
+            <li class="service">
+              <span class="service-num">A.04</span>
+              <h3>Sound Design &amp; Scoring</h3>
+              <p>Original music, foley and sonic branding for film, ads, games and content.</p>
+            </li>
+          </ol>
         </div>
 
-        <div class="services">
-          <div class="service-group">
-            <h3 class="service-group-title"><span class="dot dot-audio"></span>Audio</h3>
-            <ul class="service-list">
-              <li class="service">
-                <h4>Music Production</h4>
-                <p>Beats, arrangements and full productions built around your sound, from demo to finished record.</p>
-              </li>
-              <li class="service">
-                <h4>Recording</h4>
-                <p>Vocal and instrument tracking with direction to get the take that carries the song.</p>
-              </li>
-              <li class="service">
-                <h4>Mixing &amp; Mastering</h4>
-                <p>Balanced, loud and clear mixes, mastered for streaming platforms, radio and vinyl.</p>
-              </li>
-              <li class="service">
-                <h4>Sound Design &amp; Scoring</h4>
-                <p>Original music, foley and sonic branding for film, ads, games and content.</p>
-              </li>
-            </ul>
-          </div>
-
-          <div class="service-group">
-            <h3 class="service-group-title"><span class="dot dot-visual"></span>Visual</h3>
-            <ul class="service-list">
-              <li class="service">
-                <h4>Music Videos</h4>
-                <p>Concept, shoot, edit and colour — videos that extend the world of the record.</p>
-              </li>
-              <li class="service">
-                <h4>Photography</h4>
-                <p>Press shots, cover art photography, behind-the-scenes and event coverage.</p>
-              </li>
-              <li class="service">
-                <h4>Short-form Content</h4>
-                <p>Visualizers, teasers and social cuts sized for every platform in your rollout.</p>
-              </li>
-              <li class="service">
-                <h4>Creative Direction &amp; Branding</h4>
-                <p>Cover art, logos and visual identity that tie a release or brand together.</p>
-              </li>
-            </ul>
-          </div>
+        <div class="service-group">
+          <h2 class="service-group-title">Visual</h2>
+          <ol class="service-list">
+            <li class="service">
+              <span class="service-num">V.01</span>
+              <h3>Music Videos</h3>
+              <p>Concept, shoot, edit and colour — videos that extend the world of the record.</p>
+            </li>
+            <li class="service">
+              <span class="service-num">V.02</span>
+              <h3>Photography</h3>
+              <p>Press shots, cover art photography, behind-the-scenes and event coverage.</p>
+            </li>
+            <li class="service">
+              <span class="service-num">V.03</span>
+              <h3>Short-form Content</h3>
+              <p>Visualizers, teasers and social cuts sized for every platform in your rollout.</p>
+            </li>
+            <li class="service">
+              <span class="service-num">V.04</span>
+              <h3>Creative Direction &amp; Branding</h3>
+              <p>Cover art, logos and visual identity that tie a release or brand together.</p>
+            </li>
+          </ol>
         </div>
       </div>
-    </section>
 
-    <!-- PROCESS -->
-    <section class="section section-alt" id="process">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Process</p>
-            <h2 class="section-title">How a project runs</h2>
-          </div>
-        </div>
-        <ol class="process">
-          <li>
-            <span class="process-num">01</span>
-            <h3>Discover</h3>
-            <p>We talk through the idea, references, audience and timeline, then send a scope and quote.</p>
-          </li>
-          <li>
-            <span class="process-num">02</span>
-            <h3>Create</h3>
-            <p>Production, shoots and sessions — with check-ins so you hear and see progress as it happens.</p>
-          </li>
-          <li>
-            <span class="process-num">03</span>
-            <h3>Refine</h3>
-            <p>Revision rounds on mixes, edits and artwork until every piece feels finished.</p>
-          </li>
-          <li>
-            <span class="process-num">04</span>
-            <h3>Release</h3>
-            <p>Final masters and exports delivered in every format you need for launch.</p>
-          </li>
-        </ol>
-      </div>
+      <ol class="process" aria-label="How a project runs">
+        <li><span class="mono-title">01 — Discover</span><p>Idea, references, audience and timeline. You get a scope and quote.</p></li>
+        <li><span class="mono-title">02 — Create</span><p>Sessions and shoots, with check-ins so you hear and see progress.</p></li>
+        <li><span class="mono-title">03 — Refine</span><p>Revision rounds on mixes, edits and artwork until it feels finished.</p></li>
+        <li><span class="mono-title">04 — Release</span><p>Masters and exports in every format you need for launch.</p></li>
+      </ol>
     </section>
 
     <!-- CONTACT -->
-    <section class="section" id="contact">
-      <div class="container contact-grid">
+    <section class="section contact" id="contact">
+      <p class="mono-title section-label">Contact</p>
+      <p class="contact-headline">Got a <em>vision?</em></p>
+      <a class="contact-email" href="mailto:hello@vznstudios.com">hello@vznstudios.com</a>
+
+      <div class="contact-grid">
         <div>
-          <p class="eyebrow">Contact</p>
-          <h2 class="section-title">Have something in mind?</h2>
           <p class="contact-lede">
-            Tell us about the project — what it is, when you need it, and any
-            references you love. We'll get back to you with next steps.
+            Tell us what you're making, when you need it, and any references
+            you love. We'll come back with next steps.
           </p>
-          <ul class="contact-links">
-            <li><a href="mailto:hello@vznstudios.com" data-contact-email>hello@vznstudios.com</a></li>
-            <li><a href="https://instagram.com/" target="_blank" rel="noopener">Instagram</a></li>
-            <li><a href="https://youtube.com/" target="_blank" rel="noopener">YouTube</a></li>
-            <li><a href="https://soundcloud.com/" target="_blank" rel="noopener">SoundCloud</a></li>
-          </ul>
+          <dl class="details">
+            <div><dt>Instagram</dt><dd><a href="https://instagram.com/" target="_blank" rel="noopener">Follow ↗</a></dd></div>
+            <div><dt>YouTube</dt><dd><a href="https://youtube.com/" target="_blank" rel="noopener">Watch ↗</a></dd></div>
+            <div><dt>SoundCloud</dt><dd><a href="https://soundcloud.com/" target="_blank" rel="noopener">Listen ↗</a></dd></div>
+          </dl>
         </div>
 
         <!--
-          The form posts to Formspree (free tier) once you add your form ID below.
-          Until then it falls back to opening the visitor's email app.
+          The form posts to Formspree (free tier) once you add your form endpoint
+          in assets/js/main.js. Until then it falls back to the visitor's email app.
         -->
         <form class="contact-form" data-contact-form action="" method="POST">
           <div class="field">
@@ -246,7 +227,7 @@
             <input id="email" name="email" type="email" autocomplete="email" required>
           </div>
           <div class="field">
-            <label for="service">What do you need?</label>
+            <label for="service">Service</label>
             <select id="service" name="service">
               <option>Music production</option>
               <option>Recording</option>
@@ -260,10 +241,10 @@
             </select>
           </div>
           <div class="field">
-            <label for="message">Project details</label>
-            <textarea id="message" name="message" rows="5" required></textarea>
+            <label for="message">Project</label>
+            <textarea id="message" name="message" rows="4" required></textarea>
           </div>
-          <button class="btn" type="submit">Send message</button>
+          <button class="btn" type="submit">Send [→]</button>
           <p class="form-status" data-form-status role="status" aria-live="polite"></p>
         </form>
       </div>
@@ -271,25 +252,13 @@
   </main>
 
   <footer class="site-footer">
-    <div class="container footer-inner">
-      <p>&copy; <span data-year></span> VZN Studios. All rights reserved.</p>
-      <a href="#top">Back to top ↑</a>
+    <img class="footer-mark" src="assets/brand/logo-white.svg" alt="" width="1075" height="1056">
+    <div class="footer-row">
+      <span>© <span data-year></span> Vision Studio Co.</span>
+      <span>Audio / Visual</span>
+      <a href="#top">Back to top [↑]</a>
     </div>
   </footer>
-
-  <!-- Project viewer -->
-  <dialog class="viewer" data-viewer aria-labelledby="viewer-title">
-    <div class="viewer-inner">
-      <button class="viewer-close" data-viewer-close aria-label="Close">×</button>
-      <div class="viewer-media" data-viewer-media></div>
-      <div class="viewer-body">
-        <p class="eyebrow" data-viewer-meta></p>
-        <h3 id="viewer-title" data-viewer-title></h3>
-        <p data-viewer-desc></p>
-        <ul class="tags" data-viewer-tags></ul>
-      </div>
-    </div>
-  </dialog>
 
   <script src="data/portfolio.js"></script>
   <script src="assets/js/main.js"></script>
