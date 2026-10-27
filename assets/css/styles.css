@@ -35,13 +35,13 @@
      headline; scrolling fades the headline out and brings the logo into focus.
      1 = on, 0 = off (the logo then sits above the headline, as before). */
   --logo-fx: 1;
-  --fx-rest: 0.22;            /* logo visibility behind the headline */
-  --fx-blur: 21px;            /* blur while behind the headline */
+  --fx-rest: 0.2;             /* logo visibility behind the headline */
+  --fx-blur: 20px;            /* blur while behind the headline */
   --fx-distort: 10;           /* ink warp while behind the headline */
   --fx-ghost: 0.06;           /* double-exposure ghost strength */
   --fx-offset: 3px;           /* ghost spread */
   --fx-scroll: 50svh;         /* scroll distance over which the reveal happens */
-  --fx-hold: 75svh;           /* extra scrolling with the logo held in place before the page moves on */
+  --fx-hold: 50svh;           /* extra scrolling with the logo held in place before the page moves on */
   --fx-mark-x: 0vw;           /* logo position from screen centre: + right, - left */
   --fx-mark-y: -8.5svh;       /* logo position from screen centre: + down, - up */
   --grain: 0.3;               /* film grain strength */
