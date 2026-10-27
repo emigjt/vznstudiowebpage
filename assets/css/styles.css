@@ -41,6 +41,7 @@
   --fx-ghost: 0.06;           /* double-exposure ghost strength */
   --fx-offset: 3px;           /* ghost spread */
   --fx-scroll: 50svh;         /* scroll distance over which the reveal happens */
+  --fx-hold: 75svh;           /* extra scrolling with the logo held in place before the page moves on */
   --fx-mark-x: 0vw;           /* logo position from screen centre: + right, - left */
   --fx-mark-y: -8.5svh;       /* logo position from screen centre: + down, - up */
   --grain: 0.3;               /* film grain strength */
@@ -243,7 +244,7 @@ em { font-style: italic; }
 
 /* Scroll reveal (logo-fx.js adds .fx-on to <html> when --logo-fx is 1): the hero
    holds in place while the headline fades and the logo behind it sharpens. */
-.fx-on .hero { height: calc(100svh + var(--fx-scroll)); }
+.fx-on .hero { height: calc(100svh + var(--fx-scroll) + var(--fx-hold)); }
 .fx-on .hero-stage { position: sticky; top: 0; height: 100svh; min-height: 0; }
 .fx-on .hero-content { position: static; }   /* so the logo centres on the screen, not the text block */
 .fx-on .hero-mark {

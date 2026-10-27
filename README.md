@@ -66,6 +66,8 @@ It lives in `assets/js/logo-fx.js` and is controlled from `:root` in
   above the headline.
 - `--fx-rest`, `--fx-blur`, `--fx-distort`, `--fx-ghost`, `--fx-offset` and
   `--fx-scroll` set how it looks behind the text and how much scrolling the reveal takes.
+- `--fx-hold` is how much further the visitor scrolls with the revealed logo held in
+  place before the page moves on, so it isn't skipped by accident.
 - `--mark-scale` sets the logo size; `--fx-mark-y` and `--fx-mark-x` move it from the
   centre of the screen (negative = up / left).
 

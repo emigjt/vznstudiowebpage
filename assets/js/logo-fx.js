@@ -66,9 +66,18 @@
   function px(v) { return v.toFixed(2) + "px"; }
 
   // 0 at the top of the page, 1 once the reveal distance has been scrolled.
+  // Measures --fx-scroll in pixels. The hero is taller than that (by --fx-hold), so
+  // once the reveal completes the logo stays pinned until the hold is scrolled past.
+  var revealProbe = document.createElement("div");
+  revealProbe.setAttribute("aria-hidden", "true");
+  revealProbe.style.cssText = "position:absolute;top:0;left:0;width:0;height:var(--fx-scroll);visibility:hidden;pointer-events:none";
+  hero.appendChild(revealProbe);
+
   function progress() {
-    var travel = hero.offsetHeight - window.innerHeight;
-    return travel > 0 ? clamp01(-hero.getBoundingClientRect().top / travel) : 0;
+    var scrolled = -hero.getBoundingClientRect().top;
+    var reveal = revealProbe.offsetHeight;
+    if (reveal <= 0) return scrolled > 0 ? 1 : 0;
+    return clamp01(scrolled / reveal);
   }
 
   function update() {

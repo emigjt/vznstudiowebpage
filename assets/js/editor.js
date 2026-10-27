@@ -80,7 +80,8 @@
     { key: "--fx-distort", label: "Ink warp", type: "range", min: 0, max: 60, step: 1, unit: "" },
     { key: "--fx-ghost", label: "Ghosts", type: "range", min: 0, max: 1, step: 0.01, unit: "", fmt: pct },
     { key: "--fx-offset", label: "Ghost spread", type: "range", min: 0, max: 40, step: 1, unit: "px" },
-    { key: "--fx-scroll", label: "Scroll distance to reveal", type: "range", min: 30, max: 200, step: 5, unit: "svh", fmt: function (v) { return Math.round(v) + "% of screen"; } }
+    { key: "--fx-scroll", label: "Scroll distance to reveal", type: "range", min: 30, max: 200, step: 5, unit: "svh", fmt: function (v) { return Math.round(v) + "% of screen"; } },
+    { key: "--fx-hold", label: "Hold after reveal", type: "range", min: 0, max: 200, step: 5, unit: "svh", fmt: function (v) { return Math.round(v) + "% of screen"; } }
   ];
 
   // Text you can click and retype while "Edit text" is on. Project entries come
