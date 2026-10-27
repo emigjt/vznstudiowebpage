@@ -7,30 +7,30 @@
   /* Colour: black and bone like the ink logo, plus one signal accent */
   --bg: #000000;
   --surface: #0d0d0d;
-  --line: #1f1f1f;
-  --line-strong: #383838;
+  --line: #444444;
+  --line-strong: #606060;
   --text: #e8e7e3;
   --muted: #7c7b78;
   --accent: #ff3b2f;          /* active project, hovers, status dot */
   color-scheme: dark;
 
-  /* Type: condensed serif for display, monospace for everything else */
-  --font-serif: "Instrument Serif", "Times New Roman", serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
-  --text-size: 0.875rem;      /* body / UI text */
-  --display-scale: 1;         /* multiplies every big serif headline */
-  --display-leading: 1;       /* multiplies headline line spacing */
-  --display-tracking: -0.025em;
+  /* Type: serif for display, clean sans for everything else */
+  --font-serif: "Playfair Display", "Times New Roman", serif;
+  --font-mono: "Inter Tight", "Helvetica Neue", Arial, sans-serif;  /* body / UI font */
+  --text-size: 0.9rem;        /* body / UI text */
+  --display-scale: 0.84;      /* multiplies every big serif headline */
+  --display-leading: 1.16;    /* multiplies headline line spacing */
+  --display-tracking: -0.015em;
   --display-weight: 400;
   --display-case: none;       /* none | uppercase | lowercase */
 
   /* Layout */
-  --pad: clamp(12px, 1.6vw, 24px);
+  --pad: clamp(16px, 3.5vw, 50px);
   --header-h: 88px;
-  --section-pad: clamp(96px, 13vw, 200px);
+  --section-pad: clamp(64px, 7vw, 100px);
   --ease: cubic-bezier(.2, .7, .1, 1);
-  --mark-scale: 1;            /* hero logo size */
-  --grain: 0.06;              /* film grain strength */
+  --mark-scale: 1.45;         /* hero logo size */
+  --grain: 0.3;               /* film grain strength */
 }
 
 /* Base ------------------------------------------------------------------- */

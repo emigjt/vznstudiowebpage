@@ -4,9 +4,8 @@ Webpage for all things VZN studios and jozemi productions.
 The site for **VZN — Vision Studio Co.**: a single-page portfolio and studio site.
 No build step: plain HTML, CSS and JavaScript.
 
-Design direction: black and bone like the ink logo, one red signal accent, a condensed
-serif (Instrument Serif) for display type and a monospace (IBM Plex Mono) for everything
-else. The work section is an index — a list of projects with a details table and a
+Design direction: black and bone like the ink logo, one red signal accent, a serif
+(Playfair Display) for display type and a clean sans (Inter Tight) for everything else. The work section is an index — a list of projects with a details table and a
 gallery of varied-size images beside it.
 
 ## Preview locally
