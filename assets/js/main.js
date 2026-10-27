@@ -345,8 +345,8 @@
 
   $$("[data-year]").forEach(function (n) { n.textContent = new Date().getFullYear(); });
 
-  /* Edit mode: open the page with ?edit to load the design panel ----------- */
-  if (/[?&]edit(?:[=&]|$)/.test(window.location.search)) {
+  /* Edit mode: open the page with ?edit (or #edit) to load the design panel */
+  if (/[?&]edit(?:[=&]|$)/.test(window.location.search) || window.location.hash === "#edit") {
     var editorCss = document.createElement("link");
     editorCss.rel = "stylesheet";
     editorCss.href = "assets/css/editor.css";

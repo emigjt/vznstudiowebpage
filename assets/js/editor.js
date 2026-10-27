@@ -8,6 +8,8 @@
 */
 (function () {
   "use strict";
+  if (window.__vznEditor) return;
+  window.__vznEditor = true;
 
   var STORE_KEY = "vzn-edit-v1";
   var root = document.documentElement;
@@ -292,8 +294,17 @@
   textBtn.addEventListener("click", function () { setTextEditing(!editingText); });
   setTextEditing(false);
 
+  // Two clicks to reset, so nothing is lost by accident.
+  var resetArmed = null;
   resetBtn.addEventListener("click", function () {
-    if (!window.confirm("Reset all colours, fonts, sizes and text back to the original?")) return;
+    if (!resetArmed) {
+      resetBtn.textContent = "Click again to reset";
+      resetArmed = window.setTimeout(function () { resetArmed = null; resetBtn.textContent = "Reset all"; }, 3000);
+      return;
+    }
+    window.clearTimeout(resetArmed);
+    resetArmed = null;
+    resetBtn.textContent = "Reset all";
     Object.keys(state.vars).forEach(function (k) { applyVar(k, null); });
     editables.forEach(function (node, i) { node.innerHTML = originals[i]; });
     state.vars = {};
@@ -312,7 +323,8 @@
     var params = new URLSearchParams(window.location.search);
     params.delete("edit");
     var q = params.toString();
-    return window.location.pathname + (q ? "?" + q : "") + window.location.hash;
+    var hash = window.location.hash === "#edit" ? "" : window.location.hash;
+    return window.location.pathname + (q ? "?" + q : "") + hash;
   }
 
   function describe(node) {
@@ -354,11 +366,10 @@
   var summaryBox = h("textarea", { readonly: "", rows: "14", "aria-label": "Changes summary" });
   var dialogStatus = h("span", { class: "vzn-dialog-status" });
   var copyAgain = h("button", { type: "button", class: "vzn-btn vzn-primary", text: "Copy" });
-  var downloadBtn = h("button", { type: "button", class: "vzn-btn", text: "Download .txt" });
   var closeBtn = h("button", { type: "button", class: "vzn-btn", text: "Close" });
   dialog.appendChild(h("p", { class: "vzn-dialog-title", text: "Your changes" }));
   dialog.appendChild(summaryBox);
-  dialog.appendChild(h("div", { class: "vzn-actions" }, [copyAgain, downloadBtn, closeBtn, dialogStatus]));
+  dialog.appendChild(h("div", { class: "vzn-actions" }, [copyAgain, closeBtn, dialogStatus]));
   document.body.appendChild(dialog);
 
   function copySummary() {
@@ -382,13 +393,6 @@
     copySummary();
   });
   copyAgain.addEventListener("click", copySummary);
-  downloadBtn.addEventListener("click", function () {
-    var blob = new Blob([summaryBox.value], { type: "text/plain" });
-    var a = h("a", { href: URL.createObjectURL(blob), download: "vzn-changes.txt" });
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  });
   closeBtn.addEventListener("click", function () { dialog.close(); });
 
   /* Collapse / count ------------------------------------------------------- */

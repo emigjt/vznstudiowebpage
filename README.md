@@ -40,7 +40,7 @@ shareable link, e.g. `/#work/project-name`.
 
 ## Edit mode
 
-Open the site with `?edit` on the end of the address (e.g. `http://localhost:8000/?edit`)
+Open the site with `?edit` (or `#edit`) on the end of the address (e.g. `http://localhost:8000/?edit`)
 to get a design panel on the live page:
 
 - colour pickers for the background, text, accent and lines

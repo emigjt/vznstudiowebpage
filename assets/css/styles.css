@@ -12,6 +12,7 @@
   --text: #e8e7e3;
   --muted: #7c7b78;
   --accent: #ff3b2f;          /* active project, hovers, status dot */
+  color-scheme: dark;
 
   /* Type: condensed serif for display, monospace for everything else */
   --font-serif: "Instrument Serif", "Times New Roman", serif;
