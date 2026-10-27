@@ -17,7 +17,7 @@
   /* Type: serif for display, clean sans for everything else */
   --font-serif: "Playfair Display", "Times New Roman", serif;
   --font-mono: "Inter Tight", "Helvetica Neue", Arial, sans-serif;  /* body / UI font */
-  --text-size: 0.9rem;        /* body / UI text */
+  --text-size: 1.125rem;     /* body / UI text */
   --display-scale: 0.84;      /* multiplies every big serif headline */
   --display-leading: 1.16;    /* multiplies headline line spacing */
   --display-tracking: -0.015em;
@@ -29,7 +29,7 @@
   --header-h: 88px;
   --section-pad: clamp(64px, 7vw, 100px);
   --ease: cubic-bezier(.2, .7, .1, 1);
-  --mark-scale: 1.45;         /* hero logo size */
+  --mark-scale: 1.56;         /* hero logo size */
 
   /* Hero logo scroll reveal: the logo rests faint and blurred behind the
      headline; scrolling fades the headline out and brings the logo into focus.
@@ -42,7 +42,7 @@
   --fx-offset: 3px;           /* ghost spread */
   --fx-scroll: 50svh;         /* scroll distance over which the reveal happens */
   --fx-mark-x: 0vw;           /* logo position from screen centre: + right, - left */
-  --fx-mark-y: 0svh;          /* logo position from screen centre: + down, - up */
+  --fx-mark-y: -8.5svh;       /* logo position from screen centre: + down, - up */
   --grain: 0.3;               /* film grain strength */
 }
 
@@ -132,10 +132,14 @@ em { font-style: italic; }
   color: inherit; font: inherit; text-transform: uppercase; cursor: pointer;
 }
 
-@media (max-width: 1080px) {
+/* Hide the email column early so the blurb keeps the width its line breaks need */
+@media (max-width: 1280px) {
   .header-contact { display: none; }
   .site-header { grid-template-columns: auto minmax(0, 30ch) 1fr auto; }
   .site-nav, .nav-toggle { grid-column: 4; }
+}
+@media (max-width: 960px) {
+  .header-blurb { display: none; }
 }
 @media (max-width: 760px) {
   .site-header { grid-template-columns: auto 1fr auto; mix-blend-mode: normal; transition: background .4s; }

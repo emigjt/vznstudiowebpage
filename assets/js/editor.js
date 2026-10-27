@@ -152,6 +152,11 @@
     else root.style.setProperty(key, value);
   }
   Object.keys(state.vars).forEach(function (key) {
+    // A tweak that now matches the site's own value has been made permanent; forget it.
+    if (defaults[key] != null && String(state.vars[key]) === String(defaults[key])) {
+      delete state.vars[key];
+      return;
+    }
     var c = CONTROLS.filter(function (x) { return x.key === key; })[0];
     if (c && c.type === "font") loadFont(fontFor(c.fonts, firstFamily(state.vars[key])));
     applyVar(key, state.vars[key]);
@@ -265,6 +270,7 @@
     originals[i] = node.innerHTML;
     var saved = state.text[i];
     if (saved && saved.from === node.innerHTML) node.innerHTML = saved.to;
+    else if (saved) delete state.text[i];   // the page changed since; this edit no longer applies
     node.addEventListener("input", function () {
       if (node.innerHTML === originals[i]) delete state.text[i];
       else state.text[i] = { from: originals[i], to: node.innerHTML };
@@ -280,6 +286,9 @@
       document.execCommand("insertText", false, text);
     });
   });
+
+  Object.keys(state.text).forEach(function (id) { if (!(id in originals)) delete state.text[id]; });
+  save();
 
   function setTextEditing(on) {
     editingText = on;
