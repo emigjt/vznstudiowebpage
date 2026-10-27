@@ -41,6 +41,8 @@
   --fx-ghost: 0.06;           /* double-exposure ghost strength */
   --fx-offset: 3px;           /* ghost spread */
   --fx-scroll: 50svh;         /* scroll distance over which the reveal happens */
+  --fx-mark-x: 0vw;           /* logo position from screen centre: + right, - left */
+  --fx-mark-y: 0svh;          /* logo position from screen centre: + down, - up */
   --grain: 0.3;               /* film grain strength */
 }
 
@@ -239,11 +241,12 @@ em { font-style: italic; }
    holds in place while the headline fades and the logo behind it sharpens. */
 .fx-on .hero { height: calc(100svh + var(--fx-scroll)); }
 .fx-on .hero-stage { position: sticky; top: 0; height: 100svh; min-height: 0; }
+.fx-on .hero-content { position: static; }   /* so the logo centres on the screen, not the text block */
 .fx-on .hero-mark {
   position: absolute;
   left: 50%;
   top: 50%;
-  translate: -50% calc(-50% - 12px);
+  translate: calc(-50% + var(--fx-mark-x)) calc(-50% + var(--fx-mark-y));
   width: calc(min(640px, 68vw, 64svh) * var(--mark-scale));
   max-width: none;
   margin: 0;
