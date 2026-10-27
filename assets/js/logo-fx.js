@@ -16,7 +16,7 @@
   var mark = document.querySelector("[data-logo-fx]");
   if (!hero || !mark) return;
   var main = mark.querySelector(".mark-main");
-  var text = [".hero-title", ".hero-links"].map(function (s) { return document.querySelector(s); }).filter(Boolean);
+  var text = [".hero-title", ".hero-slogan", ".hero-links"].map(function (s) { return document.querySelector(s); }).filter(Boolean);
   var filter = document.getElementById("vzn-ink");
   var disp = filter && filter.querySelector("feDisplacementMap");
   var root = document.documentElement;

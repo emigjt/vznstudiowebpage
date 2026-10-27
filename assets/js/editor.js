@@ -83,7 +83,7 @@
   // from data/portfolio.js and are edited there instead.
   var EDITABLE = [
     ".header-blurb", ".header-contact", ".site-nav a",
-    ".hero-title .line > span", ".hero-links a", ".hero-foot > span",
+    ".hero-title .line > span", ".hero-slogan .line > span", ".hero-links a", ".hero-foot > span",
     "#main .mono-title", ".statement", ".studio-copy p", ".studio-grid dt", ".studio-grid dd",
     ".service-group-title", ".service-num", ".service h3", ".service p", ".process p",
     ".contact-headline", ".contact-email", ".contact-lede", ".contact .details dt", ".contact .details a",
