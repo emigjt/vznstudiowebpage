@@ -1,0 +1,121 @@
+/* VZN edit mode panel — fixed colours so it stays readable whatever the site theme is. */
+
+.vzn-editor {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 1000;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  background: #141414;
+  color: #ececec;
+  border: 1px solid #333;
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+  font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  text-transform: none;
+  letter-spacing: 0;
+  mix-blend-mode: normal;
+}
+.vzn-editor.is-collapsed { bottom: auto; }
+.vzn-editor.is-collapsed .vzn-editor-body { display: none; }
+
+.vzn-editor-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #2a2a2a;
+}
+.vzn-editor.is-collapsed .vzn-editor-head { border-bottom: 0; }
+.vzn-editor-head strong { font-weight: 600; }
+.vzn-count { color: #ff6a5f; }
+.vzn-collapse {
+  margin-left: auto;
+  background: none;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  padding: 3px 8px;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.vzn-editor-body { overflow-y: auto; padding: 4px 12px 12px; overscroll-behavior: contain; }
+
+.vzn-group { border: 0; margin: 0; padding: 10px 0 4px; }
+.vzn-group + .vzn-group { border-top: 1px solid #2a2a2a; }
+.vzn-group legend { padding: 8px 0 4px; color: #8a8a8a; text-transform: uppercase; letter-spacing: .08em; font-size: 10px; }
+
+.vzn-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 8px; padding: 6px 0; }
+.vzn-row label { color: #cfcfcf; }
+.vzn-row output { color: #8a8a8a; text-align: right; font-variant-numeric: tabular-nums; }
+.vzn-row input[type="range"], .vzn-row select { grid-column: 1 / -1; width: 100%; }
+.vzn-color { grid-template-columns: 1fr auto auto; }
+.vzn-color input { grid-column: auto; width: 34px; height: 24px; padding: 0; border: 1px solid #3a3a3a; border-radius: 4px; background: none; cursor: pointer; }
+.vzn-row select {
+  background: #1d1d1d;
+  color: #ececec;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  padding: 6px;
+  font: inherit;
+}
+.vzn-row input[type="range"] { accent-color: #ff3b2f; margin: 2px 0; }
+
+.vzn-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; align-items: center; }
+.vzn-btn {
+  flex: 1 1 auto;
+  background: #1d1d1d;
+  color: #ececec;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font: inherit;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+.vzn-btn:hover { border-color: #777; }
+.vzn-wide { flex-basis: 100%; }
+.vzn-btn[aria-pressed="true"] { background: #ff3b2f; border-color: #ff3b2f; color: #000; }
+.vzn-primary { background: #ececec; color: #000; border-color: #ececec; }
+.vzn-primary:hover { background: #fff; }
+.vzn-note { margin: 12px 0 0; color: #8a8a8a; font-size: 11px; }
+
+/* Text editing affordances on the page */
+body.vzn-text-editing [data-vzn-id] { cursor: text; outline: 1px dashed rgba(255, 59, 47, .45); outline-offset: 2px; }
+body.vzn-text-editing [data-vzn-id]:hover { outline-color: #ff3b2f; }
+body.vzn-text-editing [data-vzn-id]:focus { outline: 2px solid #ff3b2f; }
+body.vzn-text-editing .site-header { mix-blend-mode: normal; }
+
+/* Changes dialog */
+.vzn-dialog {
+  width: min(640px, calc(100% - 24px));
+  padding: 16px;
+  background: #141414;
+  color: #ececec;
+  border: 1px solid #333;
+  border-radius: 10px;
+  font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.vzn-dialog::backdrop { background: rgba(0, 0, 0, .7); }
+.vzn-dialog-title { margin: 0 0 10px; font-weight: 600; }
+.vzn-dialog textarea {
+  width: 100%;
+  background: #0c0c0c;
+  color: #ececec;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 10px;
+  font: inherit;
+  resize: vertical;
+}
+.vzn-dialog-status { flex-basis: 100%; color: #8a8a8a; }
+
+@media (max-width: 640px) {
+  .vzn-editor { top: auto; left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 58vh; }
+  .vzn-editor.is-collapsed { left: auto; }
+}

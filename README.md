@@ -38,6 +38,21 @@ assets/media/           Your project images, audio and video files
 Projects without images get generated placeholder covers. Each project has its own
 shareable link, e.g. `/#work/project-name`.
 
+## Edit mode
+
+Open the site with `?edit` on the end of the address (e.g. `http://localhost:8000/?edit`)
+to get a design panel on the live page:
+
+- colour pickers for the background, text, accent and lines
+- headline and body font pickers (Google Fonts), headline weight and case
+- sliders for headline size, line and letter spacing, body size, margins,
+  section spacing, hero logo size and film grain
+- **Edit text**: click any heading or paragraph on the page and retype it
+
+Tweaks are kept in your browser only, so visitors never see them. **Copy changes**
+gives a summary (CSS values plus before/after text) to paste into the code or hand
+to whoever maintains the site. **Reset all** goes back to the original.
+
 ## Rebranding
 
 - **Colours and fonts:** edit the variables at the top of `assets/css/styles.css`.

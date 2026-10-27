@@ -344,4 +344,15 @@
   });
 
   $$("[data-year]").forEach(function (n) { n.textContent = new Date().getFullYear(); });
+
+  /* Edit mode: open the page with ?edit to load the design panel ----------- */
+  if (/[?&]edit(?:[=&]|$)/.test(window.location.search)) {
+    var editorCss = document.createElement("link");
+    editorCss.rel = "stylesheet";
+    editorCss.href = "assets/css/editor.css";
+    document.head.appendChild(editorCss);
+    var editorJs = document.createElement("script");
+    editorJs.src = "assets/js/editor.js";
+    document.body.appendChild(editorJs);
+  }
 })();
