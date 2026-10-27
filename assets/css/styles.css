@@ -30,6 +30,18 @@
   --section-pad: clamp(64px, 7vw, 100px);
   --ease: cubic-bezier(.2, .7, .1, 1);
   --mark-scale: 1.45;         /* hero logo size */
+
+  /* Hero logo focus effect: blurred, ghosted ink that sharpens under the cursor.
+     0 = off, 1 = on. Try it in edit mode before switching it on here. */
+  --logo-fx: 0;
+  --fx-blur: 8px;             /* blur at rest */
+  --fx-offset: 16px;          /* how far the ghosts drift apart */
+  --fx-distort: 26;           /* ink warp strength */
+  --fx-ghost: 0.45;           /* colour ghost strength */
+  --fx-slices: 0.6;           /* horizontal smear bands */
+  --fx-glow: 22px;            /* light bloom */
+  --fx-tint-a: #ff3b2f;       /* left ghost */
+  --fx-tint-b: #8fd8ff;       /* right ghost */
   --grain: 0.3;               /* film grain strength */
 }
 
@@ -165,12 +177,29 @@ em { font-style: italic; }
 }
 .hero-content { position: relative; }
 .hero-mark {
+  position: relative;
   width: calc(min(300px, 40vw, 30svh) * var(--mark-scale));
-  height: auto;
+  aspect-ratio: 1075 / 1056;
+  max-width: 100%;
   margin: 0 auto clamp(-24px, -2vw, -8px);
   animation: mark-in 1.6s var(--ease) backwards;
   will-change: transform;
 }
+.mark-main { position: relative; display: block; width: 100%; height: auto; }
+/* Ghost, smear and slice layers added by logo-fx.js; invisible unless the effect is on */
+.mark-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: var(--text);
+  -webkit-mask: url("../brand/logo-white.svg") center / contain no-repeat;
+  mask: url("../brand/logo-white.svg") center / contain no-repeat;
+}
+.mark-layer.is-tint-a { background: var(--fx-tint-a); mix-blend-mode: screen; }
+.mark-layer.is-tint-b { background: var(--fx-tint-b); mix-blend-mode: screen; }
+.mark-layer.is-smear { z-index: -1; }
+.fx-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 @keyframes mark-in { from { opacity: 0; filter: blur(14px); transform: scale(.94); } }
 .hero-title {
   font-family: var(--font-serif);

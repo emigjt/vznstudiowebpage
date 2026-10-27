@@ -67,7 +67,18 @@
     { key: "--pad", label: "Page margins", type: "range", min: 8, max: 120, step: 1, unit: "px" },
     { key: "--section-pad", label: "Space between sections", type: "range", min: 48, max: 320, step: 4, unit: "px" },
     { key: "--mark-scale", label: "Hero logo size", type: "range", min: 0.4, max: 2, step: 0.01, unit: "", fmt: pct },
-    { key: "--grain", label: "Film grain", type: "range", min: 0, max: 0.3, step: 0.01, unit: "", fmt: pct }
+    { key: "--grain", label: "Film grain", type: "range", min: 0, max: 0.3, step: 0.01, unit: "", fmt: pct },
+
+    { group: "Logo effect" },
+    { key: "--logo-fx", label: "Hero logo focus effect", type: "select", options: [["0", "Off"], ["1", "On"]] },
+    { key: "--fx-blur", label: "Blur", type: "range", min: 0, max: 24, step: 0.5, unit: "px" },
+    { key: "--fx-offset", label: "Ghost drift", type: "range", min: 0, max: 80, step: 1, unit: "px" },
+    { key: "--fx-distort", label: "Ink warp", type: "range", min: 0, max: 80, step: 1, unit: "" },
+    { key: "--fx-ghost", label: "Colour ghosts", type: "range", min: 0, max: 1, step: 0.01, unit: "", fmt: pct },
+    { key: "--fx-slices", label: "Smear bands", type: "range", min: 0, max: 1, step: 0.01, unit: "", fmt: pct },
+    { key: "--fx-glow", label: "Glow", type: "range", min: 0, max: 60, step: 1, unit: "px" },
+    { key: "--fx-tint-a", label: "Left ghost colour", type: "color" },
+    { key: "--fx-tint-b", label: "Right ghost colour", type: "color" }
   ];
 
   // Text you can click and retype while "Edit text" is on. Project entries come
@@ -143,6 +154,7 @@
     if (c && c.type === "font") loadFont(fontFor(c.fonts, firstFamily(state.vars[key])));
     applyVar(key, state.vars[key]);
   });
+  announce();
 
   /* Panel ------------------------------------------------------------------ */
   function h(tag, attrs, children) {
@@ -236,7 +248,11 @@
     else state.vars[key] = value;
     applyVar(key, state.vars[key] != null ? state.vars[key] : null);
     save();
+    announce();
   }
+
+  // Lets scripted effects (e.g. the hero logo) pick up new values immediately.
+  function announce() { document.dispatchEvent(new CustomEvent("vzn:change")); }
 
   /* Text editing ----------------------------------------------------------- */
   var editingText = false;
@@ -317,6 +333,7 @@
       else item.input.value = d;
     });
     save();
+    announce();
   });
 
   function exitUrl() {
