@@ -33,14 +33,14 @@
 
   /* Hero logo scroll reveal: the logo rests faint and blurred behind the
      headline; scrolling fades the headline out and brings the logo into focus.
-     0 = off, 1 = on. Try it in edit mode before switching it on here. */
-  --logo-fx: 0;
+     1 = on, 0 = off (the logo then sits above the headline, as before). */
+  --logo-fx: 1;
   --fx-rest: 0.22;            /* logo visibility behind the headline */
-  --fx-blur: 6px;             /* blur while behind the headline */
-  --fx-distort: 12;           /* ink warp while behind the headline */
-  --fx-ghost: 0.5;            /* double-exposure ghost strength */
-  --fx-offset: 8px;           /* ghost spread */
-  --fx-scroll: 90svh;         /* scroll distance over which the reveal happens */
+  --fx-blur: 21px;            /* blur while behind the headline */
+  --fx-distort: 10;           /* ink warp while behind the headline */
+  --fx-ghost: 0.06;           /* double-exposure ghost strength */
+  --fx-offset: 3px;           /* ghost spread */
+  --fx-scroll: 50svh;         /* scroll distance over which the reveal happens */
   --grain: 0.3;               /* film grain strength */
 }
 
@@ -210,6 +210,7 @@ em { font-style: italic; }
 .hero-title .line { display: block; overflow: hidden; padding: 0 0.04em 0.16em; margin-bottom: -0.16em; }
 .hero-title .line > span { display: block; text-wrap: balance; animation: rise 1.3s var(--ease) both; }
 .hero-title .line:nth-child(2) > span { animation-delay: .1s; }
+.hero-title .line:nth-child(3) > span { animation-delay: .2s; }
 @keyframes rise { from { transform: translateY(100%); } }
 
 .hero-links { display: flex; justify-content: center; gap: clamp(20px, 3.5vw, 56px); margin-top: clamp(36px, 6vh, 72px); animation: fade 1s .6s backwards; }
@@ -232,8 +233,8 @@ em { font-style: italic; }
   position: absolute;
   left: 50%;
   top: 50%;
-  translate: -50% -50%;
-  width: calc(min(560px, 60vw, 56svh) * var(--mark-scale));
+  translate: -50% calc(-50% - 12px);
+  width: calc(min(640px, 68vw, 64svh) * var(--mark-scale));
   max-width: none;
   margin: 0;
 }

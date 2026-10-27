@@ -78,26 +78,29 @@
     var hideText = smoothstep(p / 0.55);          // headline is gone a little past halfway
     var showLogo = smoothstep((p - 0.1) / 0.85);  // logo sharpens across the rest
     var k = 1 - showLogo;                          // how much "behind the text" look remains
+    // Blur and spread are tuned on a desktop-sized logo; scale them down with smaller
+    // logos (phones) so the look stays the same instead of washing out.
+    var size = Math.min(1, mark.offsetWidth / 700);
 
     // Logo
     var opacity = cfg.rest + (1 - cfg.rest) * showLogo;
     main.style.opacity = opacity.toFixed(3);
     main.style.filter = k > 0.01
-      ? (disp && cfg.distort ? "url(#vzn-ink) " : "") + "blur(" + px(cfg.blur * k) + ")"
+      ? (disp && cfg.distort ? "url(#vzn-ink) " : "") + "blur(" + px(cfg.blur * size * k) + ")"
       : "";
     main.style.transform = k > 0.01 ? "scale(" + (1 + 0.05 * k).toFixed(4) + ")" : "";
-    if (disp) disp.setAttribute("scale", (cfg.distort * k).toFixed(1));
+    if (disp) disp.setAttribute("scale", (cfg.distort * size * k).toFixed(1));
 
     // Still double-exposure ghosts at the edges, merging back into the logo as it
     // sharpens. Kept fainter than the logo itself so they read as an echo.
     var ghost = cfg.ghost * k * Math.min(1, opacity * 1.2);
-    var spread = cfg.offset * k;
+    var spread = cfg.offset * size * k;
     ghostA.style.opacity = ghost.toFixed(3);
     ghostA.style.transform = "translateX(" + px(-spread) + ") scale(" + (1 + 0.05 * k).toFixed(4) + ")";
-    ghostA.style.filter = "blur(" + px(cfg.blur * k * 1.6) + ")";
+    ghostA.style.filter = "blur(" + px(cfg.blur * size * k * 1.6) + ")";
     ghostB.style.opacity = (ghost * 0.85).toFixed(3);
     ghostB.style.transform = "translateX(" + px(spread) + ") scale(" + (1 + 0.05 * k).toFixed(4) + ")";
-    ghostB.style.filter = "blur(" + px(cfg.blur * k * 1.8) + ")";
+    ghostB.style.filter = "blur(" + px(cfg.blur * size * k * 1.8) + ")";
 
     // Headline and links fade, soften and lift away
     text.forEach(function (node) {

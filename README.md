@@ -52,7 +52,7 @@ Tweaks are kept in your browser only, so visitors never see them. **Copy changes
 gives a summary (CSS values plus before/after text) to paste into the code or hand
 to whoever maintains the site. **Reset all** goes back to the original.
 
-## Hero logo scroll reveal (experimental, off by default)
+## Hero logo scroll reveal
 
 The hero logo rests faint behind the headline: softly blurred, lightly ink-warped,
 with a still greyscale double-exposure ghost. Scrolling holds the hero in place while
@@ -62,12 +62,13 @@ on. Nothing animates on its own; every change follows the scroll.
 It lives in `assets/js/logo-fx.js` and is controlled from `:root` in
 `assets/css/styles.css`:
 
-- `--logo-fx: 0` keeps it off; set it to `1` to switch it on for everyone.
+- `--logo-fx: 1` turns it on (the default); `0` turns it off and puts the logo back
+  above the headline.
 - `--fx-rest`, `--fx-blur`, `--fx-distort`, `--fx-ghost`, `--fx-offset` and
   `--fx-scroll` set how it looks behind the text and how much scrolling the reveal takes.
 
-All of these are in edit mode under **Logo effect**, so it can be tried on the live
-site without visitors seeing it.
+All of these are in edit mode under **Logo effect**, so changes can be tried on the
+live site without visitors seeing them.
 
 ## Rebranding
 
