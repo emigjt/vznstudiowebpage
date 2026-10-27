@@ -52,16 +52,19 @@ Tweaks are kept in your browser only, so visitors never see them. **Copy changes
 gives a summary (CSS values plus before/after text) to paste into the code or hand
 to whoever maintains the site. **Reset all** goes back to the original.
 
-## Hero logo focus effect (experimental, off by default)
+## Hero logo scroll reveal (experimental, off by default)
 
-At rest the hero logo is blurred, ink-warped and ghosted in red and blue with
-smear bands; as the cursor approaches it pulls into focus (tap on touch screens).
+The hero logo rests faint behind the headline: softly blurred, lightly ink-warped,
+with a still greyscale double-exposure ghost. Scrolling holds the hero in place while
+the headline fades away and the logo sharpens into full view, then the page carries
+on. Nothing animates on its own; every change follows the scroll.
+
 It lives in `assets/js/logo-fx.js` and is controlled from `:root` in
 `assets/css/styles.css`:
 
 - `--logo-fx: 0` keeps it off; set it to `1` to switch it on for everyone.
-- `--fx-blur`, `--fx-offset`, `--fx-distort`, `--fx-ghost`, `--fx-slices`, `--fx-glow`,
-  `--fx-tint-a` and `--fx-tint-b` set its strength and colours.
+- `--fx-rest`, `--fx-blur`, `--fx-distort`, `--fx-ghost`, `--fx-offset` and
+  `--fx-scroll` set how it looks behind the text and how much scrolling the reveal takes.
 
 All of these are in edit mode under **Logo effect**, so it can be tried on the live
 site without visitors seeing it.

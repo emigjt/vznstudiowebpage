@@ -52,7 +52,8 @@
     ticking = false;
     var y = window.scrollY;
     header.classList.toggle("is-scrolled", y > 40);
-    if (heroMark && !reduceMotion) {
+    // The logo scroll reveal (logo-fx.js) positions the logo itself when it's on.
+    if (heroMark && !reduceMotion && !document.documentElement.classList.contains("fx-on")) {
       var p = Math.min(y / window.innerHeight, 1);
       heroMark.style.transform =
         "translate3d(" + (pointer.x * 16).toFixed(1) + "px," + (pointer.y * 12 - y * 0.15).toFixed(1) + "px,0)" +

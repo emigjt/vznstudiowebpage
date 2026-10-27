@@ -31,17 +31,16 @@
   --ease: cubic-bezier(.2, .7, .1, 1);
   --mark-scale: 1.45;         /* hero logo size */
 
-  /* Hero logo focus effect: blurred, ghosted ink that sharpens under the cursor.
+  /* Hero logo scroll reveal: the logo rests faint and blurred behind the
+     headline; scrolling fades the headline out and brings the logo into focus.
      0 = off, 1 = on. Try it in edit mode before switching it on here. */
   --logo-fx: 0;
-  --fx-blur: 8px;             /* blur at rest */
-  --fx-offset: 16px;          /* how far the ghosts drift apart */
-  --fx-distort: 26;           /* ink warp strength */
-  --fx-ghost: 0.45;           /* colour ghost strength */
-  --fx-slices: 0.6;           /* horizontal smear bands */
-  --fx-glow: 22px;            /* light bloom */
-  --fx-tint-a: #ff3b2f;       /* left ghost */
-  --fx-tint-b: #8fd8ff;       /* right ghost */
+  --fx-rest: 0.22;            /* logo visibility behind the headline */
+  --fx-blur: 6px;             /* blur while behind the headline */
+  --fx-distort: 12;           /* ink warp while behind the headline */
+  --fx-ghost: 0.5;            /* double-exposure ghost strength */
+  --fx-offset: 8px;           /* ghost spread */
+  --fx-scroll: 90svh;         /* scroll distance over which the reveal happens */
   --grain: 0.3;               /* film grain strength */
 }
 
@@ -160,7 +159,8 @@ em { font-style: italic; }
 }
 
 /* Hero ------------------------------------------------------------------- */
-.hero {
+.hero { position: relative; }
+.hero-stage {
   position: relative;
   min-height: 100svh;
   display: grid;
@@ -186,7 +186,8 @@ em { font-style: italic; }
   will-change: transform;
 }
 .mark-main { position: relative; display: block; width: 100%; height: auto; }
-/* Ghost, smear and slice layers added by logo-fx.js; invisible unless the effect is on */
+/* Ghost layers added by logo-fx.js (same bone white as the logo, no colour);
+   invisible unless the effect is on */
 .mark-layer {
   position: absolute;
   inset: 0;
@@ -196,9 +197,6 @@ em { font-style: italic; }
   -webkit-mask: url("../brand/logo-white.svg") center / contain no-repeat;
   mask: url("../brand/logo-white.svg") center / contain no-repeat;
 }
-.mark-layer.is-tint-a { background: var(--fx-tint-a); mix-blend-mode: screen; }
-.mark-layer.is-tint-b { background: var(--fx-tint-b); mix-blend-mode: screen; }
-.mark-layer.is-smear { z-index: -1; }
 .fx-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 @keyframes mark-in { from { opacity: 0; filter: blur(14px); transform: scale(.94); } }
 .hero-title {
@@ -214,7 +212,7 @@ em { font-style: italic; }
 .hero-title .line:nth-child(2) > span { animation-delay: .1s; }
 @keyframes rise { from { transform: translateY(100%); } }
 
-.hero-links { display: flex; justify-content: center; gap: clamp(20px, 3.5vw, 56px); margin-top: clamp(36px, 6vh, 72px); animation: fade 1s .6s both; }
+.hero-links { display: flex; justify-content: center; gap: clamp(20px, 3.5vw, 56px); margin-top: clamp(36px, 6vh, 72px); animation: fade 1s .6s backwards; }
 .hero-links a { display: inline-block; text-transform: uppercase; transition: color .2s; }
 .hero-links li:nth-child(1) a { transform: rotate(3deg) translateY(6px); }
 .hero-links li:nth-child(2) a { transform: rotate(-5deg) translateY(-10px); }
@@ -225,6 +223,21 @@ em { font-style: italic; }
   .hero-mark { width: calc(min(62vw, 34svh) * var(--mark-scale)); }
   .hero-title { font-size: calc(clamp(3.2rem, 17vw, 6rem) * var(--display-scale)); }
 }
+
+/* Scroll reveal (logo-fx.js adds .fx-on to <html> when --logo-fx is 1): the hero
+   holds in place while the headline fades and the logo behind it sharpens. */
+.fx-on .hero { height: calc(100svh + var(--fx-scroll)); }
+.fx-on .hero-stage { position: sticky; top: 0; height: 100svh; min-height: 0; }
+.fx-on .hero-mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: calc(min(560px, 60vw, 56svh) * var(--mark-scale));
+  max-width: none;
+  margin: 0;
+}
+.fx-on .hero-title, .fx-on .hero-links { position: relative; z-index: 1; }
 
 .hero-foot {
   position: absolute;

@@ -70,15 +70,13 @@
     { key: "--grain", label: "Film grain", type: "range", min: 0, max: 0.3, step: 0.01, unit: "", fmt: pct },
 
     { group: "Logo effect" },
-    { key: "--logo-fx", label: "Hero logo focus effect", type: "select", options: [["0", "Off"], ["1", "On"]] },
-    { key: "--fx-blur", label: "Blur", type: "range", min: 0, max: 24, step: 0.5, unit: "px" },
-    { key: "--fx-offset", label: "Ghost drift", type: "range", min: 0, max: 80, step: 1, unit: "px" },
-    { key: "--fx-distort", label: "Ink warp", type: "range", min: 0, max: 80, step: 1, unit: "" },
-    { key: "--fx-ghost", label: "Colour ghosts", type: "range", min: 0, max: 1, step: 0.01, unit: "", fmt: pct },
-    { key: "--fx-slices", label: "Smear bands", type: "range", min: 0, max: 1, step: 0.01, unit: "", fmt: pct },
-    { key: "--fx-glow", label: "Glow", type: "range", min: 0, max: 60, step: 1, unit: "px" },
-    { key: "--fx-tint-a", label: "Left ghost colour", type: "color" },
-    { key: "--fx-tint-b", label: "Right ghost colour", type: "color" }
+    { key: "--logo-fx", label: "Hero logo scroll reveal", type: "select", options: [["0", "Off"], ["1", "On"]] },
+    { key: "--fx-rest", label: "Logo visibility behind text", type: "range", min: 0, max: 1, step: 0.01, unit: "", fmt: pct },
+    { key: "--fx-blur", label: "Blur behind text", type: "range", min: 0, max: 24, step: 0.5, unit: "px" },
+    { key: "--fx-distort", label: "Ink warp", type: "range", min: 0, max: 60, step: 1, unit: "" },
+    { key: "--fx-ghost", label: "Ghosts", type: "range", min: 0, max: 1, step: 0.01, unit: "", fmt: pct },
+    { key: "--fx-offset", label: "Ghost spread", type: "range", min: 0, max: 40, step: 1, unit: "px" },
+    { key: "--fx-scroll", label: "Scroll distance to reveal", type: "range", min: 30, max: 200, step: 5, unit: "svh", fmt: function (v) { return Math.round(v) + "% of screen"; } }
   ];
 
   // Text you can click and retype while "Edit text" is on. Project entries come
