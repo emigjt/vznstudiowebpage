@@ -14,7 +14,10 @@
   var STORE_KEY = "vzn-edit-v1";
   var root = document.documentElement;
 
+  // A fourth item "site" marks fonts the site hosts itself (assets/fonts).
   var DISPLAY_FONTS = [
+    ["ColdagSerif", null, "serif", "site"],
+    ["ColdagSerif Outline", null, "serif", "site"],
     ["Instrument Serif", "ital@0;1", "serif"],
     ["Playfair Display", "ital,wght@0,400..900;1,400..900", "serif"],
     ["Fraunces", "ital,opsz,wght@0,9..144,300..900;1,9..144,300..900", "serif"],
@@ -140,7 +143,7 @@
     return null;
   }
   function loadFont(font) {
-    if (!font || loadedFonts[font[0]]) return;
+    if (!font || font[3] === "site" || loadedFonts[font[0]]) return;
     loadedFonts[font[0]] = true;
     var link = document.createElement("link");
     link.rel = "stylesheet";
@@ -148,7 +151,10 @@
       (font[1] ? ":" + font[1] : "") + "&display=swap";
     document.head.appendChild(link);
   }
-  function fontStack(font) { return '"' + font[0] + '", ' + font[2]; }
+  function fontStack(font) {
+    // Site fonts lack some punctuation; keep the serif behind them for those characters.
+    return '"' + font[0] + '", ' + (font[3] === "site" ? '"Playfair Display", ' : "") + font[2];
+  }
   function firstFamily(value) { return String(value).split(",")[0].replace(/["']/g, "").trim(); }
 
   function applyVar(key, value) {
@@ -157,7 +163,8 @@
   }
   Object.keys(state.vars).forEach(function (key) {
     // A tweak that now matches the site's own value has been made permanent; forget it.
-    if (defaults[key] != null && String(state.vars[key]) === String(defaults[key])) {
+    var sameFont = /^--font-/.test(key) && defaults[key] != null && firstFamily(state.vars[key]) === firstFamily(defaults[key]);
+    if (sameFont || (defaults[key] != null && String(state.vars[key]) === String(defaults[key]))) {
       delete state.vars[key];
       return;
     }
@@ -225,9 +232,16 @@
       input.value = current;
       input.addEventListener("change", function () { set(c.key, input.value); });
     } else if (c.type === "font") {
-      input = h("select", { id: id }, [h("optgroup", { label: "Google Fonts" }, c.fonts.map(function (f) {
+      var siteFonts = c.fonts.filter(function (f) { return f[3] === "site"; });
+      var googleFonts = c.fonts.filter(function (f) { return f[3] !== "site"; });
+      var groups = [];
+      if (siteFonts.length) groups.push(h("optgroup", { label: "On the site" }, siteFonts.map(function (f) {
         return h("option", { value: f[0], text: f[0] });
-      }))]);
+      })));
+      groups.push(h("optgroup", { label: "Google Fonts" }, googleFonts.map(function (f) {
+        return h("option", { value: f[0], text: f[0] });
+      })));
+      input = h("select", { id: id }, groups);
       input.value = firstFamily(current);
       input.addEventListener("change", function () {
         var font = fontFor(c.fonts, input.value);
@@ -616,7 +630,9 @@
       var google = [], own = [];
       fonts.forEach(function (k) {
         var family = firstFamily(state.vars[k]);
-        if (isGoogleFont(k, family)) google.push(family);
+        var listed = fontFor(inputs[k].control.fonts, family);
+        if (listed && listed[3] === "site") return;   // already hosted by the site
+        if (listed) google.push(family);
         else own.push(family + (state.fonts[family] === "file" ? " (added as a file)" : " (installed on this computer)"));
       });
       if (google.length) lines.push("", "Fonts to load from Google Fonts: " + google.join(", "));

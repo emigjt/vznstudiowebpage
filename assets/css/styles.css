@@ -3,6 +3,32 @@
    Brand tokens live in :root. Swap colours and fonts here to rebrand.
    ========================================================================== */
 
+/* Coldag Serif by Delipensil, self-hosted from assets/fonts.
+   The files have one upright weight (Bold) and one italic, so each face covers
+   every weight: picking another weight never makes the browser fake one.
+   They have no . , : - / characters; those come from the next font in the stack. */
+@font-face {
+  font-family: "ColdagSerif";
+  src: url("../fonts/ColdagSerif-Bold.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "ColdagSerif";
+  src: url("../fonts/ColdagSerif-Italic.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "ColdagSerif Outline";
+  src: url("../fonts/ColdagSerif-Outline.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* Colour: black and bone like the ink logo, plus one signal accent */
   --bg: #000000;
@@ -18,7 +44,7 @@
   color-scheme: dark;
 
   /* Type: serif for display, clean sans for everything else */
-  --font-serif: "Playfair Display", "Times New Roman", serif;
+  --font-serif: "ColdagSerif", "Playfair Display", "Times New Roman", serif;
   --font-mono: "Inter Tight", "Helvetica Neue", Arial, sans-serif;  /* body / UI font */
   --text-size: 1.2rem;       /* body / UI text */
   --display-scale: 0.84;      /* multiplies every big serif headline */
@@ -451,6 +477,10 @@ em { font-style: italic; }
 .viewer-desc { color: var(--muted); max-width: 60ch; margin: 0; }
 
 /* Shop ------------------------------------------------------------------- */
+/* Jumping to #shop lands on the section's top edge (not header-height below it), so the
+   end of the Work section never peeks out under the header; extra top padding keeps
+   the content clear of the header instead. */
+.shop { padding-top: calc(var(--section-pad) + var(--header-h)); scroll-margin-top: calc(-1 * var(--header-h)); }
 .shop-head { margin-bottom: clamp(40px, 6vw, 80px); }
 .shop-head .section-label { margin-bottom: 20px; }
 .shop-title {

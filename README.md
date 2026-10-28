@@ -5,8 +5,9 @@ The site for **VZN — Vision Studio Co.**: one page with four parts — the hom
 **Work** (beats, mixes, artwork), **Shop** (merch) and **Contact**.
 No build step: plain HTML, CSS and JavaScript.
 
-Design direction: black and bone like the ink logo, one red signal accent, a serif
-(Playfair Display) for display type and a clean sans (Inter Tight) for everything else.
+Design direction: black and bone like the ink logo, one red signal accent, Coldag Serif
+(by Delipensil, self-hosted) for display type and a clean sans (Inter Tight) for everything
+else.
 In Work, scrolling down moves the page sideways from **Sound** (black) into **Visual**
 (black ink on bone, like the original logo artwork).
 
@@ -27,6 +28,7 @@ assets/css/styles.css   All styles; brand colours and fonts live in :root at the
 assets/js/main.js       Work rails and audio player, viewer, shop, nav, contact form
 assets/brand/           Logo (traced SVG, white/black), favicon, social share image
 assets/brand/source/    Original logo file
+assets/fonts/           Self-hosted web fonts (Coldag Serif Bold, Italic, Outline)
 assets/media/           Your project images, audio and video files
 ```
 
@@ -98,6 +100,9 @@ live site without visitors seeing them.
 ## Rebranding
 
 - **Colours and fonts:** edit the variables at the top of `assets/css/styles.css`.
+- **Own fonts:** put `.woff2` files in `assets/fonts/` and add an `@font-face` rule at the
+  top of `assets/css/styles.css` (Coldag Serif's rules show the pattern). Coldag Serif's
+  files have no `. , : - /`; those characters come from Playfair Display, next in the stack.
 - **Logo:** `assets/brand/logo-white.svg` is used on the site (`logo-black.svg` for light
   backgrounds, `logo.svg` takes the surrounding text colour when inlined).
 - **Hero image/reel:** add an `<img>` or `<video>` inside `.hero-media` in `index.html`;
