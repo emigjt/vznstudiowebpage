@@ -100,12 +100,13 @@
   function pct(v) { return Math.round(v * 100) + "%"; }
 
   /* State ------------------------------------------------------------------ */
-  var state = { vars: {}, text: {}, open: true };
+  var state = { vars: {}, text: {}, fonts: {}, open: true };
   try {
     var saved = JSON.parse(window.localStorage.getItem(STORE_KEY) || "null");
     if (saved && typeof saved === "object") {
       state.vars = saved.vars || {};
       state.text = saved.text || {};
+      state.fonts = saved.fonts || {};   // your own fonts in use: family -> "installed" | "file"
       state.open = saved.open !== false;
     }
   } catch (e) { /* storage unavailable: start fresh */ }
@@ -224,14 +225,18 @@
       input.value = current;
       input.addEventListener("change", function () { set(c.key, input.value); });
     } else if (c.type === "font") {
-      input = h("select", { id: id }, c.fonts.map(function (f) {
+      input = h("select", { id: id }, [h("optgroup", { label: "Google Fonts" }, c.fonts.map(function (f) {
         return h("option", { value: f[0], text: f[0] });
-      }));
+      }))]);
       input.value = firstFamily(current);
       input.addEventListener("change", function () {
         var font = fontFor(c.fonts, input.value);
-        loadFont(font);
-        set(c.key, fontStack(font));
+        if (font) {
+          loadFont(font);
+          set(c.key, fontStack(font));
+        } else {
+          useOwnFont(c.key, input.value, state.fonts[input.value] || "installed");
+        }
       });
     }
     inputs[c.key] = { input: input, out: out, control: c };
@@ -240,6 +245,242 @@
     row.appendChild(input);
     section.appendChild(row);
   });
+
+  /* Your own fonts: installed on this computer, or added as files ------------ */
+  // Installed fonts are listed with the browser's Local Font Access (Chrome, Edge).
+  // Font files work in any browser and are kept in this browser (IndexedDB).
+  var FONT_KEYS = ["--font-serif", "--font-mono"];
+  var GENERIC = { "--font-serif": "serif", "--font-mono": "sans-serif" };
+  var GROUP_LABEL = { file: "Your font files", installed: "Installed on this computer" };
+  var installedFamilies = [];
+  var fileFamilies = [];
+  var browseTarget = "--font-serif";
+
+  function isGoogleFont(key, family) { return !!fontFor(inputs[key].control.fonts, family); }
+  function quoteFamily(family) { return '"' + String(family).replace(/["\\]/g, "") + '"'; }
+
+  function ensureOption(key, family, source) {
+    var select = inputs[key].input;
+    for (var i = 0; i < select.options.length; i++) if (select.options[i].value === family) return;
+    var label = GROUP_LABEL[source] || GROUP_LABEL.installed;
+    var group = null;
+    Array.prototype.forEach.call(select.querySelectorAll("optgroup"), function (g) { if (g.label === label) group = g; });
+    if (!group) { group = h("optgroup", { label: label }); select.appendChild(group); }
+    group.appendChild(h("option", { value: family, text: family }));
+  }
+
+  function useOwnFont(key, family, source) {
+    state.fonts[family] = source;
+    ensureOption(key, family, source);
+    inputs[key].input.value = family;
+    set(key, quoteFamily(family) + ", " + GENERIC[key]);
+    markCurrent();
+  }
+
+  function refreshOwnOptions() {
+    FONT_KEYS.forEach(function (key) {
+      fileFamilies.forEach(function (f) { ensureOption(key, f, "file"); });
+      var current = state.vars[key] != null ? firstFamily(state.vars[key]) : null;
+      if (current && !isGoogleFont(key, current)) {
+        ensureOption(key, current, state.fonts[current] || "installed");
+        inputs[key].input.value = current;
+      }
+    });
+  }
+
+  // Font files stored in this browser so they survive a reload.
+  function withFontStore(mode, fn) {
+    return new Promise(function (resolve, reject) {
+      var req;
+      try { req = window.indexedDB.open("vzn-edit-fonts", 1); } catch (e) { reject(e); return; }
+      req.onupgradeneeded = function () { req.result.createObjectStore("fonts", { keyPath: "name" }); };
+      req.onerror = function () { reject(req.error); };
+      req.onsuccess = function () {
+        var db = req.result;
+        var tx = db.transaction("fonts", mode);
+        var request = fn(tx.objectStore("fonts"));
+        tx.oncomplete = function () { db.close(); resolve(request ? request.result : undefined); };
+        tx.onerror = function () { db.close(); reject(tx.error); };
+      };
+    });
+  }
+
+  function registerFontFile(name, data) {
+    return new FontFace(name, data).load().then(function (face) {
+      document.fonts.add(face);
+      if (fileFamilies.indexOf(name) === -1) fileFamilies.push(name);
+      state.fonts[name] = "file";
+      return name;
+    });
+  }
+
+  function fontNameFromFile(fileName) {
+    return fileName.replace(/\.(otf|ttf|woff2?)$/i, "").replace(/[_]+/g, " ").replace(/\s+/g, " ").trim();
+  }
+
+  function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
+
+  function addFontFiles(files) {
+    var fonts = Array.prototype.filter.call(files || [], function (f) { return /\.(otf|ttf|woff2?)$/i.test(f.name); });
+    if (!fonts.length) {
+      fontStatus.textContent = "Those aren't font files. Add .otf, .ttf, .woff or .woff2 files.";
+      return;
+    }
+    fontStatus.textContent = "Adding " + plural(fonts.length, "font") + "…";
+    Promise.all(fonts.map(function (file) {
+      var name = fontNameFromFile(file.name);
+      return file.arrayBuffer().then(function (buf) {
+        var copy = buf.slice(0);
+        return registerFontFile(name, buf).then(function () {
+          withFontStore("readwrite", function (s) { return s.put({ name: name, data: copy }); }).catch(function () {});
+          return { ok: true, name: name };
+        });
+      }).catch(function () { return { ok: false, name: file.name }; });
+    })).then(function (results) {
+      var ok = results.filter(function (r) { return r.ok; });
+      var bad = results.filter(function (r) { return !r.ok; });
+      save();
+      refreshOwnOptions();
+      renderFontList();
+      openBrowser(true);
+      fontStatus.textContent = (ok.length ? "Added " + plural(ok.length, "font") + ". Click one below to try it. " : "") +
+        (bad.length ? "Couldn't read " + bad.map(function (r) { return r.name; }).join(", ") + "." : "");
+    });
+  }
+
+  function loadInstalledFonts() {
+    if (!("queryLocalFonts" in window)) {
+      fontStatus.textContent = "This browser can't list installed fonts; Chrome and Edge can. In any browser you can add font files instead (in Font Book, right-click a font and choose Show in Finder).";
+      return;
+    }
+    installedBtn.disabled = true;
+    installedBtn.textContent = "Loading fonts…";
+    window.queryLocalFonts().then(function (fonts) {
+      var seen = {};
+      installedFamilies = [];
+      fonts.forEach(function (f) {
+        var family = f.family;
+        if (!family || family.charAt(0) === "." || seen[family]) return;
+        seen[family] = true;
+        installedFamilies.push(family);
+      });
+      installedFamilies.sort(function (a, b) { return a.localeCompare(b); });
+      renderFontList();
+      openBrowser(true);
+      fontStatus.textContent = installedFamilies.length
+        ? installedFamilies.length + (installedFamilies.length === 1 ? " font family" : " font families") + " on this computer. Click one to try it."
+        : "No fonts were shared. Allow font access for this site in the browser's site settings, or add font files instead.";
+    }).catch(function () {
+      fontStatus.textContent = "Access to installed fonts was blocked here. Open the live site with ?edit in Chrome or Edge and allow it, or add font files instead.";
+    }).then(function () {
+      installedBtn.disabled = false;
+      installedBtn.textContent = "Browse installed fonts";
+    });
+  }
+
+  // Font tools, under the two font pickers in the Type group
+  var typeGroup = inputs["--font-mono"].input.closest("fieldset");
+  var afterBody = inputs["--font-mono"].input.closest(".vzn-row");
+  var installedBtn = h("button", { type: "button", class: "vzn-btn", text: "Browse installed fonts" });
+  var fileInput = h("input", { type: "file", id: "vzn-font-files", class: "vzn-file", multiple: "", accept: ".otf,.ttf,.woff,.woff2" });
+  var fileBtn = h("label", { class: "vzn-btn", for: "vzn-font-files", text: "Add font files" });
+  var fontStatus = h("p", { class: "vzn-note vzn-font-status", role: "status" });
+  var fontSearch = h("input", { type: "search", id: "vzn-font-search", placeholder: "Search fonts", "aria-label": "Search fonts" });
+  var targetHead = h("button", { type: "button", class: "vzn-seg", "data-target": "--font-serif", text: "Headline" });
+  var targetBody = h("button", { type: "button", class: "vzn-seg", "data-target": "--font-mono", text: "Body" });
+  var fontList = h("div", { class: "vzn-fontlist" });
+  var forgetBtn = h("button", { type: "button", class: "vzn-link", text: "Remove added font files" });
+  var browser = h("div", { class: "vzn-fontbrowser" }, [
+    h("div", { class: "vzn-fb-bar" }, [fontSearch]),
+    h("div", { class: "vzn-fb-bar", role: "group", "aria-label": "Apply font to" }, [h("span", { text: "Apply to" }), targetHead, targetBody]),
+    fontList,
+    forgetBtn
+  ]);
+  browser.hidden = true;
+  var fontTools = h("div", { class: "vzn-fonttools" }, [installedBtn, fileBtn, fileInput]);
+  typeGroup.insertBefore(fontTools, afterBody.nextSibling);
+  typeGroup.insertBefore(fontStatus, fontTools.nextSibling);
+  typeGroup.insertBefore(browser, fontStatus.nextSibling);
+  fontStatus.textContent = "Try your own fonts: browse the ones installed on this computer, or add font files (drop them anywhere on this panel).";
+
+  function openBrowser(open) { browser.hidden = !open || (!installedFamilies.length && !fileFamilies.length); }
+
+  function setTarget(key) {
+    browseTarget = key;
+    [targetHead, targetBody].forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.target === key)); });
+    markCurrent();
+  }
+
+  function markCurrent() {
+    var current = firstFamily(state.vars[browseTarget] != null ? state.vars[browseTarget] : defaults[browseTarget]);
+    Array.prototype.forEach.call(fontList.querySelectorAll(".vzn-fontrow"), function (row) {
+      row.setAttribute("aria-pressed", String(row.dataset.family === current));
+    });
+  }
+
+  function renderFontList() {
+    fontList.replaceChildren();
+    [["file", fileFamilies], ["installed", installedFamilies]].forEach(function (pair) {
+      if (!pair[1].length) return;
+      fontList.appendChild(h("p", { class: "vzn-fl-head", text: GROUP_LABEL[pair[0]] + " · " + pair[1].length }));
+      pair[1].forEach(function (family) {
+        var row = h("button", { type: "button", class: "vzn-fontrow", "data-family": family, title: family, text: family });
+        row.style.fontFamily = quoteFamily(family) + ", system-ui";
+        row.addEventListener("click", function () { useOwnFont(browseTarget, family, pair[0]); });
+        fontList.appendChild(row);
+      });
+    });
+    forgetBtn.hidden = !fileFamilies.length;
+    filterFontList();
+    markCurrent();
+  }
+
+  function filterFontList() {
+    var q = fontSearch.value.trim().toLowerCase();
+    Array.prototype.forEach.call(fontList.querySelectorAll(".vzn-fontrow"), function (row) {
+      row.hidden = q && row.dataset.family.toLowerCase().indexOf(q) === -1;
+    });
+  }
+
+  installedBtn.addEventListener("click", loadInstalledFonts);
+  fileInput.addEventListener("change", function () { addFontFiles(fileInput.files); fileInput.value = ""; });
+  fontSearch.addEventListener("input", filterFontList);
+  targetHead.addEventListener("click", function () { setTarget("--font-serif"); });
+  targetBody.addEventListener("click", function () { setTarget("--font-mono"); });
+  forgetBtn.addEventListener("click", function () {
+    withFontStore("readwrite", function (s) { return s.clear(); }).catch(function () {});
+    fileFamilies.forEach(function (f) { delete state.fonts[f]; });
+    fileFamilies = [];
+    save();
+    renderFontList();
+    openBrowser(!!installedFamilies.length);
+    fontStatus.textContent = "Removed the added font files from this browser.";
+  });
+
+  // Drop font files anywhere on the panel
+  panel.addEventListener("dragover", function (e) {
+    if (!e.dataTransfer || Array.prototype.indexOf.call(e.dataTransfer.types, "Files") === -1) return;
+    e.preventDefault();
+    panel.classList.add("is-dropping");
+  });
+  panel.addEventListener("dragleave", function (e) { if (!panel.contains(e.relatedTarget)) panel.classList.remove("is-dropping"); });
+  panel.addEventListener("drop", function (e) {
+    if (!e.dataTransfer || !e.dataTransfer.files.length) return;
+    e.preventDefault();
+    panel.classList.remove("is-dropping");
+    addFontFiles(e.dataTransfer.files);
+  });
+
+  setTarget("--font-serif");
+  refreshOwnOptions();
+  if (window.indexedDB) {
+    withFontStore("readonly", function (s) { return s.getAll(); }).then(function (rows) {
+      return Promise.all((rows || []).map(function (r) { return registerFontFile(r.name, r.data).catch(function () { return null; }); }));
+    }).then(function () {
+      refreshOwnOptions();
+      renderFontList();
+    }).catch(function () { /* storage unavailable: added fonts last for this visit only */ });
+  }
 
   function show(c, v) {
     if (c.fmt) return c.fmt(v);
@@ -372,10 +613,16 @@
       keys.forEach(function (k) { lines.push("  " + k + ": " + state.vars[k] + ";"); });
       lines.push("}");
       var fonts = keys.filter(function (k) { return inputs[k] && inputs[k].control.type === "font"; });
-      if (fonts.length) {
-        lines.push("", "Fonts to load from Google Fonts: " + fonts.map(function (k) {
-          return firstFamily(state.vars[k]);
-        }).join(", "));
+      var google = [], own = [];
+      fonts.forEach(function (k) {
+        var family = firstFamily(state.vars[k]);
+        if (isGoogleFont(k, family)) google.push(family);
+        else own.push(family + (state.fonts[family] === "file" ? " (added as a file)" : " (installed on this computer)"));
+      });
+      if (google.length) lines.push("", "Fonts to load from Google Fonts: " + google.join(", "));
+      if (own.length) {
+        lines.push("", "Your own fonts: " + own.join(", "),
+          "Send the web font files for these (.woff2 preferred, or .otf / .ttf) so they can be added to the site.");
       }
       lines.push("");
     }

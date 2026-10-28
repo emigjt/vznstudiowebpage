@@ -58,11 +58,18 @@ to get a design panel on the live page:
 
 - colour pickers for the background, text, accent and lines
 - headline and body font pickers (Google Fonts), headline weight and case
+- **your own fonts**: *Browse installed fonts* lists every font on your computer, each
+  shown in its own typeface, with search (Chrome and Edge, after you allow font access);
+  *Add font files* takes `.otf`, `.ttf`, `.woff` or `.woff2` files (any browser; drop them
+  on the panel too). In Font Book, right-click a font and choose **Show in Finder** to
+  get its files. Added files are kept in that browser until you remove them.
 - sliders for headline size, line and letter spacing, body size, margins,
   section spacing, hero logo size and film grain
 - **Edit text**: click any heading or paragraph on the page and retype it
 
-Tweaks are kept in your browser only, so visitors never see them. **Copy changes**
+Tweaks are kept in your browser only, so visitors never see them. A font you pick from
+your own computer only shows on your machine until its web font files are added to the
+site (in `assets/fonts/`); **Copy changes** lists which ones are needed. **Copy changes**
 gives a summary (CSS values plus before/after text) to paste into the code or hand
 to whoever maintains the site. **Reset all** goes back to the original.
 

@@ -119,3 +119,51 @@ body.vzn-text-editing .site-header { mix-blend-mode: normal; }
   .vzn-editor { top: auto; left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 58vh; }
   .vzn-editor.is-collapsed { left: auto; }
 }
+
+/* Your own fonts: installed fonts browser and font file upload */
+.vzn-fonttools { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 0 2px; }
+.vzn-fonttools .vzn-btn { flex: 1 1 auto; }
+.vzn-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.vzn-file:focus-visible + .vzn-btn, .vzn-btn:focus-visible { outline: 2px solid #ff3b2f; outline-offset: 2px; }
+.vzn-font-status { margin: 6px 0 4px; }
+.vzn-fontbrowser { margin: 6px 0 4px; padding: 8px; border: 1px solid #333; border-radius: 8px; background: #101010; }
+.vzn-fontbrowser[hidden] { display: none; }
+.vzn-fb-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: #8a8a8a; }
+.vzn-fb-bar input {
+  flex: 1;
+  min-width: 0;
+  background: #1d1d1d;
+  color: #ececec;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font: inherit;
+}
+.vzn-seg { background: #1d1d1d; color: #cfcfcf; border: 1px solid #3a3a3a; border-radius: 999px; padding: 4px 10px; font: inherit; cursor: pointer; }
+.vzn-seg[aria-pressed="true"] { background: #ececec; color: #000; border-color: #ececec; }
+.vzn-fontlist { max-height: 300px; overflow-y: auto; overscroll-behavior: contain; }
+.vzn-fl-head { position: sticky; top: 0; z-index: 1; margin: 0; padding: 6px 2px 4px; background: #101010; color: #8a8a8a; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+.vzn-fontrow {
+  display: block;
+  width: 100%;
+  padding: 6px 6px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: #ececec;
+  font-size: 19px;
+  line-height: 1.25;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 36px;
+}
+.vzn-fontrow[hidden] { display: none; }
+.vzn-fontrow:hover { background: #1f1f1f; }
+.vzn-fontrow[aria-pressed="true"] { background: #ececec; color: #000; }
+.vzn-link { margin-top: 6px; padding: 2px 0; background: none; border: 0; color: #8a8a8a; font: inherit; text-decoration: underline; cursor: pointer; }
+.vzn-link[hidden] { display: none; }
+.vzn-editor.is-dropping { outline: 2px dashed #ff3b2f; outline-offset: -6px; }
