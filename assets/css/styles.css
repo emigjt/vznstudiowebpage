@@ -20,7 +20,7 @@
   /* Type: serif for display, clean sans for everything else */
   --font-serif: "Playfair Display", "Times New Roman", serif;
   --font-mono: "Inter Tight", "Helvetica Neue", Arial, sans-serif;  /* body / UI font */
-  --text-size: 1.125rem;     /* body / UI text */
+  --text-size: 1.2rem;       /* body / UI text */
   --display-scale: 0.84;      /* multiplies every big serif headline */
   --display-leading: 1.16;    /* multiplies headline line spacing */
   --display-tracking: -0.015em;
