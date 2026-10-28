@@ -303,6 +303,13 @@ em { font-style: italic; }
   text-transform: uppercase;
 }
 
+/* Menu links land each section exactly at the top of the screen (not header-height
+   below it), so the end of the previous section never shows under the header. The
+   sections keep their content clear of the header themselves: Work's panels have
+   their own top padding, Shop and Contact get the header height added to theirs. */
+#work, #shop, #contact { scroll-margin-top: calc(-1 * var(--header-h)); }
+.shop, .contact { padding-top: calc(var(--section-pad) + var(--header-h)); }
+
 /* Work: Sound and Visual panels side by side; main.js pins the section and
    turns vertical scrolling into the sideways move. ------------------------- */
 .work { position: relative; border-top: 1px solid var(--line); }
@@ -484,10 +491,6 @@ em { font-style: italic; }
 .viewer-desc { color: var(--muted); max-width: 60ch; margin: 0; }
 
 /* Shop ------------------------------------------------------------------- */
-/* Jumping to #shop lands on the section's top edge (not header-height below it), so the
-   end of the Work section never peeks out under the header; extra top padding keeps
-   the content clear of the header instead. */
-.shop { padding-top: calc(var(--section-pad) + var(--header-h)); scroll-margin-top: calc(-1 * var(--header-h)); }
 .shop-head { margin-bottom: clamp(40px, 6vw, 80px); }
 .shop-head .section-label { margin-bottom: 20px; }
 .shop-title {
