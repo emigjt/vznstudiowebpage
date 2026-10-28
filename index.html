@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>VZN — Vision Studio Co. | Audio &amp; Visual Production</title>
-  <meta name="description" content="VZN (Vision Studio Co.) is a creative studio producing music, sound, film and visual work. Explore the portfolio and services.">
+  <title>VZN — Vision Studio Co. | Beats, Mixes &amp; Artwork</title>
+  <meta name="description" content="VZN (Vision Studio Co.): beats, mixing and mastering, cover art and artwork. Listen, browse the work, shop merch and get in touch.">
   <meta name="theme-color" content="#000000">
 
   <meta property="og:title" content="VZN — Vision Studio Co.">
-  <meta property="og:description" content="Music, sound, film and visual work from Vision Studio Co.">
+  <meta property="og:description" content="Beats, mixes, cover art and merch from Vision Studio Co.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="assets/brand/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -42,8 +42,7 @@
     <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>Menu</button>
     <nav id="site-nav" class="site-nav" data-nav>
       <a href="#work">Work</a>
-      <a href="#studio">Studio</a>
-      <a href="#services">Services</a>
+      <a href="#shop">Shop</a>
       <a href="#contact">Contact</a>
     </nav>
   </header>
@@ -78,7 +77,7 @@
         </p>
         <ul class="hero-links">
           <li><a href="#work">Work</a></li>
-          <li><a href="#services">Services</a></li>
+          <li><a href="#shop">Shop</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
       </div>
@@ -87,124 +86,51 @@
       </div>
     </section>
 
-    <!-- WORK -->
-    <section class="work" id="work">
-      <div class="work-index">
-        <div class="work-head">
-          <h2 class="mono-title">Selected Works</h2>
-          <div class="filters" role="group" aria-label="Filter work" data-filters>
-            <button class="filter is-active" aria-pressed="true" data-filter="all">All</button>
-            <button class="filter" aria-pressed="false" data-filter="audio">Audio</button>
-            <button class="filter" aria-pressed="false" data-filter="visual">Visual</button>
+    <!-- WORK: two panels side by side; scrolling slides from Sound to Visual (main.js) -->
+    <section class="work" id="work" aria-labelledby="work-title" data-work>
+      <div class="work-pin" data-work-pin>
+        <div class="work-bar">
+          <h2 class="mono-title" id="work-title">Work</h2>
+          <nav class="work-tabs" aria-label="Work sections">
+            <a href="#sound" class="is-active" data-work-jump="sound">Sound</a>
+            <span class="work-progress" aria-hidden="true"><span data-work-progress></span></span>
+            <a href="#visual" data-work-jump="visual">Visual</a>
+          </nav>
+          <div class="now-playing" data-now-playing hidden>
+            <button type="button" class="np-toggle" data-np-toggle>Pause</button>
+            <span class="np-title" data-np-title></span>
           </div>
         </div>
 
-        <ol class="work-list" data-work-list></ol>
-        <p class="work-empty" data-work-empty hidden>No projects in this category yet.</p>
-
-        <div class="work-info" data-work-info aria-live="polite">
-          <dl class="details" data-work-details></dl>
-          <p class="work-desc" data-work-desc></p>
+        <div class="work-track" data-work-track>
+          <div class="work-panel panel-sound" id="sound">
+            <div class="panel-intro">
+              <p class="mono-title">01 / 02</p>
+              <h3 class="panel-title">Sound</h3>
+              <p class="panel-lede">Beats, mixes and masters. Press play on any cover.</p>
+            </div>
+            <ol class="rail" data-sound-list></ol>
+          </div>
+          <div class="work-panel panel-visual" id="visual">
+            <div class="panel-intro">
+              <p class="mono-title">02 / 02</p>
+              <h3 class="panel-title">Visual</h3>
+              <p class="panel-lede">Cover art, artwork and videos. Open any piece to see it larger.</p>
+            </div>
+            <ol class="rail" data-visual-list></ol>
+          </div>
         </div>
-      </div>
-
-      <div class="work-stage" data-work-stage aria-live="polite"></div>
-    </section>
-
-    <!-- STUDIO -->
-    <section class="section studio" id="studio">
-      <p class="mono-title section-label">Studio</p>
-      <p class="statement">
-        One studio for the sound <em>and</em> the picture
-      </p>
-
-      <div class="studio-grid">
-        <div class="studio-copy">
-          <p>
-            VZN — Vision Studio Co. — builds the audio and visuals together, so every
-            piece of a release feels like the same idea. Your creative vision brought
-            to life. Integrated seamlessly.
-          </p>
-          <p>
-            We work with artists, labels, brands and creators who care how their
-            work looks <em>and</em> sounds — from a single track to a full release
-            campaign.
-          </p>
-        </div>
-        <dl class="details">
-          <div><dt>Studio</dt><dd>Vision Studio Co. (VZN)</dd></div>
-          <div><dt>Practice</dt><dd>Audio / Visual</dd></div>
-          <div><dt>Disciplines</dt><dd>Production, Recording, Mixing, Mastering, Sound Design, Film, Photography, Art Direction</dd></div>
-          <div><dt>Clients</dt><dd>Artists, Labels, Brands, Creators</dd></div>
-          <div><dt>Status</dt><dd><span class="pulse" aria-hidden="true"></span>Booking new projects</dd></div>
-        </dl>
       </div>
     </section>
 
-    <!-- SERVICES -->
-    <section class="section" id="services">
-      <p class="mono-title section-label">Services</p>
-
-      <div class="services">
-        <div class="service-group">
-          <h2 class="service-group-title">Audio</h2>
-          <ol class="service-list">
-            <li class="service">
-              <span class="service-num">A.01</span>
-              <h3>Music Production</h3>
-              <p>Beats, arrangements and full productions built around your sound, from demo to finished record.</p>
-            </li>
-            <li class="service">
-              <span class="service-num">A.02</span>
-              <h3>Recording</h3>
-              <p>Vocal and instrument tracking with direction to get the take that carries the song.</p>
-            </li>
-            <li class="service">
-              <span class="service-num">A.03</span>
-              <h3>Mixing &amp; Mastering</h3>
-              <p>Balanced, loud and clear mixes, mastered for streaming, radio and vinyl.</p>
-            </li>
-            <li class="service">
-              <span class="service-num">A.04</span>
-              <h3>Sound Design &amp; Scoring</h3>
-              <p>Original music, foley and sonic branding for film, ads, games and content.</p>
-            </li>
-          </ol>
-        </div>
-
-        <div class="service-group">
-          <h2 class="service-group-title">Visual</h2>
-          <ol class="service-list">
-            <li class="service">
-              <span class="service-num">V.01</span>
-              <h3>Music Videos</h3>
-              <p>Concept, shoot, edit and colour — videos that extend the world of the record.</p>
-            </li>
-            <li class="service">
-              <span class="service-num">V.02</span>
-              <h3>Photography</h3>
-              <p>Press shots, cover art photography, behind-the-scenes, and event coverage.</p>
-            </li>
-            <li class="service">
-              <span class="service-num">V.03</span>
-              <h3>Short-form Content</h3>
-              <p>Visualizers, teasers, and social cuts sized for every platform in your rollout.</p>
-            </li>
-            <li class="service">
-              <span class="service-num">V.04</span>
-              <h3>Creative Direction &amp; Branding</h3>
-              <p>Cover art, logos, and visual identity that tie a release or brand together.</p>
-            </li>
-          </ol>
-        </div>
+    <!-- SHOP: products come from data/shop.js -->
+    <section class="section shop" id="shop" aria-labelledby="shop-title">
+      <div class="shop-head">
+        <p class="mono-title section-label">Shop</p>
+        <h2 class="shop-title" id="shop-title">Wear the <em>vision</em></h2>
+        <p class="shop-lede">Merch from the studio. Checkout opens on our store in a new tab.</p>
       </div>
-
-      <ol class="process" aria-label="How a project runs">
-        <li><span class="mono-title">01 — Discover</span><p>Idea, references, audience and timeline. You get a scope and quote.</p></li>
-        <li><span class="mono-title">02 — Create</span><p>Sessions and shoots, with check-ins so you hear and see progress.</p></li>
-        <li><span class="mono-title">03 — Refine</span><p>Revision rounds on mixes, edits and artwork until it feels finished.</p></li>
-        <li><span class="mono-title">04 — Release</span><p>Masters and exports in every format you need for launch.</p></li>
-      </ol>
+      <ul class="products" data-products></ul>
     </section>
 
     <!-- CONTACT -->
@@ -242,14 +168,11 @@
           <div class="field">
             <label for="service">Service</label>
             <select id="service" name="service">
-              <option>Music production</option>
-              <option>Recording</option>
+              <option>Beats / production</option>
               <option>Mixing &amp; mastering</option>
-              <option>Sound design / scoring</option>
+              <option>Cover art / artwork</option>
               <option>Music video</option>
-              <option>Photography</option>
-              <option>Short-form content</option>
-              <option>Creative direction / branding</option>
+              <option>Merch / shop question</option>
               <option>Something else</option>
             </select>
           </div>
@@ -273,7 +196,19 @@
     </div>
   </footer>
 
+  <!-- Project viewer: artwork, videos and linked players -->
+  <dialog class="viewer" data-viewer aria-labelledby="viewer-title">
+    <button type="button" class="viewer-close" data-viewer-close>Close [×]</button>
+    <div class="viewer-media" data-viewer-media></div>
+    <div class="viewer-body">
+      <p class="mono-title viewer-meta" data-viewer-meta></p>
+      <h3 class="viewer-title" id="viewer-title" data-viewer-title></h3>
+      <p class="viewer-desc" data-viewer-desc></p>
+    </div>
+  </dialog>
+
   <script src="data/portfolio.js"></script>
+  <script src="data/shop.js"></script>
   <script src="assets/js/main.js"></script>
   <script src="assets/js/logo-fx.js"></script>
 </body>

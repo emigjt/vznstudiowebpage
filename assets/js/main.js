@@ -1,10 +1,8 @@
 (function () {
   "use strict";
 
-  var projects = Array.isArray(window.VZN_PORTFOLIO) ? window.VZN_PORTFOLIO : [];
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  var narrow = window.matchMedia("(max-width: 900px)");
   var LOGO = "assets/brand/logo-white.svg";
 
   function $(sel, root) { return (root || document).querySelector(sel); }
@@ -15,10 +13,6 @@
     if (className) node.className = className;
     if (text != null) node.textContent = text;
     return node;
-  }
-
-  function slug(str) {
-    return String(str).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   }
 
   // Stable number from a string, used to vary generated covers per project.
@@ -74,8 +68,9 @@
   render();
 
   /* Generated covers (used until real images are added) -------------------- */
-  function makeCover(project, variant) {
-    var seed = hash(project.title + project.type + variant);
+  // kind: "sound" (waveform), "visual" (faint logo) or "video" (play mark).
+  function makeCover(item, kind, ratio) {
+    var seed = hash(item.title + item.type + (item.year || ""));
     var cover = el("div", "cover");
     var x = 10 + (seed % 80);
     var y = 10 + ((seed >> 4) % 80);
@@ -84,25 +79,24 @@
       "radial-gradient(60% 50% at " + x + "% " + y + "%, hsl(30 3% " + light + "%), transparent 70%)," +
       "radial-gradient(80% 60% at " + (100 - x) + "% " + (100 - y) + "%, hsl(220 4% 12%), transparent 70%)," +
       "#0a0a0a";
+    if (ratio) cover.style.aspectRatio = ratio;
 
     var label = el("div", "cover-label");
-    label.appendChild(el("span", null, project.title));
-    label.appendChild(el("span", null, project.year || ""));
+    label.appendChild(el("span", null, item.title));
+    label.appendChild(el("span", null, item.year || ""));
     cover.appendChild(label);
 
-    if (variant === 1) {
-      if (project.category === "audio") {
-        var wave = el("div", "cover-wave");
-        for (var i = 0; i < 64; i++) {
-          var bar = document.createElement("i");
-          var amp = 0.06 + Math.abs(Math.sin((i + seed) * 0.37) * Math.cos(i * 0.11)) * 0.94;
-          bar.style.height = Math.round(amp * 100) + "%";
-          wave.appendChild(bar);
-        }
-        cover.appendChild(wave);
-      } else {
-        cover.appendChild(el("div", "cover-play"));
+    if (kind === "sound") {
+      var wave = el("div", "cover-wave");
+      for (var i = 0; i < 48; i++) {
+        var bar = document.createElement("i");
+        var amp = 0.06 + Math.abs(Math.sin((i + seed) * 0.37) * Math.cos(i * 0.11)) * 0.94;
+        bar.style.height = Math.round(amp * 100) + "%";
+        wave.appendChild(bar);
       }
+      cover.appendChild(wave);
+    } else if (kind === "video") {
+      cover.appendChild(el("div", "cover-play"));
     } else {
       var mark = document.createElement("img");
       mark.className = "cover-mark";
@@ -126,33 +120,27 @@
     var frame = document.createElement("iframe");
     frame.src = src;
     frame.title = title;
-    frame.loading = "lazy";
     frame.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
     frame.allowFullscreen = true;
     if (className) frame.className = className;
     return frame;
   }
 
-  function buildEmbed(project) {
-    var media = project.media;
+  function buildEmbed(item) {
+    var media = item.media;
     if (!media || !media.src) return null;
-    var title = project.title + " — player";
+    var title = item.title + " — player";
     switch (media.kind) {
       case "youtube":
         return iframe("https://www.youtube-nocookie.com/embed/" + encodeURIComponent(youtubeId(media.src)) + "?rel=0", null, title);
       case "vimeo":
-        return iframe("https://player.vimeo.com/video/" + encodeURIComponent(vimeoId(media.src)) + "?color=ff3b2f", null, title);
+        return iframe("https://player.vimeo.com/video/" + encodeURIComponent(vimeoId(media.src)), null, title);
       case "soundcloud":
         return iframe("https://w.soundcloud.com/player/?url=" + encodeURIComponent(media.src) +
-          "&color=%23ff3b2f&visual=false&show_comments=false", "is-audio", title);
+          "&color=%23e8e7e3&visual=false&show_comments=false", "is-audio", title);
       case "spotify":
         return iframe(String(media.src).replace("open.spotify.com/", "open.spotify.com/embed/") +
           (String(media.src).indexOf("?") === -1 ? "?theme=0" : ""), "is-spotify", title);
-      case "audio":
-        var audio = document.createElement("audio");
-        audio.controls = true;
-        audio.src = media.src;
-        return audio;
       case "video":
         var video = document.createElement("video");
         video.controls = true;
@@ -164,135 +152,322 @@
     }
   }
 
-  // Column spans (out of 12) for the gallery: varied sizes, top-aligned.
-  function spansFor(count) {
-    if (count === 1) return [8];
-    if (count === 2) return [5, 7];
-    if (count === 3) return [3, 5, 4];
-    var cycle = [3, 5, 4, 7, 5, 4, 8];
+  /* Viewer (artwork, videos, linked players) ------------------------------- */
+  var viewer = $("[data-viewer]");
+  var viewerMedia = $("[data-viewer-media]");
+
+  function openViewer(item, kind) {
+    var media = buildEmbed(item);
+    if (!media && item.image) {
+      media = document.createElement("img");
+      media.src = item.image;
+      media.alt = item.title;
+    }
+    if (!media && item.cover) {
+      media = document.createElement("img");
+      media.src = item.cover;
+      media.alt = item.title;
+    }
+    if (!media) media = makeCover(item, kind, "16 / 10");
+    viewerMedia.replaceChildren(media);
+    $("[data-viewer-meta]").textContent =
+      [item.type, item.artist || item.client, item.year].filter(Boolean).join(" / ");
+    $("[data-viewer-title]").textContent = item.title;
+    $("[data-viewer-desc]").textContent = item.description || "";
+    if (kind === "sound") audio.pause();
+    viewer.showModal();
+  }
+  // Closing (button, Esc or backdrop) stops anything playing inside.
+  viewer.addEventListener("close", function () { viewerMedia.replaceChildren(); });
+  $("[data-viewer-close]").addEventListener("click", function () { viewer.close(); });
+  viewer.addEventListener("click", function (e) { if (e.target === viewer) viewer.close(); });
+
+  /* Shared audio player for sound cards ------------------------------------ */
+  var audio = new Audio();
+  audio.preload = "none";
+  var playing = null;   // { item, card }
+  var nowPlaying = $("[data-now-playing]");
+  var npToggle = $("[data-np-toggle]");
+  var npTitle = $("[data-np-title]");
+
+  function cardButton(card) { return $(".card-play", card); }
+
+  function showState() {
+    if (!playing) return;
+    var paused = audio.paused;
+    var btn = cardButton(playing.card);
+    btn.textContent = paused ? "Play" : "Pause";
+    btn.setAttribute("aria-label", (paused ? "Play " : "Pause ") + playing.item.title);
+    playing.card.classList.toggle("is-playing", !paused);
+    npToggle.textContent = paused ? "Play" : "Pause";
+    nowPlaying.hidden = false;
+  }
+
+  function toggleTrack(item, card) {
+    var media = item.media;
+    if (!media || !media.src) return;
+    if (media.kind !== "audio") { openViewer(item, "sound"); return; }
+    if (playing && playing.item === item) {
+      if (audio.paused) audio.play().catch(playFailed); else audio.pause();
+      return;
+    }
+    if (playing) {
+      playing.card.classList.remove("is-playing");
+      cardButton(playing.card).textContent = "Play";
+      $(".card-progress i", playing.card).style.transform = "";
+    }
+    playing = { item: item, card: card };
+    npTitle.textContent = item.title + (item.artist ? " — " + item.artist : "");
+    audio.src = media.src;
+    audio.play().catch(playFailed);
+    showState();
+  }
+  function playFailed() {
+    if (!playing) return;
+    cardButton(playing.card).textContent = "Can't play";
+    npToggle.textContent = "Play";
+  }
+  audio.addEventListener("play", showState);
+  audio.addEventListener("pause", showState);
+  audio.addEventListener("ended", showState);
+  audio.addEventListener("timeupdate", function () {
+    if (!playing || !audio.duration) return;
+    $(".card-progress i", playing.card).style.transform = "scaleX(" + (audio.currentTime / audio.duration).toFixed(4) + ")";
+  });
+  npToggle.addEventListener("click", function () {
+    if (!playing) return;
+    if (audio.paused) audio.play().catch(playFailed); else audio.pause();
+  });
+
+  /* Work rails --------------------------------------------------------------- */
+  var portfolio = window.VZN_PORTFOLIO || {};
+  var soundItems = Array.isArray(portfolio.sound) ? portfolio.sound : [];
+  var visualItems = Array.isArray(portfolio.visual) ? portfolio.visual : [];
+
+  // Consecutive items with the same type form a group with a label.
+  function groups(items) {
     var out = [];
-    for (var i = 0; i < count; i++) out.push(cycle[i % cycle.length]);
+    items.forEach(function (item) {
+      var last = out[out.length - 1];
+      if (!last || last.label !== item.type) out.push({ label: item.type || "", items: [item] });
+      else last.items.push(item);
+    });
     return out;
   }
 
-  /* Work index ------------------------------------------------------------- */
-  var list = $("[data-work-list]");
-  var empty = $("[data-work-empty]");
-  var details = $("[data-work-details]");
-  var desc = $("[data-work-desc]");
-  var stage = $("[data-work-stage]");
-  var current = -1;
-
-  projects.forEach(function (project, index) {
-    project.slug = project.slug || slug(project.title);
-    var li = el("li");
-    li.dataset.category = project.category;
-    var btn = document.createElement("button");
-    btn.type = "button";
-    btn.dataset.index = index;
-    btn.appendChild(el("span", "cat", project.category === "audio" ? "A" : "V"));
-    btn.appendChild(el("span", "title", project.title));
-    btn.appendChild(el("span", "year", project.year || ""));
-    btn.addEventListener("click", function () {
-      select(index, true);
-      if (narrow.matches) $("[data-work-info]").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-    });
-    li.appendChild(btn);
-    list.appendChild(li);
-  });
-
-  function addDetail(term, value) {
-    if (!value) return;
-    var row = el("div");
-    row.appendChild(el("dt", null, term));
-    row.appendChild(el("dd", null, value));
-    details.appendChild(row);
+  function groupLabel(group) {
+    var li = el("li", "rail-group");
+    li.appendChild(el("span", null, group.label));
+    li.appendChild(el("span", "rail-count", pad(group.items.length)));
+    return li;
   }
 
-  function select(index, fromUser) {
-    var project = projects[index];
-    if (!project) return;
-    current = index;
+  function pad(n) { return n < 10 ? "0" + n : String(n); }
 
-    $$("button", list).forEach(function (b) {
-      b.setAttribute("aria-current", String(Number(b.dataset.index) === index));
-    });
-
-    details.replaceChildren();
-    addDetail("Client", project.client);
-    addDetail("Year", project.year);
-    addDetail("Type", project.type);
-    addDetail("Discipline", project.category === "audio" ? "Audio" : "Visual");
-    addDetail("Role", project.role);
-    addDetail("Status", project.status);
-    desc.textContent = project.description || "";
-
-    stage.replaceChildren();
-    var embed = buildEmbed(project);
-    if (embed) {
-      var embedWrap = el("div", "stage-item stage-embed");
-      embedWrap.appendChild(embed);
-      stage.appendChild(embedWrap);
-    }
-
-    var images = (project.images || []).map(function (img) {
-      return typeof img === "string" ? { src: img } : img;
-    });
-    var count = images.length || 3;
-    var spans = spansFor(count);
-    for (var i = 0; i < count; i++) {
-      var fig = el("figure", "stage-item span-" + spans[i]);
-      if (images.length) {
+  var soundList = $("[data-sound-list]");
+  groups(soundItems).forEach(function (group) {
+    soundList.appendChild(groupLabel(group));
+    group.items.forEach(function (item) {
+      var card = el("li", "card card-sound");
+      var media = el("div", "card-media");
+      if (item.cover) {
         var img = document.createElement("img");
-        img.src = images[i].src;
-        img.alt = images[i].alt || project.title;
+        img.src = item.cover;
+        img.alt = "";
         img.loading = "lazy";
-        fig.appendChild(img);
+        media.appendChild(img);
       } else {
-        fig.appendChild(makeCover(project, i));
+        media.appendChild(makeCover(item, "sound"));
       }
-      stage.appendChild(fig);
-    }
-
-    if (fromUser && window.history.replaceState) {
-      window.history.replaceState(null, "", "#work/" + project.slug);
-    }
-  }
-
-  /* Filters ---------------------------------------------------------------- */
-  var filterButtons = $$("[data-filter]");
-  filterButtons.forEach(function (button) {
-    button.addEventListener("click", function () {
-      var value = button.dataset.filter;
-      filterButtons.forEach(function (b) {
-        var active = b === button;
-        b.classList.toggle("is-active", active);
-        b.setAttribute("aria-pressed", String(active));
-      });
-      var firstVisible = -1;
-      $$("li", list).forEach(function (li, i) {
-        var match = value === "all" || li.dataset.category === value;
-        li.hidden = !match;
-        if (match && firstVisible === -1) firstVisible = i;
-      });
-      empty.hidden = firstVisible !== -1;
-      var currentVisible = current !== -1 && !$$("li", list)[current].hidden;
-      if (!currentVisible && firstVisible !== -1) select(firstVisible, true);
+      var btn = el("button", "card-play");
+      btn.type = "button";
+      var hasMedia = item.media && item.media.src;
+      if (!hasMedia) {
+        btn.textContent = "Soon";
+        btn.disabled = true;
+        btn.setAttribute("aria-label", item.title + ": audio coming soon");
+      } else {
+        btn.textContent = item.media.kind === "audio" ? "Play" : "Listen";
+        btn.setAttribute("aria-label", (item.media.kind === "audio" ? "Play " : "Listen to ") + item.title);
+        btn.addEventListener("click", function () { toggleTrack(item, card); });
+      }
+      media.appendChild(btn);
+      var progress = el("span", "card-progress");
+      progress.appendChild(document.createElement("i"));
+      media.appendChild(progress);
+      card.appendChild(media);
+      card.appendChild(el("p", "card-meta", [
+        item.bpm ? item.bpm + " BPM" : "", item.key, item.year
+      ].filter(Boolean).join(" · ")));
+      card.appendChild(el("h4", "card-title", item.title));
+      if (item.artist) card.appendChild(el("p", "card-sub", item.artist));
+      soundList.appendChild(card);
     });
   });
 
-  // Open a project from a shared link (#work/project-slug), else the first one.
-  var initial = 0;
-  var match = window.location.hash.match(/^#work\/(.+)$/);
-  if (match) {
-    projects.forEach(function (p, i) { if (p.slug === decodeURIComponent(match[1])) initial = i; });
-    window.addEventListener("load", function () { $("#work").scrollIntoView(); });
+  // Visual pieces: varied heights, top-aligned, widths follow each image.
+  var HEIGHTS = [1, 0.68, 0.86, 0.6, 0.94, 0.74];
+  var RATIOS = ["4 / 5", "1 / 1", "3 / 4", "1 / 1", "5 / 4", "16 / 10"];
+  var visualList = $("[data-visual-list]");
+  var visualIndex = 0;
+  groups(visualItems).forEach(function (group) {
+    visualList.appendChild(groupLabel(group));
+    group.items.forEach(function (item) {
+      var i = visualIndex++;
+      var isVideo = item.media && /youtube|vimeo|video/.test(item.media.kind) || /video/i.test(item.type || "");
+      var card = el("li", "card card-visual");
+      card.style.setProperty("--h", HEIGHTS[i % HEIGHTS.length]);
+      var open = el("button", "card-media card-open");
+      open.type = "button";
+      open.setAttribute("aria-label", "Open " + item.title);
+      if (item.image) {
+        var img = document.createElement("img");
+        img.src = item.image;
+        img.alt = "";
+        img.loading = "lazy";
+        img.addEventListener("load", measureWork);
+        open.appendChild(img);
+      } else {
+        open.appendChild(makeCover(item, isVideo ? "video" : "visual", isVideo ? "16 / 10" : RATIOS[i % RATIOS.length]));
+      }
+      open.addEventListener("click", function () { openViewer(item, isVideo ? "video" : "visual"); });
+      card.appendChild(open);
+      card.appendChild(el("p", "card-meta", [item.year].filter(Boolean).join(" · ")));
+      card.appendChild(el("h4", "card-title", item.title));
+      if (item.client) card.appendChild(el("p", "card-sub", item.client));
+      visualList.appendChild(card);
+    });
+  });
+
+  /* Work: vertical scroll drives the sideways move -------------------------- */
+  var work = $("[data-work]");
+  var workPin = $("[data-work-pin]");
+  var track = $("[data-work-track]");
+  var visualPanel = $("#visual");
+  var progressBar = $("[data-work-progress]");
+  var jumps = $$("[data-work-jump]");
+  var distance = 0;
+  var workTicking = false;
+
+  work.classList.add("is-pinned");
+
+  function measureWork() {
+    distance = Math.max(0, track.scrollWidth - workPin.clientWidth);
+    // The section is as tall as the sideways distance, so one pixel down = one pixel across.
+    work.style.height = (workPin.offsetHeight + distance) + "px";
+    updateWork();
   }
-  if (projects.length) select(initial, false);
-  else empty.hidden = false;
+
+  function workOffset() {
+    return Math.min(Math.max(-work.getBoundingClientRect().top, 0), distance);
+  }
+
+  function updateWork() {
+    workTicking = false;
+    var x = workOffset();
+    var rect = work.getBoundingClientRect();
+    document.documentElement.classList.toggle("in-work", rect.top <= 0 && rect.bottom >= window.innerHeight);
+    track.style.transform = "translate3d(" + (-x).toFixed(1) + "px, 0, 0)";
+    progressBar.style.transform = "scaleX(" + (distance ? x / distance : 0).toFixed(4) + ")";
+    var onVisual = x + workPin.clientWidth * 0.5 >= visualPanel.offsetLeft;
+    work.classList.toggle("on-visual", onVisual);
+    jumps.forEach(function (a) {
+      a.classList.toggle("is-active", (a.dataset.workJump === "visual") === onVisual);
+    });
+  }
+
+  window.addEventListener("scroll", function () {
+    if (!workTicking) { workTicking = true; window.requestAnimationFrame(updateWork); }
+  }, { passive: true });
+  window.addEventListener("resize", measureWork);
+  window.addEventListener("load", measureWork);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureWork);
+  measureWork();
+
+  // Keyboard focus on an off-screen card scrolls the page to bring it into view.
+  track.addEventListener("focusin", function (e) {
+    var card = e.target.closest(".card, .work-panel");
+    if (!card) return;
+    workPin.scrollLeft = 0;   // the browser may try to scroll the clipped track itself
+    var left = card.offsetLeft + (card.offsetParent !== track ? card.offsetParent.offsetLeft : 0);
+    var x = workOffset();
+    if (left < x || left + card.offsetWidth > x + workPin.clientWidth) {
+      var top = work.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: top + Math.min(Math.max(left - workPin.clientWidth * 0.3, 0), distance), behavior: "instant" });
+    }
+  });
+
+  // Sound / Visual links scroll to where that panel is in view.
+  jumps.forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      var top = work.getBoundingClientRect().top + window.scrollY;
+      var across = a.dataset.workJump === "visual" ? Math.min(visualPanel.offsetLeft, distance) : 0;
+      window.scrollTo({ top: top + across, behavior: reduceMotion ? "auto" : "smooth" });
+    });
+  });
+
+  /* Shop ------------------------------------------------------------------- */
+  var MOCKUPS = {
+    tee: '<path d="M70 22 Q100 40 130 22 L164 36 L188 72 L162 88 L150 76 L150 184 L50 184 L50 76 L38 88 L12 72 L36 36 Z"/>',
+    hoodie: '<path d="M72 32 Q100 6 128 32 L160 44 L182 150 L158 156 L148 96 L148 188 L52 188 L52 96 L42 156 L18 150 L40 44 Z"/>' +
+      '<path class="seam" d="M84 34 Q100 58 116 34 M72 150 L128 150 L134 176 L66 176 Z"/>',
+    poster: '<rect class="paper" x="48" y="14" width="104" height="152"/>'
+  };
+
+  function mockup(kind) {
+    var wrap = el("div", "mockup mockup-" + kind);
+    wrap.innerHTML = '<svg viewBox="0 0 200 200" aria-hidden="true">' + (MOCKUPS[kind] || MOCKUPS.tee) + "</svg>";
+    var mark = document.createElement("img");
+    mark.className = "mockup-mark";
+    mark.src = kind === "poster" ? "assets/brand/logo-black.svg" : LOGO;
+    mark.alt = "";
+    wrap.appendChild(mark);
+    return wrap;
+  }
+
+  var productList = $("[data-products]");
+  (Array.isArray(window.VZN_SHOP) ? window.VZN_SHOP : []).forEach(function (product) {
+    var li = el("li", "product");
+    var media = el("div", "product-media");
+    if (product.image) {
+      var img = document.createElement("img");
+      img.src = product.image;
+      img.alt = product.name;
+      img.loading = "lazy";
+      media.appendChild(img);
+    } else {
+      media.appendChild(mockup(product.mockup));
+    }
+    li.appendChild(media);
+
+    var info = el("div", "product-info");
+    var head = el("div", "product-head");
+    head.appendChild(el("h3", "product-name", product.name));
+    head.appendChild(el("p", "product-price", product.price || "Price TBA"));
+    info.appendChild(head);
+    info.appendChild(el("p", "product-type", product.type || ""));
+    if (product.sizes && product.sizes.length) {
+      var sizes = el("ul", "product-sizes");
+      sizes.setAttribute("aria-label", "Sizes");
+      product.sizes.forEach(function (s) { sizes.appendChild(el("li", null, s)); });
+      info.appendChild(sizes);
+    }
+    if (product.url) {
+      var buy = el("a", "product-buy", "Buy [↗]");
+      buy.href = product.url;
+      buy.target = "_blank";
+      buy.rel = "noopener";
+      info.appendChild(buy);
+    } else {
+      info.appendChild(el("span", "product-buy is-soon", "Coming soon"));
+    }
+    li.appendChild(info);
+    productList.appendChild(li);
+  });
 
   /* Reveal on scroll ------------------------------------------------------- */
-  $$(".section-label, .statement, .studio-grid, .service-group, .process, .contact-headline, .contact-grid, .footer-mark").forEach(function (n) {
+  $$(".section-label, .shop-head, .products, .contact-headline, .contact-grid, .footer-mark").forEach(function (n) {
     n.classList.add("reveal");
   });
   var revealables = $$(".reveal");

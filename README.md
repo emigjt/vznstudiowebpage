@@ -1,12 +1,14 @@
 # vznstudiowebpage
 Webpage for all things VZN studios and jozemi productions.
 
-The site for **VZN — Vision Studio Co.**: a single-page portfolio and studio site.
+The site for **VZN — Vision Studio Co.**: one page with four parts — the home hero,
+**Work** (beats, mixes, artwork), **Shop** (merch) and **Contact**.
 No build step: plain HTML, CSS and JavaScript.
 
 Design direction: black and bone like the ink logo, one red signal accent, a serif
-(Playfair Display) for display type and a clean sans (Inter Tight) for everything else. The work section is an index — a list of projects with a details table and a
-gallery of varied-size images beside it.
+(Playfair Display) for display type and a clean sans (Inter Tight) for everything else.
+In Work, scrolling down moves the page sideways from **Sound** (black) into **Visual**
+(black ink on bone, like the original logo artwork).
 
 ## Preview locally
 
@@ -18,10 +20,11 @@ python3 -m http.server 8000
 ## Structure
 
 ```
-index.html              Page content: hero, work, studio, services, contact
-data/portfolio.js       Portfolio entries (edit this to add work)
+index.html              Page content: hero, work, shop, contact
+data/portfolio.js       Work: the Sound and Visual lists (edit this to add work)
+data/shop.js            Shop products and their checkout links
 assets/css/styles.css   All styles; brand colours and fonts live in :root at the top
-assets/js/main.js       Work index, filters, gallery/players, nav, contact form
+assets/js/main.js       Work rails and audio player, viewer, shop, nav, contact form
 assets/brand/           Logo (traced SVG, white/black), favicon, social share image
 assets/brand/source/    Original logo file
 assets/media/           Your project images, audio and video files
@@ -29,13 +32,24 @@ assets/media/           Your project images, audio and video files
 
 ## Adding work
 
-1. Put the project's images in a folder such as `assets/media/project-name/`.
-2. Open `data/portfolio.js` and add an entry: title, client, year, type, role, the list
-   of images, and optionally a YouTube, Vimeo, SoundCloud, Spotify or local audio/video
-   player. The field reference is at the top of that file.
+Open `data/portfolio.js`; it has two lists, `sound` and `visual`, and a field
+reference at the top.
 
-Projects without images get generated placeholder covers. Each project has its own
-shareable link, e.g. `/#work/project-name`.
+- **Sound** (beats, mixes): title, type (e.g. "Beat", "Mix & Master"), artist, BPM, key,
+  year, a square cover image, and the audio. An MP3 in `assets/media/audio/` plays right
+  on the card; a SoundCloud, Spotify or YouTube link opens in a player window.
+- **Visual** (cover art, artwork, videos): title, type, client, year, the image, and
+  optionally a video.
+
+Items with the same `type` next to each other are grouped under one label. Items
+without an image get a generated placeholder.
+
+## Shop
+
+Open `data/shop.js`: name, type, price, sizes, a photo and a checkout link per product.
+The site can't take payments itself, so each **Buy** button opens your store's checkout
+page (for example a Stripe Payment Link, or a Shopify, Big Cartel or Fourthwall product
+page) in a new tab. Products without a link show "Coming soon".
 
 ## Edit mode
 

@@ -47,6 +47,8 @@
     { key: "--text", label: "Text", type: "color" },
     { key: "--muted", label: "Muted text", type: "color" },
     { key: "--accent", label: "Accent", type: "color" },
+    { key: "--paper", label: "Visual side background", type: "color" },
+    { key: "--ink", label: "Visual side text", type: "color" },
     { key: "--surface", label: "Covers / fields", type: "color" },
     { key: "--line", label: "Lines", type: "color" },
     { key: "--line-strong", label: "Lines (strong)", type: "color" },
@@ -89,8 +91,8 @@
   var EDITABLE = [
     ".header-blurb", ".header-contact", ".site-nav a",
     ".hero-title .line > span", ".hero-slogan .line > span", ".hero-links a", ".hero-foot > span",
-    "#main .mono-title", ".statement", ".studio-copy p", ".studio-grid dt", ".studio-grid dd",
-    ".service-group-title", ".service-num", ".service h3", ".service p", ".process p",
+    "#main .mono-title", ".panel-title", ".panel-lede", ".work-tabs a",
+    ".shop-title", ".shop-lede",
     ".contact-headline", ".contact-email", ".contact-lede", ".contact .details dt", ".contact .details a",
     ".field label", ".contact-form .btn", ".footer-row > *"
   ].join(",");
