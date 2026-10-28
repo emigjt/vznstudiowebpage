@@ -115,7 +115,7 @@ em { font-style: italic; }
 /* Film grain, echoing the ink texture of the logo */
 .grain {
   position: fixed;
-  inset: -50%;
+  inset: -48px;               /* just enough margin for the jitter below */
   z-index: 100;
   pointer-events: none;
   opacity: var(--grain);
@@ -124,9 +124,9 @@ em { font-style: italic; }
 }
 @keyframes grain {
   0% { transform: translate(0, 0); }
-  25% { transform: translate(-3%, 2%); }
-  50% { transform: translate(2%, -3%); }
-  75% { transform: translate(-1%, 3%); }
+  25% { transform: translate(-37px, 23px); }
+  50% { transform: translate(29px, -41px); }
+  75% { transform: translate(-13px, 43px); }
 }
 
 /* Header ----------------------------------------------------------------- */
@@ -222,8 +222,12 @@ em { font-style: italic; }
   will-change: transform;
 }
 .mark-main { position: relative; display: block; width: 100%; height: auto; }
-/* Ghost layers added by logo-fx.js (same bone white as the logo, no colour);
-   invisible unless the effect is on */
+/* Layers added by logo-fx.js for the scroll reveal: soft (blurred, with ghosts) and
+   mid (half-sharp) sit under the sharp logo. Hidden unless the effect is on. */
+.mark-stack { position: relative; }
+.mark-soft, .mark-mid { position: absolute; inset: 0; opacity: 0; pointer-events: none; display: none; }
+.mark-soft img, .mark-mid img { position: relative; display: block; width: 100%; height: auto; }
+/* Ghosts (same bone white as the logo, no colour) */
 .mark-layer {
   position: absolute;
   inset: 0;
@@ -285,7 +289,10 @@ em { font-style: italic; }
   max-width: none;
   margin: 0;
 }
-.fx-on .hero-title, .fx-on .hero-slogan, .fx-on .hero-links { position: relative; z-index: 1; }
+.fx-on .hero-title, .fx-on .hero-slogan, .fx-on .hero-links { position: relative; z-index: 1; will-change: opacity, transform; }
+.fx-on .mark-soft, .fx-on .mark-mid { display: block; }
+/* Own graphics layers, so scrolling only changes opacity and transform (no redraw) */
+.fx-on .mark-stack, .fx-on .mark-soft, .fx-on .mark-mid, .fx-on .mark-main { will-change: opacity, transform; }
 
 .hero-foot {
   position: absolute;

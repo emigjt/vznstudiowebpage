@@ -82,6 +82,10 @@ with a still greyscale double-exposure ghost. Scrolling holds the hero in place 
 the headline fades away and the logo sharpens into full view, then the page carries
 on. Nothing animates on its own; every change follows the scroll.
 
+To stay smooth, the blurred, half-sharp and sharp logos are separate layers whose blur
+never changes (drawn once); scrolling only crossfades them. The scene also eases toward
+the scroll position (`EASE_MS` in `logo-fx.js`) so mouse-wheel notches glide.
+
 It lives in `assets/js/logo-fx.js` and is controlled from `:root` in
 `assets/css/styles.css`:
 

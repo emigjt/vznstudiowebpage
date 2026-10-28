@@ -2,9 +2,16 @@
   Hero logo scroll reveal
   -----------------------
   The logo rests faint behind the headline: softly blurred, lightly ink-warped,
-  with a still double-exposure ghost at its edges, all in greyscale. Scrolling holds the hero in place
-  while the headline fades away and the logo sharpens into full view; then the
-  page carries on. Nothing moves on its own; every change follows the scroll.
+  with a still double-exposure ghost at its edges, all in greyscale. Scrolling holds
+  the hero in place while the headline fades away and the logo sharpens into full
+  view; then the page carries on.
+
+  Two things keep it smooth:
+  - The blurred, half-sharp and sharp logos are separate layers whose blur never
+    changes, so the browser draws each once; scrolling only crossfades them and
+    fades the headline (opacity and transform, which the graphics card handles).
+  - The scene eases toward the scroll position instead of jumping to it, so a mouse
+    wheel's notches glide rather than step.
 
   Off unless --logo-fx is 1 in :root (assets/css/styles.css). Every strength is
   a --fx-* variable there, and all of them can be tried live in edit mode.
@@ -20,16 +27,38 @@
   var filter = document.getElementById("vzn-ink");
   var disp = filter && filter.querySelector("feDisplacementMap");
   var root = document.documentElement;
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var EASE_MS = 150;   // how quickly the scene catches up with the scroll position
 
-  function layer(className) {
-    var node = document.createElement("div");
-    node.className = "mark-layer " + className;
+  function el(tag, className) {
+    var node = document.createElement(tag);
+    node.className = className;
     node.setAttribute("aria-hidden", "true");
-    mark.appendChild(node);
     return node;
   }
-  var ghostA = layer("is-ghost-a");
-  var ghostB = layer("is-ghost-b");
+  function logoCopy() {
+    var img = document.createElement("img");
+    img.src = main.currentSrc || main.src;
+    img.alt = "";
+    return img;
+  }
+
+  // Layers, bottom to top: soft (blurred + warped + ghosts), mid (half-sharp), main (sharp)
+  var stack = el("div", "mark-stack");
+  var soft = el("div", "mark-soft");
+  var softImg = logoCopy();
+  var ghostA = el("div", "mark-layer is-ghost-a");
+  var ghostB = el("div", "mark-layer is-ghost-b");
+  soft.appendChild(ghostA);
+  soft.appendChild(ghostB);
+  soft.appendChild(softImg);
+  var mid = el("div", "mark-mid");
+  var midImg = logoCopy();
+  mid.appendChild(midImg);
+  mark.insertBefore(stack, main);
+  stack.appendChild(soft);
+  stack.appendChild(mid);
+  stack.appendChild(main);
 
   /* Settings from CSS variables ------------------------------------------- */
   var cfg = { on: false };
@@ -44,16 +73,40 @@
     root.classList.toggle("fx-on", cfg.on);
     if (cfg.on) {
       mark.style.transform = "";   // the regular hero parallax steps aside
-      update();
+      drawLayers();
+      target = shown = progress();
+      render(shown);
     } else {
       clear();
     }
   }
 
+  function px(v) { return v.toFixed(2) + "px"; }
+
+  // The fixed look of each layer. Runs on load, on resize and when a setting
+  // changes, never while scrolling.
+  function drawLayers() {
+    // Tuned on a desktop-sized logo; scaled down with smaller logos (phones) so the
+    // look stays the same instead of washing out.
+    var size = Math.min(1, mark.offsetWidth / 700);
+    var blur = cfg.blur * size;
+    if (disp) disp.setAttribute("scale", (cfg.distort * size).toFixed(1));
+    softImg.style.filter = (disp && cfg.distort ? "url(#vzn-ink) " : "") + "blur(" + px(blur) + ")";
+    midImg.style.filter = "blur(" + px(blur * 0.3) + ")";
+    // Ghosts sit in the soft layer and fade with it; kept fainter than the logo.
+    var ghost = Math.min(1, cfg.ghost * 1.2).toFixed(3);
+    var spread = cfg.offset * size;
+    ghostA.style.opacity = ghost;
+    ghostA.style.transform = "translateX(" + px(-spread) + ")";
+    ghostA.style.filter = "blur(" + px(blur * 1.6) + ")";
+    ghostB.style.opacity = (ghost * 0.85).toFixed(3);
+    ghostB.style.transform = "translateX(" + px(spread) + ")";
+    ghostB.style.filter = "blur(" + px(blur * 1.8) + ")";
+  }
+
   function clear() {
-    [main, ghostA, ghostB].concat(text).forEach(function (node) {
+    [stack, soft, mid, main].concat(text).forEach(function (node) {
       node.style.opacity = "";
-      node.style.filter = "";
       node.style.transform = "";
       node.style.visibility = "";
     });
@@ -63,7 +116,6 @@
   /* Scroll → reveal -------------------------------------------------------- */
   function clamp01(x) { return Math.max(0, Math.min(1, x)); }
   function smoothstep(x) { x = clamp01(x); return x * x * (3 - 2 * x); }
-  function px(v) { return v.toFixed(2) + "px"; }
 
   // 0 at the top of the page, 1 once the reveal distance has been scrolled.
   // Measures --fx-scroll in pixels. The hero is taller than that (by --fx-hold), so
@@ -80,52 +132,59 @@
     return clamp01(scrolled / reveal);
   }
 
-  function update() {
-    ticking = false;
-    if (!cfg.on) return;
-    var p = progress();
+  function render(p) {
     var hideText = smoothstep(p / 0.55);          // headline is gone a little past halfway
-    var showLogo = smoothstep((p - 0.1) / 0.85);  // logo sharpens across the rest
-    var k = 1 - showLogo;                          // how much "behind the text" look remains
-    // Blur and spread are tuned on a desktop-sized logo; scale them down with smaller
-    // logos (phones) so the look stays the same instead of washing out.
-    var size = Math.min(1, mark.offsetWidth / 700);
+    var focus = smoothstep((p - 0.1) / 0.85);     // logo sharpens across the rest
 
-    // Logo
-    var opacity = cfg.rest + (1 - cfg.rest) * showLogo;
-    main.style.opacity = opacity.toFixed(3);
-    main.style.filter = k > 0.01
-      ? (disp && cfg.distort ? "url(#vzn-ink) " : "") + "blur(" + px(cfg.blur * size * k) + ")"
-      : "";
-    main.style.transform = k > 0.01 ? "scale(" + (1 + 0.05 * k).toFixed(4) + ")" : "";
-    if (disp) disp.setAttribute("scale", (cfg.distort * size * k).toFixed(1));
+    // Brightness and slight settle of the whole logo
+    stack.style.opacity = (cfg.rest + (1 - cfg.rest) * focus).toFixed(3);
+    stack.style.transform = "scale(" + (1 + 0.05 * (1 - focus)).toFixed(4) + ")";
 
-    // Still double-exposure ghosts at the edges, merging back into the logo as it
-    // sharpens. Kept fainter than the logo itself so they read as an echo.
-    var ghost = cfg.ghost * k * Math.min(1, opacity * 1.2);
-    var spread = cfg.offset * size * k;
-    ghostA.style.opacity = ghost.toFixed(3);
-    ghostA.style.transform = "translateX(" + px(-spread) + ") scale(" + (1 + 0.05 * k).toFixed(4) + ")";
-    ghostA.style.filter = "blur(" + px(cfg.blur * size * k * 1.6) + ")";
-    ghostB.style.opacity = (ghost * 0.85).toFixed(3);
-    ghostB.style.transform = "translateX(" + px(spread) + ") scale(" + (1 + 0.05 * k).toFixed(4) + ")";
-    ghostB.style.filter = "blur(" + px(cfg.blur * size * k * 1.8) + ")";
+    // Crossfade soft → mid → sharp. Each layer stays put underneath until the one
+    // above has taken over, so the logo never dims in between.
+    soft.style.opacity = (1 - smoothstep((focus - 0.25) / 0.5)).toFixed(3);
+    mid.style.opacity = (smoothstep(focus / 0.45) * (1 - smoothstep((focus - 0.7) / 0.3))).toFixed(3);
+    main.style.opacity = smoothstep((focus - 0.35) / 0.65).toFixed(3);
 
-    // Headline and links fade, soften and lift away
+    // Headline and links fade and lift away
     text.forEach(function (node) {
       node.style.opacity = (1 - hideText).toFixed(3);
-      node.style.filter = hideText > 0.01 ? "blur(" + px(hideText * 8) + ")" : "";
-      node.style.transform = hideText > 0.01 ? "translateY(" + px(-hideText * 24) + ")" : "";
-      node.style.visibility = hideText > 0.99 ? "hidden" : "";
+      node.style.transform = hideText > 0.001 ? "translate3d(0," + (-hideText * 28).toFixed(2) + "px,0)" : "";
+      node.style.visibility = hideText > 0.995 ? "hidden" : "";
     });
   }
 
-  var ticking = false;
+  var target = 0;    // where the scroll position says the reveal should be
+  var shown = 0;     // where the scene currently is
+  var running = false;
+  var last = 0;
+
+  function frame(t) {
+    var dt = last ? Math.min(t - last, 64) : 16;
+    last = t;
+    target = progress();
+    shown += (target - shown) * (reduceMotion ? 1 : 1 - Math.exp(-dt / EASE_MS));
+    if (Math.abs(target - shown) < 0.0005) shown = target;
+    render(shown);
+    if (shown !== target) {
+      window.requestAnimationFrame(frame);
+    } else {
+      running = false;
+      last = 0;
+    }
+  }
+
   function request() {
-    if (cfg.on && !ticking) { ticking = true; window.requestAnimationFrame(update); }
+    if (!cfg.on || running) return;
+    running = true;
+    window.requestAnimationFrame(frame);
   }
   window.addEventListener("scroll", request, { passive: true });
-  window.addEventListener("resize", request);
+  window.addEventListener("resize", function () {
+    if (!cfg.on) return;
+    drawLayers();
+    request();
+  });
 
   // Edit mode announces every change so new values apply immediately.
   document.addEventListener("vzn:change", readConfig);
