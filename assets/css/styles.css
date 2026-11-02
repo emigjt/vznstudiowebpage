@@ -407,12 +407,14 @@ em { font-style: italic; }
 .card-open {
   all: unset;
   display: block;
-  height: calc(var(--rail-h) * var(--h, 1));
+  /* Never wider than the screen: a wide piece gets shorter instead (--r = width / height) */
+  height: min(calc(var(--rail-h) * var(--h, 1)), calc((100vw - 2 * var(--pad)) / var(--r, 0.01)));
   cursor: zoom-in;
   overflow: hidden;
 }
 .card-open:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
 .card-open img, .card-open .cover { display: block; height: 100%; width: auto; max-width: none; transition: transform .8s var(--ease); }
+.card-open img { width: 100%; object-fit: cover; }   /* fills the space reserved for it */
 .card-open:hover img, .card-open:hover .cover { transform: scale(1.03); }
 
 /* Bottom bar: section name, Sound/Visual progress, now playing */
@@ -456,7 +458,7 @@ em { font-style: italic; }
   /* Inside Work nothing scrolls under the phone header, so drop its black bar and
      let it adapt to the black and bone sides like the desktop header does */
   html.in-work body:not(.nav-open) .site-header { background: transparent; mix-blend-mode: difference; color: #fff; }
-  .work-panel { --rail-h: min(40svh, 380px); padding-top: calc(var(--pad) + 76px); padding-right: 22vw; }
+  .work-panel { --rail-h: min(40svh, 380px); padding-top: calc(var(--pad) + 76px); padding-right: calc(var(--pad) * 2); }
   .panel-intro { width: 78vw; }
   .np-title { max-width: 30vw; }
   .work-tabs { gap: 10px; }

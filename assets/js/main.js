@@ -87,10 +87,13 @@
     cover.appendChild(label);
 
     if (kind === "sound") {
+      // The track's own waveform when its peaks are listed, otherwise a made-up one
+      var peaks = Array.isArray(item.peaks) && item.peaks.length ? item.peaks : null;
       var wave = el("div", "cover-wave");
-      for (var i = 0; i < 48; i++) {
+      for (var i = 0; i < (peaks ? peaks.length : 48); i++) {
         var bar = document.createElement("i");
-        var amp = 0.06 + Math.abs(Math.sin((i + seed) * 0.37) * Math.cos(i * 0.11)) * 0.94;
+        var amp = peaks ? Math.max(0.04, Math.min(1, +peaks[i] || 0))
+          : 0.06 + Math.abs(Math.sin((i + seed) * 0.37) * Math.cos(i * 0.11)) * 0.94;
         bar.style.height = Math.round(amp * 100) + "%";
         wave.appendChild(bar);
       }
@@ -297,13 +300,23 @@
       media.appendChild(progress);
       card.appendChild(media);
       card.appendChild(el("p", "card-meta", [
-        item.bpm ? item.bpm + " BPM" : "", item.key, item.year
+        item.bpm ? item.bpm + " BPM" : "", item.key, item.length, item.year
       ].filter(Boolean).join(" · ")));
       card.appendChild(el("h4", "card-title", item.title));
       if (item.artist) card.appendChild(el("p", "card-sub", item.artist));
       soundList.appendChild(card);
     });
   });
+
+  // Proportions as CSS needs them: aspect-ratio for the box, --r (a number) so the
+  // stylesheet can shrink a wide piece to fit a narrow screen.
+  function setRatio(node, ratio) {
+    var parts = String(ratio).split("/");
+    var r = parts.length === 2 ? parseFloat(parts[0]) / parseFloat(parts[1]) : parseFloat(ratio);
+    if (!(r > 0)) r = 1;
+    node.style.aspectRatio = String(ratio);
+    node.style.setProperty("--r", r.toFixed(4));
+  }
 
   // Visual pieces: varied heights, top-aligned, widths follow each image.
   var HEIGHTS = [1, 0.68, 0.86, 0.6, 0.94, 0.74];
@@ -321,11 +334,17 @@
       open.type = "button";
       open.setAttribute("aria-label", "Open " + item.title);
       if (item.image) {
+        // Reserve the piece's width before the image arrives (the sideways scroll
+        // length depends on it), then use the image's real proportions once loaded.
+        setRatio(open, item.ratio || "1 / 1");
         var img = document.createElement("img");
-        img.src = item.image;
         img.alt = "";
-        img.loading = "lazy";
-        img.addEventListener("load", measureWork);
+        img.decoding = "async";
+        img.addEventListener("load", function () {
+          if (this.naturalWidth) setRatio(open, this.naturalWidth + " / " + this.naturalHeight);
+          measureWork();
+        });
+        img.src = item.image;
         open.appendChild(img);
       } else {
         open.appendChild(makeCover(item, isVideo ? "video" : "visual", isVideo ? "16 / 10" : RATIOS[i % RATIOS.length]));

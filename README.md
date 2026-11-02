@@ -46,6 +46,12 @@ reference at the top.
 Items with the same `type` next to each other are grouped under one label. Items
 without an image get a generated placeholder.
 
+Audio: convert masters to 320 kbps MP3 for the site (browsers can't rely on 24-bit
+WAV, and MP3s are ~8x smaller), e.g.
+`ffmpeg -i beat_master.wav -map_metadata -1 -c:a libmp3lame -b:a 320k assets/media/audio/beat.mp3`.
+A beat's `peaks` (its real waveform on the cover) can be generated from the MP3; ask
+whoever maintains the site, or leave it out for a generated waveform.
+
 ## Shop
 
 Open `data/shop.js`: name, type, price, sizes, a photo and a checkout link per product.
