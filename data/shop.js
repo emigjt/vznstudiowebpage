@@ -12,15 +12,23 @@
     type     Short label, e.g. "T-shirt", "Hoodie", "Print".
     price    Shown as written, e.g. "$35" (leave empty until it's set).
     sizes    List of sizes or options shown on the card (optional).
-    image    Product photo, e.g. "assets/media/shop/tee.jpg" (optional — a mockup
-             is drawn until you add one).
+    images   Product photos: [front] or [front, back], e.g.
+               ["assets/media/shop/hoodie-front.jpg", "assets/media/shop/hoodie-back.jpg"]
+             With a back photo, it shows on hover and with a Front / Back button.
+             (optional — a mockup is drawn until you add photos).
+             Square photos about 1000 px wide work best.
     mockup   Which mockup to draw without a photo: "tee", "hoodie" or "poster".
     url      Checkout link. Without one the button says "Coming soon".
 
-  The entries below are placeholders — replace them with real products.
+  The tee and poster below are still samples (drawn mockups); replace them with
+  real products when they're ready.
 */
 window.VZN_SHOP = [
+  {
+    name: "Beyond Sight Hoodie", type: "Hoodie", price: "",
+    images: ["assets/media/shop/beyond-sight-hoodie-front.jpg", "assets/media/shop/beyond-sight-hoodie-back.jpg"],
+    url: ""
+  },
   { name: "Eye Logo Tee", type: "T-shirt", price: "", sizes: ["S", "M", "L", "XL"], image: "", mockup: "tee", url: "" },
-  { name: "Eye Logo Hoodie", type: "Hoodie", price: "", sizes: ["S", "M", "L", "XL"], image: "", mockup: "hoodie", url: "" },
   { name: "Vision Poster", type: "Print · 18 × 24 in", price: "", sizes: [], image: "", mockup: "poster", url: "" }
 ];

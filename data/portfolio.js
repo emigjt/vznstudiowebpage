@@ -28,7 +28,9 @@
     type      Group label, e.g. "Poster", "Cover Art", "Music Video".
     client    Artist / client (optional).
     year      Year as text (optional).
-    image     The artwork, e.g. "assets/media/visual/cover.jpg".
+    image     The artwork on the card, about 800 px wide, e.g. "assets/media/visual/cover.jpg".
+    full      A larger version (about 1600 px) shown when the piece is opened (optional).
+              Keep full-size originals in assets/media/originals; they aren't loaded.
     ratio     Its proportions, e.g. "1 / 1" or "4 / 5" (optional; square is assumed
               until the image loads, so filling it in avoids a small jump).
     media     Optional video shown when the piece is opened:
@@ -77,8 +79,14 @@ window.VZN_PORTFOLIO = {
 
   visual: [
     {
-      title: "Snake Eyes", type: "Poster", image: "assets/media/visual/snake-eyes.jpg", ratio: "1 / 1",
+      title: "Snake Eyes", type: "Poster", ratio: "1 / 1",
+      image: "assets/media/visual/snake-eyes.jpg", full: "assets/media/visual/snake-eyes-large.jpg",
       description: "Better luck next time."
+    },
+    {
+      title: "Eye Sun", type: "Poster", ratio: "1 / 1",
+      image: "assets/media/visual/eye-sun.jpg", full: "assets/media/visual/eye-sun-large.jpg",
+      description: "Stared at the sun so long it started staring back."
     }
   ]
 };

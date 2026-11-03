@@ -29,7 +29,10 @@ assets/js/main.js       Work rails and audio player, viewer, shop, nav, contact 
 assets/brand/           Logo (traced SVG, white/black), favicon, social share image
 assets/brand/source/    Original logo file
 assets/fonts/           Self-hosted web fonts (Coldag Serif Bold, Italic, Outline)
-assets/media/           Your project images, audio and video files
+assets/media/audio/     Beats as 320 kbps MP3
+assets/media/visual/    Artwork for the site: ~800 px card image + ~1600 px "-large" version
+assets/media/shop/      Product photos (~1000 px square)
+assets/media/originals/ Full-size originals (kept for reference; the site never loads them)
 ```
 
 ## Adding work
@@ -46,6 +49,10 @@ reference at the top.
 Items with the same `type` next to each other are grouped under one label. Items
 without an image get a generated placeholder.
 
+Images: keep the full-size original in `assets/media/originals/` and add web-sized
+copies (about 800 px for the card, 1600 px for `full`); a 4000 px PNG is ~20 MB, the
+two JPGs together well under 1 MB.
+
 Audio: convert masters to 320 kbps MP3 for the site (browsers can't rely on 24-bit
 WAV, and MP3s are ~8x smaller), e.g.
 `ffmpeg -i beat_master.wav -map_metadata -1 -c:a libmp3lame -b:a 320k assets/media/audio/beat.mp3`.
@@ -54,7 +61,8 @@ whoever maintains the site, or leave it out for a generated waveform.
 
 ## Shop
 
-Open `data/shop.js`: name, type, price, sizes, a photo and a checkout link per product.
+Open `data/shop.js`: name, type, price, sizes, photos and a checkout link per product.
+Give two photos (front, back) and the back shows on hover or with a Front / Back button.
 The site can't take payments itself, so each **Buy** button opens your store's checkout
 page (for example a Stripe Payment Link, or a Shopify, Big Cartel or Fourthwall product
 page) in a new tab. Products without a link show "Coming soon".

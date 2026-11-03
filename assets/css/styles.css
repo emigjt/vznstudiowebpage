@@ -508,6 +508,29 @@ em { font-style: italic; }
 .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 420px)); gap: clamp(20px, 3vw, 40px); }
 .product-media { position: relative; aspect-ratio: 1; background: var(--surface); overflow: hidden; }
 .product-media > img { width: 100%; height: 100%; object-fit: cover; }
+/* Front / back photos: the back fades in on hover (mouse) or with the button */
+.product-media > img.is-back { position: absolute; inset: 0; opacity: 0; transition: opacity .45s var(--ease); }
+.product-media.show-back > img.is-back { opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .product-media.has-back:hover:not(.show-back) > img.is-back { opacity: 1; }
+}
+.product-flip {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  padding: 6px 14px;
+  border: 1px solid rgba(10, 10, 10, .35);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .8);
+  color: #0a0a0a;
+  font: inherit;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+.product-flip:hover { background: #0a0a0a; color: #fff; border-color: #0a0a0a; }
 .mockup { position: absolute; inset: 0; display: grid; place-items: center; }
 .mockup svg { width: 78%; height: 78%; }
 .mockup svg path { fill: #1d1d1c; stroke: #3a3a38; stroke-width: 1; }

@@ -161,9 +161,9 @@
 
   function openViewer(item, kind) {
     var media = buildEmbed(item);
-    if (!media && item.image) {
+    if (!media && (item.full || item.image)) {
       media = document.createElement("img");
-      media.src = item.image;
+      media.src = item.full || item.image;
       media.alt = item.title;
     }
     if (!media && item.cover) {
@@ -449,12 +449,33 @@
   (Array.isArray(window.VZN_SHOP) ? window.VZN_SHOP : []).forEach(function (product) {
     var li = el("li", "product");
     var media = el("div", "product-media");
-    if (product.image) {
-      var img = document.createElement("img");
-      img.src = product.image;
-      img.alt = product.name;
-      img.loading = "lazy";
-      media.appendChild(img);
+    var photos = Array.isArray(product.images) && product.images.length ? product.images
+      : product.image ? [product.image] : [];
+    if (photos.length) {
+      photos.slice(0, 2).forEach(function (src, i) {
+        var img = document.createElement("img");
+        img.src = src;
+        img.alt = product.name + (photos.length > 1 ? (i ? ", back" : ", front") : "");
+        img.loading = "lazy";
+        if (i) img.className = "is-back";
+        media.appendChild(img);
+      });
+      // A second photo is the back: shown on hover, or with the Front / Back button
+      if (photos.length > 1) {
+        media.classList.add("has-back");
+        var flip = el("button", "product-flip", "Back");
+        flip.type = "button";
+        flip.setAttribute("aria-pressed", "false");
+        flip.setAttribute("aria-label", "Show the back of the " + product.name);
+        flip.addEventListener("click", function () {
+          var showBack = !media.classList.contains("show-back");
+          media.classList.toggle("show-back", showBack);
+          flip.textContent = showBack ? "Front" : "Back";
+          flip.setAttribute("aria-pressed", String(showBack));
+          flip.setAttribute("aria-label", "Show the " + (showBack ? "front" : "back") + " of the " + product.name);
+        });
+        media.appendChild(flip);
+      }
     } else {
       media.appendChild(mockup(product.mockup));
     }
