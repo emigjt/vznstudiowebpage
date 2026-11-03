@@ -46,8 +46,8 @@ window.VZN_PORTFOLIO = {
       peaks: [0.35,0.38,0.37,0.33,0.34,0.32,0.36,0.4,0.4,0.37,0.41,0.4,0.35,0.37,0.37,0.33,0.32,0.33,0.28,0.32,0.34,0.37,0.35,0.15,0.75,0.4,0.37,0.71,0.38,0.73,0.75,0.44,0.4,0.99,0.7,0.85,0.76,0.41,0.37,0.73,0.39,0.72,0.73,0.36,0.33,1.0,0.71,0.86]
     },
     {
-      title: "FB Int", type: "Beat", bpm: "133", length: "0:38",
-      media: { kind: "audio", src: "assets/media/audio/fb-int.mp3" },
+      title: "Feedback Interrupted", type: "Beat", bpm: "133", length: "0:38",
+      media: { kind: "audio", src: "assets/media/audio/feedback-interrupted.mp3" },
       peaks: [0.38,0.35,0.36,0.27,0.35,0.34,0.37,0.37,0.38,0.35,0.38,0.27,0.35,0.36,0.35,0.39,0.36,0.35,0.36,0.28,0.36,0.35,0.38,0.39,0.37,0.35,0.38,0.31,0.34,0.35,0.38,0.39,0.99,0.79,0.8,0.92,0.89,0.65,0.37,0.38,1.0,0.79,0.81,0.93,0.88,0.65,0.34,0.39]
     },
     {
@@ -84,8 +84,8 @@ window.VZN_PORTFOLIO = {
       description: "Better luck next time."
     },
     {
-      title: "Eye Sun", type: "Poster", ratio: "1 / 1",
-      image: "assets/media/visual/eye-sun.jpg", full: "assets/media/visual/eye-sun-large.jpg",
+      title: "Staring at the Sun", type: "Poster", ratio: "1 / 1",
+      image: "assets/media/visual/staring-at-the-sun.jpg", full: "assets/media/visual/staring-at-the-sun-large.jpg",
       description: "Stared at the sun so long it started staring back."
     }
   ]

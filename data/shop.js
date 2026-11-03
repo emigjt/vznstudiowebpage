@@ -20,8 +20,8 @@
     mockup   Which mockup to draw without a photo: "tee", "hoodie" or "poster".
     url      Checkout link. Without one the button says "Coming soon".
 
-  The tee and poster below are still samples (drawn mockups); replace them with
-  real products when they're ready.
+  The poster below is still a sample (a drawn mockup); replace it with a real
+  product when it's ready.
 */
 window.VZN_SHOP = [
   {
@@ -29,6 +29,5 @@ window.VZN_SHOP = [
     images: ["assets/media/shop/beyond-sight-hoodie-front.jpg", "assets/media/shop/beyond-sight-hoodie-back.jpg"],
     url: ""
   },
-  { name: "Eye Logo Tee", type: "T-shirt", price: "", sizes: ["S", "M", "L", "XL"], image: "", mockup: "tee", url: "" },
   { name: "Vision Poster", type: "Print · 18 × 24 in", price: "", sizes: [], image: "", mockup: "poster", url: "" }
 ];
