@@ -87,6 +87,15 @@ window.VZN_PORTFOLIO = {
       title: "Staring at the Sun", type: "Poster", ratio: "1 / 1",
       image: "assets/media/visual/staring-at-the-sun.jpg", full: "assets/media/visual/staring-at-the-sun-large.jpg",
       description: "Stared at the sun so long it started staring back."
+    },
+    {
+      title: "Bus Stop", type: "Album Cover", ratio: "1 / 1",
+      image: "assets/media/visual/bus-stop.jpg", full: "assets/media/visual/bus-stop-large.jpg",
+      description: "Sample album cover artwork."
+    },
+    {
+      title: "Blurred VZN", type: "Artwork", ratio: "1 / 1",
+      image: "assets/media/visual/blurred-vzn.jpg", full: "assets/media/visual/blurred-vzn-large.jpg"
     }
   ]
 };
