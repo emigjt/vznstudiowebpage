@@ -446,7 +446,8 @@
   }
 
   var productList = $("[data-products]");
-  (Array.isArray(window.VZN_SHOP) ? window.VZN_SHOP : []).forEach(function (product, index) {
+  (Array.isArray(window.VZN_SHOP) ? window.VZN_SHOP : []).forEach(function (product) {
+    if (product.archived) return;   // kept in data/shop.js, not shown
     var li = el("li", "product");
     var media = el("div", "product-media");
     // Colour options each bring their own photos (and optionally their own checkout link)
@@ -459,6 +460,7 @@
     function label(option) { return product.name + (colors ? ", " + option.name : ""); }
 
     var front = null, back = null, flip = null;
+    var showingBack = false;   // the same on every device: only a click or tap flips it
     var photos = photosOf(current);
     if (photos.length) {
       front = document.createElement("img");
@@ -474,11 +476,13 @@
         flip = el("button", "product-flip", "Back");
         flip.type = "button";
         flip.setAttribute("aria-pressed", "false");
-        flip.addEventListener("click", function () {
-          media.classList.toggle("show-back", !media.classList.contains("show-back"));
+        media.appendChild(flip);
+        // Clicking or tapping the photo flips it too; the button (inside the photo) is the
+        // keyboard- and screen-reader-friendly way to do the same, handled by this one listener.
+        media.addEventListener("click", function () {
+          showingBack = !showingBack;
           showSide();
         });
-        media.appendChild(flip);
       }
     } else {
       media.appendChild(mockup(product.mockup));
@@ -487,7 +491,8 @@
 
     function showSide() {
       if (!flip) return;
-      var showBack = media.classList.contains("show-back");
+      var showBack = showingBack;
+      media.classList.toggle("show-back", showBack);
       flip.textContent = showBack ? "Front" : "Back";
       flip.setAttribute("aria-pressed", String(showBack));
       flip.setAttribute("aria-label", "Show the " + (showBack ? "front" : "back") + " of the " + label(current));

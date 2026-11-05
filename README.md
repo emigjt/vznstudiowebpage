@@ -62,7 +62,8 @@ whoever maintains the site, or leave it out for a generated waveform.
 ## Shop
 
 Open `data/shop.js`: name, type, price, sizes, photos and a checkout link per product.
-Give two photos (front, back) and the back shows on hover or with a Front / Back button.
+Give two photos (front, back); clicking or tapping the photo, or its Front / Back
+button, flips between them. Set `archived: true` to hide a product without deleting it.
 A product that comes in several colours lists them under `colors`, each with its own
 photos; they show as swatches on the card.
 The site can't take payments itself, so each **Buy** button opens your store's checkout

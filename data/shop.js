@@ -14,7 +14,7 @@
     sizes    List of sizes or options shown on the card (optional).
     images   Product photos: [front] or [front, back], e.g.
                ["assets/media/shop/hoodie-front.jpg", "assets/media/shop/hoodie-back.jpg"]
-             With a back photo, it shows on hover and with a Front / Back button.
+             With a back photo, clicking the photo or its Front / Back button flips it.
              (optional — a mockup is drawn until you add photos).
              Square photos about 1000 px wide work best.
     colors   Colour options, each with its own photos (and optionally its own checkout
@@ -26,11 +26,12 @@
              Use instead of images when a product comes in more than one colour.
     mockup   Which mockup to draw without a photo: "tee", "hoodie" or "poster".
     url      Checkout link. Without one the button says "Coming soon".
+    archived true hides a product without deleting it (set false to bring it back).
 
 */
 window.VZN_SHOP = [
   {
-    name: "Beyond Sight Hoodie", type: "Hoodie", price: "",
+    name: "Beyond Sight Hoodie", type: "Hoodie", price: "", archived: true,
     images: ["assets/media/shop/beyond-sight-hoodie-front.jpg", "assets/media/shop/beyond-sight-hoodie-back.jpg"],
     url: ""
   },

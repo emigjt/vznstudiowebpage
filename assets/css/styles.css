@@ -508,12 +508,10 @@ em { font-style: italic; }
 .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 420px)); gap: clamp(20px, 3vw, 40px); }
 .product-media { position: relative; aspect-ratio: 1; background: var(--surface); overflow: hidden; }
 .product-media > img { width: 100%; height: 100%; object-fit: cover; }
-/* Front / back photos: the back fades in on hover (mouse) or with the button */
+/* Front / back photos: clicking the photo or its button sets .show-back (main.js) */
+.product-media.has-back { cursor: pointer; }
 .product-media > img.is-back { position: absolute; inset: 0; opacity: 0; transition: opacity .45s var(--ease); }
 .product-media.show-back > img.is-back { opacity: 1; }
-@media (hover: hover) and (pointer: fine) {
-  .product-media.has-back:hover:not(.show-back) > img.is-back { opacity: 1; }
-}
 .product-flip {
   position: absolute;
   left: 12px;
