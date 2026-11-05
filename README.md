@@ -63,6 +63,8 @@ whoever maintains the site, or leave it out for a generated waveform.
 
 Open `data/shop.js`: name, type, price, sizes, photos and a checkout link per product.
 Give two photos (front, back) and the back shows on hover or with a Front / Back button.
+A product that comes in several colours lists them under `colors`, each with its own
+photos; they show as swatches on the card.
 The site can't take payments itself, so each **Buy** button opens your store's checkout
 page (for example a Stripe Payment Link, or a Shopify, Big Cartel or Fourthwall product
 page) in a new tab. Products without a link show "Coming soon".

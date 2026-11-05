@@ -545,6 +545,22 @@ em { font-style: italic; }
 .product-name { font: 400 clamp(1.4rem, 2vw, 1.9rem)/1.1 var(--font-serif); }
 .product-price { margin: 0; white-space: nowrap; }
 .product-type { margin: 4px 0 0; color: var(--muted); }
+/* Colour swatches */
+.product-colors { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+.product-swatch {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: var(--swatch);
+  box-shadow: 0 0 0 3px var(--bg);
+  cursor: pointer;
+  transition: box-shadow .2s;
+}
+.product-swatch[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--text); }
+.product-swatch:hover:not([aria-pressed="true"]) { box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--muted); }
+.product-color-name { margin-left: 6px; color: var(--muted); font-size: 0.9em; }
 .product-sizes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
 .product-sizes li { padding: 3px 10px; border: 1px solid var(--line-strong); border-radius: 999px; font-size: 0.8em; color: var(--muted); }
 .product-buy {

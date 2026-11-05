@@ -446,33 +446,37 @@
   }
 
   var productList = $("[data-products]");
-  (Array.isArray(window.VZN_SHOP) ? window.VZN_SHOP : []).forEach(function (product) {
+  (Array.isArray(window.VZN_SHOP) ? window.VZN_SHOP : []).forEach(function (product, index) {
     var li = el("li", "product");
     var media = el("div", "product-media");
-    var photos = Array.isArray(product.images) && product.images.length ? product.images
-      : product.image ? [product.image] : [];
+    // Colour options each bring their own photos (and optionally their own checkout link)
+    var colors = Array.isArray(product.colors) && product.colors.length ? product.colors : null;
+    var current = colors ? colors[0] : product;
+    function photosOf(option) {
+      return Array.isArray(option.images) && option.images.length ? option.images
+        : option.image ? [option.image] : [];
+    }
+    function label(option) { return product.name + (colors ? ", " + option.name : ""); }
+
+    var front = null, back = null, flip = null;
+    var photos = photosOf(current);
     if (photos.length) {
-      photos.slice(0, 2).forEach(function (src, i) {
-        var img = document.createElement("img");
-        img.src = src;
-        img.alt = product.name + (photos.length > 1 ? (i ? ", back" : ", front") : "");
-        img.loading = "lazy";
-        if (i) img.className = "is-back";
-        media.appendChild(img);
-      });
+      front = document.createElement("img");
+      front.loading = "lazy";
+      media.appendChild(front);
       // A second photo is the back: shown on hover, or with the Front / Back button
       if (photos.length > 1) {
+        back = document.createElement("img");
+        back.loading = "lazy";
+        back.className = "is-back";
+        media.appendChild(back);
         media.classList.add("has-back");
-        var flip = el("button", "product-flip", "Back");
+        flip = el("button", "product-flip", "Back");
         flip.type = "button";
         flip.setAttribute("aria-pressed", "false");
-        flip.setAttribute("aria-label", "Show the back of the " + product.name);
         flip.addEventListener("click", function () {
-          var showBack = !media.classList.contains("show-back");
-          media.classList.toggle("show-back", showBack);
-          flip.textContent = showBack ? "Front" : "Back";
-          flip.setAttribute("aria-pressed", String(showBack));
-          flip.setAttribute("aria-label", "Show the " + (showBack ? "front" : "back") + " of the " + product.name);
+          media.classList.toggle("show-back", !media.classList.contains("show-back"));
+          showSide();
         });
         media.appendChild(flip);
       }
@@ -481,27 +485,82 @@
     }
     li.appendChild(media);
 
+    function showSide() {
+      if (!flip) return;
+      var showBack = media.classList.contains("show-back");
+      flip.textContent = showBack ? "Front" : "Back";
+      flip.setAttribute("aria-pressed", String(showBack));
+      flip.setAttribute("aria-label", "Show the " + (showBack ? "front" : "back") + " of the " + label(current));
+    }
+    function showPhotos() {
+      var p = photosOf(current);
+      if (front && p[0]) { front.src = p[0]; front.alt = label(current) + (back ? ", front" : ""); }
+      if (back && p[1]) { back.src = p[1]; back.alt = label(current) + ", back"; }
+      showSide();
+    }
+    showPhotos();
+
     var info = el("div", "product-info");
     var head = el("div", "product-head");
     head.appendChild(el("h3", "product-name", product.name));
     head.appendChild(el("p", "product-price", product.price || "Price TBA"));
     info.appendChild(head);
-    info.appendChild(el("p", "product-type", product.type || ""));
+    var type = el("p", "product-type", product.type || "");
+    info.appendChild(type);
+
+    if (colors && colors.length > 1) {
+      var swatches = el("div", "product-colors");
+      swatches.setAttribute("role", "group");
+      swatches.setAttribute("aria-label", product.name + " colour");
+      var colorName = el("span", "product-color-name", current.name);
+      colors.forEach(function (option) {
+        var sw = el("button", "product-swatch");
+        sw.type = "button";
+        sw.style.setProperty("--swatch", option.swatch || "#888");
+        sw.setAttribute("aria-label", option.name);
+        sw.setAttribute("aria-pressed", String(option === current));
+        sw.title = option.name;
+        sw.addEventListener("click", function () {
+          current = option;
+          Array.prototype.forEach.call(swatches.querySelectorAll(".product-swatch"), function (b) {
+            b.setAttribute("aria-pressed", String(b === sw));
+          });
+          colorName.textContent = option.name;
+          showPhotos();
+          showBuy();
+        });
+        swatches.appendChild(sw);
+      });
+      swatches.appendChild(colorName);
+      info.appendChild(swatches);
+      // Fetch the other colours' photos once the page has settled, so switching is instant
+      window.addEventListener("load", function () {
+        colors.forEach(function (option) { photosOf(option).forEach(function (src) { new Image().src = src; }); });
+      });
+    }
+
     if (product.sizes && product.sizes.length) {
       var sizes = el("ul", "product-sizes");
       sizes.setAttribute("aria-label", "Sizes");
       product.sizes.forEach(function (s) { sizes.appendChild(el("li", null, s)); });
       info.appendChild(sizes);
     }
-    if (product.url) {
-      var buy = el("a", "product-buy", "Buy [↗]");
-      buy.href = product.url;
-      buy.target = "_blank";
-      buy.rel = "noopener";
-      info.appendChild(buy);
-    } else {
-      info.appendChild(el("span", "product-buy is-soon", "Coming soon"));
+    var buySlot = el("div", "product-buy-slot");
+    info.appendChild(buySlot);
+    function showBuy() {
+      var url = current.url || product.url;
+      buySlot.replaceChildren();
+      if (url) {
+        var buy = el("a", "product-buy", "Buy [↗]");
+        buy.href = url;
+        buy.target = "_blank";
+        buy.rel = "noopener";
+        buySlot.appendChild(buy);
+      } else {
+        buySlot.appendChild(el("span", "product-buy is-soon", "Coming soon"));
+      }
     }
+    showBuy();
     li.appendChild(info);
     productList.appendChild(li);
   });

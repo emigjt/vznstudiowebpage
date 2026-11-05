@@ -89,6 +89,11 @@ window.VZN_PORTFOLIO = {
       description: "Stared at the sun so long it started staring back."
     },
     {
+      title: "Three Blind Mice", type: "Poster", ratio: "1 / 1",
+      image: "assets/media/visual/three-blind-mice.jpg", full: "assets/media/visual/three-blind-mice-large.jpg",
+      description: "Vision beyond sight."
+    },
+    {
       title: "Bus Stop", type: "Album Cover", ratio: "1 / 1",
       image: "assets/media/visual/bus-stop.jpg", full: "assets/media/visual/bus-stop-large.jpg",
       description: "Sample album cover artwork."
