@@ -144,13 +144,14 @@ on every load so changes can be judged.
 To watch it while it's off, add `?boot` to the address (e.g. `…/vznstudiowebpage/?boot`,
 or `?edit&boot` with the panel): it then plays on every load, on any device.
 
-## Vintage scratches (off by default)
+## Vintage scratches
 
 Dust and scratch marks taken from a film texture (`assets/media/originals/vintage-scratches.jpg`,
-reduced to greyscale scratches only in `assets/media/texture/scratches.webp`), flickering
-over the whole site like a worn print. `--scratch` sets the strength, 0 (off) to 1; at 0
-the image isn't even downloaded. It is **Vintage scratches** in edit mode, and hidden for
-visitors who ask for reduced motion.
+reduced to greyscale scratches only in `assets/media/texture/scratches.webp`), as a still
+texture behind all the content. It shows wherever nothing paints its own background: the
+hero, Sound, Shop and Contact (the boot screen, the bone Visual side and the viewer cover
+it). `--scratch` sets its opacity (0.2 now); at 0 it's off and the image isn't downloaded.
+It is **Vintage scratches** in edit mode.
 
 ## Rebranding
 
