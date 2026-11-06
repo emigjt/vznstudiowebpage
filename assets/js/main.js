@@ -625,6 +625,14 @@
 
   $$("[data-year]").forEach(function (n) { n.textContent = new Date().getFullYear(); });
 
+  /* Vintage scratches: only switched on (and the image only loaded) above 0 -------- */
+  function scratchSetting() {
+    document.documentElement.classList.toggle("scratch-on",
+      parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--scratch")) > 0);
+  }
+  scratchSetting();
+  document.addEventListener("vzn:change", scratchSetting);   // edit mode slider
+
   /* Edit mode: open the page with ?edit (or #edit) to load the design panel */
   if (/[?&]edit(?:[=&]|$)/.test(window.location.search) || window.location.hash === "#edit") {
     var editorCss = document.createElement("link");

@@ -28,6 +28,15 @@
   font-style: normal;
   font-display: swap;
 }
+/* Patchcode (by Igor Ovsyannykov): the boot sequence's terminal font. "block" so the
+   boot never types in a stand-in font first; boot.js also waits for it briefly. */
+@font-face {
+  font-family: "Patchcode";
+  src: url("../fonts/Patchcode.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
 
 :root {
   /* Colour: black and bone like the ink logo, plus one signal accent */
@@ -74,6 +83,7 @@
   --fx-mark-x: 0vw;           /* logo position from screen centre: + right, - left */
   --fx-mark-y: -8.5svh;       /* logo position from screen centre: + down, - up */
   --grain: 0.2;               /* film grain strength */
+  --scratch: 0;               /* vintage scratches and dust over the site, 0 (off) to 1 */
 
   /* Boot sequence (assets/js/boot.js). 0 = off, 1 = on. Try it in edit mode first. */
   --boot: 0;
@@ -87,7 +97,7 @@
   --boot-fade: 600ms;         /* fade from the boot screen to the page */
   --boot-size: 2rem;          /* text size (capped so it always fits a phone) */
   --boot-align: center;       /* center | top-left */
-  --font-terminal: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-terminal: "Patchcode", ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 /* Base ------------------------------------------------------------------- */
@@ -173,6 +183,59 @@ em { font-style: italic; }
   74% { transform: translate3d(-2px, 1px, 0); }
   86% { transform: translate3d(4px, -3px, 0); }
   93% { transform: translate3d(-3px, -3px, 0); }
+}
+
+/* Vintage scratches: dust and scratch marks taken from a film texture (greyscale),
+   flickering like a worn print. Two copies, each flipped and placed differently, pop
+   in and out on uneven cycles so no frame repeats in an obvious way. The image only
+   loads when --scratch is above 0 (main.js adds .scratch-on). Under the grain. */
+.scratches { display: none; }
+.scratch-on .scratches {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: var(--scratch);
+}
+.scratch-on .scratches::before, .scratch-on .scratches::after {
+  content: "";
+  position: absolute;
+  inset: -15%;
+  background: url("../media/texture/scratches.webp") center / cover no-repeat;
+  will-change: transform, opacity;
+}
+.scratch-on .scratches::before { animation: scratch-a 1.9s steps(1, end) infinite; }
+.scratch-on .scratches::after { animation: scratch-b 2.6s steps(1, end) infinite; }
+@keyframes scratch-a {
+  0% { opacity: .9; transform: translate3d(0, 0, 0); }
+  8% { opacity: 0; }
+  14% { opacity: 1; transform: translate3d(-7%, 4%, 0) scale(-1, 1); }
+  22% { opacity: .5; transform: translate3d(5%, -6%, 0) rotate(180deg); }
+  29% { opacity: 0; }
+  37% { opacity: .8; transform: translate3d(-3%, -8%, 0) scale(1, -1); }
+  46% { opacity: 1; transform: translate3d(8%, 3%, 0); }
+  53% { opacity: 0; }
+  61% { opacity: .7; transform: translate3d(-9%, -2%, 0) rotate(180deg); }
+  70% { opacity: 1; transform: translate3d(2%, 7%, 0) scale(-1, 1); }
+  78% { opacity: .4; transform: translate3d(6%, -4%, 0) scale(1, -1); }
+  86% { opacity: 0; }
+  92% { opacity: .9; transform: translate3d(-5%, 6%, 0); }
+}
+@keyframes scratch-b {
+  0% { opacity: 0; transform: translate3d(4%, -3%, 0) rotate(180deg); }
+  6% { opacity: .6; }
+  13% { opacity: 0; }
+  21% { opacity: .9; transform: translate3d(-6%, 7%, 0) scale(-1, 1); }
+  30% { opacity: .3; transform: translate3d(9%, 1%, 0) scale(1, -1); }
+  38% { opacity: 0; }
+  47% { opacity: .8; transform: translate3d(-2%, -7%, 0); }
+  56% { opacity: 1; transform: translate3d(7%, 5%, 0) rotate(180deg); }
+  64% { opacity: 0; }
+  73% { opacity: .5; transform: translate3d(-8%, 2%, 0) scale(-1, 1); }
+  82% { opacity: 0; }
+  90% { opacity: .7; transform: translate3d(3%, -5%, 0) scale(1, -1); }
 }
 
 /* Boot sequence ---------------------------------------------------------- */
@@ -771,6 +834,7 @@ a.product-buy:hover { color: var(--accent); border-color: var(--accent); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .scratch-on .scratches { display: none; }   /* still scratches would look like a dirty screen */
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .reveal { opacity: 1; transform: none; }
 }

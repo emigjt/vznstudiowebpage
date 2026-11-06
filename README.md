@@ -28,7 +28,8 @@ assets/css/styles.css   All styles; brand colours and fonts live in :root at the
 assets/js/main.js       Work rails and audio player, viewer, shop, nav, contact form
 assets/brand/           Logo (traced SVG, white/black), favicon, social share image
 assets/brand/source/    Original logo file
-assets/fonts/           Self-hosted web fonts (Coldag Serif Bold, Italic, Outline)
+assets/fonts/           Self-hosted web fonts (Coldag Serif Bold, Italic, Outline; Patchcode for the boot)
+assets/media/texture/   Overlay textures (vintage scratches)
 assets/media/audio/     Beats as 320 kbps MP3
 assets/media/visual/    Artwork for the site: ~800 px card image + ~1600 px "-large" version
 assets/media/shop/      Product photos (~1000 px square)
@@ -142,6 +143,14 @@ on every load so changes can be judged.
 
 To watch it while it's off, add `?boot` to the address (e.g. `…/vznstudiowebpage/?boot`,
 or `?edit&boot` with the panel): it then plays on every load, on any device.
+
+## Vintage scratches (off by default)
+
+Dust and scratch marks taken from a film texture (`assets/media/originals/vintage-scratches.jpg`,
+reduced to greyscale scratches only in `assets/media/texture/scratches.webp`), flickering
+over the whole site like a worn print. `--scratch` sets the strength, 0 (off) to 1; at 0
+the image isn't even downloaded. It is **Vintage scratches** in edit mode, and hidden for
+visitors who ask for reduced motion.
 
 ## Rebranding
 

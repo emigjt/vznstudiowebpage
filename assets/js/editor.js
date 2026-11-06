@@ -72,6 +72,7 @@
     { key: "--pad", label: "Page margins", type: "range", min: 8, max: 120, step: 1, unit: "px" },
     { key: "--section-pad", label: "Space between sections", type: "range", min: 48, max: 320, step: 4, unit: "px" },
     { key: "--grain", label: "Film grain", type: "range", min: 0, max: 0.3, step: 0.01, unit: "", fmt: pct },
+    { key: "--scratch", label: "Vintage scratches", type: "range", min: 0, max: 1, step: 0.05, unit: "", fmt: pct },
 
     { group: "Boot sequence" },
     { key: "--boot", label: "Boot sequence", type: "select", options: [["0", "Off"], ["1", "On"]] },

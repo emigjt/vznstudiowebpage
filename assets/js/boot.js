@@ -412,7 +412,23 @@
 
     finishNow = end;
     show(lines.title, true);
-    later(function () {
+    // Typing starts after the pause, once the terminal font is ready (at most 1.5 s
+    // extra), so it never types in a stand-in font and then jumps.
+    var started = false, t0 = Date.now();
+    function begin() {
+      if (started || finishNow !== end) return;
+      started = true;
+      layout();
+      later(typeTitle, Math.max(0, delay - (Date.now() - t0)));
+    }
+    if (document.fonts && document.fonts.load) {
+      var family = (getComputedStyle(term).fontFamily || "").split(",")[0].trim();
+      document.fonts.load("1em " + family).then(begin, begin);
+      later(begin, delay + 1500);
+    } else {
+      begin();
+    }
+    function typeTitle() {
       type(lines.title, function () {
         later(function () {
           show(lines.password, true);
@@ -433,7 +449,7 @@
           }, PAUSE);
         }, PAUSE);
       });
-    }, delay);
+    }
   }
 
   /* Skipping ---------------------------------------------------------------- */
