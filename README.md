@@ -123,9 +123,10 @@ live site without visitors seeing them.
 On a visitor's first load (once per browser session) the screen starts empty and plays
 like a terminal: "Vision Studios" types out, `password:` appears and `visionbeyondsight`
 types out, a loading bar fills to 100%, and "access granted" appears. Then the text
-clears and the eye logo flickers on with a subtle greyscale glitch, exactly where the
-hero logo sits, and the screen fades into the page (the logo hands over to the hero
-logo). About 7.5 s; any click, key, scroll or tap skips it; visitors who ask for reduced
+clears and the eye logo glitches on like a damaged tape (wavy tracking rows, torn and
+cut bands, smears and drips, static and scanlines, flicker; all greyscale, drawn on a
+canvas at a video-like 24 fps), exactly where the hero logo sits. It settles on the clean
+logo and the screen fades into the page (the logo hands over to the hero logo). About 7.5 s; any click, key, scroll or tap skips it; visitors who ask for reduced
 motion never see it. It is only an animation: nobody types anything and nothing is locked.
 
 It lives in `assets/js/boot.js`. The words are the `data-text`, `data-prompt`,
