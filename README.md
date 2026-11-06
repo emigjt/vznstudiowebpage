@@ -120,15 +120,21 @@ live site without visitors seeing them.
 
 ## Boot sequence (being workshopped, off by default)
 
-On a visitor's first load (once per browser session) the screen starts empty and
-"Vision Studios" types out like a terminal, then fades into the page as the hero's own
-intro plays. Any click, key, scroll or tap skips it; visitors who ask for reduced motion
-never see it. It lives in `assets/js/boot.js`; the text is `data-text` on the `.boot`
-element in `index.html`.
+On a visitor's first load (once per browser session) the screen starts empty and plays
+like a terminal: "Vision Studios" types out, `password:` appears and `visionbeyondsight`
+types out, a loading bar fills to 100%, and "access granted" appears. Then the text
+clears and the eye logo flickers on with a subtle greyscale glitch, exactly where the
+hero logo sits, and the screen fades into the page (the logo hands over to the hero
+logo). About 7.5 s; any click, key, scroll or tap skips it; visitors who ask for reduced
+motion never see it. It is only an animation: nobody types anything and nothing is locked.
+
+It lives in `assets/js/boot.js`. The words are the `data-text`, `data-prompt`,
+`data-password` and `data-granted` attributes on the `.boot` element in `index.html`.
 
 - `--boot: 0` keeps it off; `1` turns it on for everyone.
-- `--boot-speed`, `--boot-delay`, `--boot-hold`, `--boot-fade`, `--boot-size` and
-  `--boot-align` (`center` or `top-left`) set its timing and look.
+- `--boot-speed`, `--boot-delay`, `--boot-load`, `--boot-hold`, `--boot-logo-time`,
+  `--boot-glitch`, `--boot-fade`, `--boot-size`, `--boot-align` (`center` or `top-left`)
+  and `--boot-password` (`show` or `hide`, which types asterisks) set its timing and look.
 
 In edit mode it has its own group with these settings and a **Replay** button, and plays
 on every load so changes can be judged.

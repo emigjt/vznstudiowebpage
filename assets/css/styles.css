@@ -79,7 +79,11 @@
   --boot: 0;
   --boot-speed: 80ms;         /* time per letter */
   --boot-delay: 400ms;        /* cursor blinking on an empty screen before typing */
-  --boot-hold: 700ms;         /* finished text on screen before the fade */
+  --boot-hold: 700ms;         /* "access granted" on screen before the logo */
+  --boot-load: 1200ms;        /* loading bar fill time */
+  --boot-logo-time: 1400ms;   /* eye logo flicker and glitch */
+  --boot-glitch: 0.5;         /* glitch strength, 0-1 */
+  --boot-password: show;      /* show | hide (types *****) */
   --boot-fade: 600ms;         /* fade from the boot screen to the page */
   --boot-size: 2rem;          /* text size (capped so it always fits a phone) */
   --boot-align: center;       /* center | top-left */
@@ -140,8 +144,9 @@ em { font-style: italic; }
 }
 
 /* Boot sequence ---------------------------------------------------------- */
-/* An empty screen where the text types out, then fades to the page. Sits under the
-   film grain (so it has the same texture) and over everything else. */
+/* An empty screen where a terminal types out, then the eye logo flickers on and the
+   screen fades to the page. Sits under the film grain (so it has the same texture)
+   and over everything else. */
 .boot { display: none; }
 .boot-on .boot {
   position: fixed;
@@ -154,26 +159,89 @@ em { font-style: italic; }
   color: var(--text);
 }
 .boot-on .boot.is-top-left { place-items: start; }
-.boot-line {
-  margin: 0;
+/* Terminal: every line is laid out from the start (hidden) so nothing shifts */
+.boot-term {
   font-family: var(--font-terminal);
   font-weight: 400;
-  font-size: min(var(--boot-size), 10vw);
-  line-height: 1.2;
+  font-size: var(--boot-size);
+  line-height: 1.4;
   white-space: pre;
+  transition: opacity .25s ease;
 }
+.boot-l { margin: 0; visibility: hidden; }
+.boot-l.is-shown { visibility: visible; }
 .boot-rest { visibility: hidden; }
+/* Loading bar: block cells like a terminal, faint track behind the fill */
+.boot-bar { position: relative; display: inline-block; height: 0.62em; vertical-align: 0.02em; }
+.boot-bar::before, .boot-bar-fill {
+  background: repeating-linear-gradient(90deg, currentColor 0 0.78ch, transparent 0.78ch 1ch);
+}
+.boot-bar::before { content: ""; position: absolute; inset: 0; opacity: .18; }
+.boot-bar-fill { position: relative; display: block; width: 0; height: 100%; }
+
+/* Eye logo: placed over the hero logo by boot.js, flickers on with a subtle glitch */
+.boot-logo {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: min(60vmin, 520px);
+  aspect-ratio: 1075 / 1056;
+  translate: -50% -50%;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .8s ease;
+}
+.boot-logo img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.boot-slice { opacity: 0; }
+.boot.is-logo .boot-term { opacity: 0; }
+.boot.is-logo .boot-logo { opacity: 1; }
+.boot.is-logo .boot-logo-img { animation: boot-flicker var(--logo-time, 1.4s) linear both; }
+.boot.is-logo .boot-slice.is-a { animation: boot-slice-a var(--logo-time, 1.4s) steps(1, end) both; }
+.boot.is-logo .boot-slice.is-b { animation: boot-slice-b var(--logo-time, 1.4s) steps(1, end) both; }
+.boot.is-ending .boot-logo { transform: scale(1.05); }   /* settles to the hero logo's size */
+@keyframes boot-flicker {
+  0% { opacity: 0; }
+  5% { opacity: .75; }
+  8% { opacity: .1; }
+  12% { opacity: .9; }
+  15% { opacity: .35; }
+  20%, 47% { opacity: 1; }
+  49% { opacity: .55; }
+  51%, 77% { opacity: 1; }
+  79% { opacity: .7; }
+  81%, 100% { opacity: 1; }
+}
+/* Horizontal slices of the logo jump sideways for a frame or two (strength: --g) */
+@keyframes boot-slice-a {
+  0% { opacity: 0; }
+  21% { opacity: .9; clip-path: inset(30% 0 60% 0); transform: translateX(calc(var(--g, .5) * -6%)); }
+  24% { opacity: .9; clip-path: inset(58% 0 33% 0); transform: translateX(calc(var(--g, .5) * 4%)); }
+  27% { opacity: 0; }
+  49% { opacity: .9; clip-path: inset(12% 0 80% 0); transform: translateX(calc(var(--g, .5) * 7%)); }
+  52% { opacity: 0; }
+  79% { opacity: .9; clip-path: inset(66% 0 22% 0); transform: translateX(calc(var(--g, .5) * -4%)); }
+  82%, 100% { opacity: 0; }
+}
+@keyframes boot-slice-b {
+  0% { opacity: 0; }
+  22% { opacity: .6; clip-path: inset(44% 0 47% 0); transform: translateX(calc(var(--g, .5) * 5%)); }
+  25% { opacity: 0; }
+  50% { opacity: .6; clip-path: inset(75% 0 15% 0); transform: translateX(calc(var(--g, .5) * -6%)); }
+  53%, 100% { opacity: 0; }
+}
 .boot-cursor {
   display: inline-block;
-  width: 0.6em;
+  width: 1ch;
   height: 1.1em;
-  margin-left: 0.04em;
+  margin-right: -1ch;   /* covers the next character's cell instead of pushing text along */
   vertical-align: -0.2em;
   background: currentColor;
   animation: boot-blink 1.06s steps(1) infinite;
 }
 .boot.is-typing .boot-cursor { animation: none; }   /* solid while typing, blinks when idle */
 @keyframes boot-blink { 50% { opacity: 0; } }
+/* When the boot logo hands over to the hero logo, the hero logo is already in place */
+.boot-handoff .hero-mark { animation: none; }
 /* While the boot runs, the hero's own intro waits, then plays as the page appears */
 .booting .hero-mark,
 .booting .hero-title .line > span,
