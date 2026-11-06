@@ -73,6 +73,16 @@
     { key: "--section-pad", label: "Space between sections", type: "range", min: 48, max: 320, step: 4, unit: "px" },
     { key: "--grain", label: "Film grain", type: "range", min: 0, max: 0.3, step: 0.01, unit: "", fmt: pct },
 
+    { group: "Boot sequence" },
+    { key: "--boot", label: "Boot sequence", type: "select", options: [["0", "Off"], ["1", "On"]] },
+    { key: "--boot-speed", label: "Typing speed (time per letter)", type: "range", min: 20, max: 250, step: 5, unit: "ms" },
+    { key: "--boot-delay", label: "Pause before typing", type: "range", min: 0, max: 2500, step: 50, unit: "ms" },
+    { key: "--boot-hold", label: "Hold after typing", type: "range", min: 0, max: 3000, step: 50, unit: "ms" },
+    { key: "--boot-fade", label: "Fade to page", type: "range", min: 0, max: 2000, step: 50, unit: "ms" },
+    { key: "--boot-size", label: "Text size", type: "range", min: 0.8, max: 6, step: 0.05, unit: "rem",
+      fmt: function (v) { return Math.round(v * 16) + "px"; } },
+    { key: "--boot-align", label: "Position", type: "select", options: [["center", "Centre"], ["top-left", "Top left"]] },
+
     { group: "Logo effect" },
     { key: "--logo-fx", label: "Hero logo scroll reveal", type: "select", options: [["0", "Off"], ["1", "On"]] },
     { key: "--mark-scale", label: "Hero logo size", type: "range", min: 0.4, max: 2.5, step: 0.01, unit: "", fmt: pct },
@@ -518,6 +528,26 @@
 
   // Lets scripted effects (e.g. the hero logo) pick up new values immediately.
   function announce() { document.dispatchEvent(new CustomEvent("vzn:change")); }
+
+  // Replay button for the boot sequence (assets/js/boot.js)
+  (function () {
+    var group = inputs["--boot"] && inputs["--boot"].input.closest("fieldset");
+    if (!group || !window.VZN_BOOT) return;
+    var replay = h("button", { type: "button", class: "vzn-btn vzn-wide", text: "Replay boot sequence" });
+    replay.addEventListener("click", function () {
+      if (!(parseFloat(getComputedStyle(root).getPropertyValue("--boot")) >= 0.5)) {
+        replay.textContent = "Switch it on above first";
+        window.setTimeout(function () { replay.textContent = "Replay boot sequence"; }, 2000);
+        return;
+      }
+      window.VZN_BOOT.replay();
+    });
+    if (window.VZN_BOOT.reducedMotion) {
+      replay.disabled = true;
+      replay.textContent = "Off: this device asks for reduced motion";
+    }
+    group.appendChild(replay);
+  })();
 
   /* Text editing ----------------------------------------------------------- */
   var editingText = false;

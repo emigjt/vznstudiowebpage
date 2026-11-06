@@ -118,6 +118,21 @@ It lives in `assets/js/logo-fx.js` and is controlled from `:root` in
 All of these are in edit mode under **Logo effect**, so changes can be tried on the
 live site without visitors seeing them.
 
+## Boot sequence (being workshopped, off by default)
+
+On a visitor's first load (once per browser session) the screen starts empty and
+"Vision Studios" types out like a terminal, then fades into the page as the hero's own
+intro plays. Any click, key, scroll or tap skips it; visitors who ask for reduced motion
+never see it. It lives in `assets/js/boot.js`; the text is `data-text` on the `.boot`
+element in `index.html`.
+
+- `--boot: 0` keeps it off; `1` turns it on for everyone.
+- `--boot-speed`, `--boot-delay`, `--boot-hold`, `--boot-fade`, `--boot-size` and
+  `--boot-align` (`center` or `top-left`) set its timing and look.
+
+In edit mode it has its own group with these settings and a **Replay** button, and plays
+on every load so changes can be judged.
+
 ## Rebranding
 
 - **Colours and fonts:** edit the variables at the top of `assets/css/styles.css`.

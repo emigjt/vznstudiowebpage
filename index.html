@@ -15,6 +15,7 @@
 
   <link rel="icon" href="assets/brand/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
+  <link rel="preload" href="assets/js/boot.js" as="script">
   <link rel="preload" href="assets/brand/logo-white.svg" as="image">
   <link rel="preload" href="assets/fonts/ColdagSerif-Bold.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,6 +25,14 @@
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Boot sequence: on first load, when --boot is 1, data-text types out on an empty
+       screen before the page fades in (assets/js/boot.js). -->
+  <div class="boot" data-boot data-text="Vision Studios" aria-hidden="true">
+    <p class="boot-line"><span class="boot-typed"></span><span class="boot-cursor"></span><span class="boot-rest"></span></p>
+  </div>
+  <script src="assets/js/boot.js"></script>
+
   <div class="grain" aria-hidden="true"></div>
 
   <header class="site-header" data-header>
