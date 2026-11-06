@@ -73,7 +73,7 @@
   --fx-hold: 50svh;           /* extra scrolling with the logo held in place before the page moves on */
   --fx-mark-x: 0vw;           /* logo position from screen centre: + right, - left */
   --fx-mark-y: -8.5svh;       /* logo position from screen centre: + down, - up */
-  --grain: 0.3;               /* film grain strength */
+  --grain: 0.2;               /* film grain strength */
 
   /* Boot sequence (assets/js/boot.js). 0 = off, 1 = on. Try it in edit mode first. */
   --boot: 0;
@@ -126,21 +126,53 @@ em { font-style: italic; }
 .details dt { color: var(--muted); }
 .details a:hover { color: var(--accent); }
 
-/* Film grain, echoing the ink texture of the logo */
+/* Film grain, echoing the ink texture of the logo. Two layers of greyscale noise
+   (different seeds and tile sizes, so they never line up into a visible repeat): a
+   coarse base that barely moves and a fine layer that shimmers in place. Each holds
+   still, then jumps a pixel or few to an irregular spot, so the grain re-forms where it
+   is instead of sliding across the screen. Strength: --grain. */
 .grain {
   position: fixed;
-  inset: -48px;               /* just enough margin for the jitter below */
+  inset: 0;
   z-index: 100;
+  overflow: hidden;
   pointer-events: none;
   opacity: var(--grain);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: grain 1s steps(4) infinite;
 }
-@keyframes grain {
-  0% { transform: translate(0, 0); }
-  25% { transform: translate(-37px, 23px); }
-  50% { transform: translate(29px, -41px); }
-  75% { transform: translate(-13px, 43px); }
+.grain::before, .grain::after {
+  content: "";
+  position: absolute;
+  inset: -8px;                /* room for the small jumps below */
+  will-change: transform;
+}
+.grain::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-base 2.7s steps(1, end) infinite;
+}
+.grain::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='263' height='263'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='2' seed='17' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: .65;
+  animation: grain-fine 1.3s steps(1, end) infinite;
+}
+@keyframes grain-base {
+  0% { transform: translate3d(0, 0, 0); }
+  17% { transform: translate3d(-1px, 2px, 0); }
+  41% { transform: translate3d(2px, 1px, 0); }
+  58% { transform: translate3d(1px, -2px, 0); }
+  76% { transform: translate3d(-2px, -1px, 0); }
+  89% { transform: translate3d(1px, 1px, 0); }
+}
+@keyframes grain-fine {
+  0% { transform: translate3d(0, 0, 0); }
+  9% { transform: translate3d(-3px, 2px, 0); }
+  21% { transform: translate3d(4px, -1px, 0); }
+  30% { transform: translate3d(-1px, -4px, 0); }
+  42% { transform: translate3d(2px, 3px, 0); }
+  55% { transform: translate3d(-4px, -2px, 0); }
+  63% { transform: translate3d(3px, 4px, 0); }
+  74% { transform: translate3d(-2px, 1px, 0); }
+  86% { transform: translate3d(4px, -3px, 0); }
+  93% { transform: translate3d(-3px, -3px, 0); }
 }
 
 /* Boot sequence ---------------------------------------------------------- */
