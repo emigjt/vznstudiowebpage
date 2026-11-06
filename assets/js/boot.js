@@ -9,7 +9,8 @@
   Off unless --boot is 1 in :root (assets/css/styles.css). Timing and look are the
   --boot-* variables there; the text is data-text on the .boot element in index.html.
   In edit mode it plays on every load, follows the panel's settings, and has a
-  Replay button.
+  Replay button. Adding ?boot to the address plays it on every load even while it is
+  off (and even with reduced motion): the way to preview it on any device.
 
   This file loads at the top of <body>, before the page is drawn, so the page never
   flashes up before the boot screen covers it.
@@ -26,6 +27,7 @@
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var editing = /[?&]edit(?:[=&]|$)/.test(window.location.search) ||
     window.location.hash === "#edit" || root.hasAttribute("data-edit");
+  var forced = /[?&]boot(?:[=&]|$)/.test(window.location.search);   // preview link
 
   /* Settings ---------------------------------------------------------------- */
   // In edit mode the panel's saved tweaks count from the very first frame, before
@@ -139,7 +141,9 @@
   var seen = false;
   try { seen = window.sessionStorage.getItem("vzn-boot-seen") === "1"; } catch (e) { /* storage blocked */ }
   var wasOn = isOn();
-  if (wasOn && !reduceMotion && (editing || !seen)) {
+  if (forced) {
+    play(false);
+  } else if (wasOn && !reduceMotion && (editing || !seen)) {
     try { window.sessionStorage.setItem("vzn-boot-seen", "1"); } catch (e) { /* ignore */ }
     play(false);
   }
@@ -153,7 +157,8 @@
     wasOn = on;
   });
   window.VZN_BOOT = {
-    replay: function () { if (!reduceMotion) play(true); },
-    reducedMotion: reduceMotion
+    replay: function () { if (forced || !reduceMotion) play(true); },
+    forced: forced,
+    reducedMotion: reduceMotion && !forced
   };
 })();

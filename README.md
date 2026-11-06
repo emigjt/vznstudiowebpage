@@ -133,6 +133,9 @@ element in `index.html`.
 In edit mode it has its own group with these settings and a **Replay** button, and plays
 on every load so changes can be judged.
 
+To watch it while it's off, add `?boot` to the address (e.g. `…/vznstudiowebpage/?boot`,
+or `?edit&boot` with the panel): it then plays on every load, on any device.
+
 ## Rebranding
 
 - **Colours and fonts:** edit the variables at the top of `assets/css/styles.css`.

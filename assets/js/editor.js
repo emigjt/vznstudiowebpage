@@ -534,8 +534,10 @@
     var group = inputs["--boot"] && inputs["--boot"].input.closest("fieldset");
     if (!group || !window.VZN_BOOT) return;
     var replay = h("button", { type: "button", class: "vzn-btn vzn-wide", text: "Replay boot sequence" });
+    group.appendChild(h("p", { class: "vzn-note", text:
+      "To watch it without switching it on, add ?boot to the address (it then plays on every load)." }));
     replay.addEventListener("click", function () {
-      if (!(parseFloat(getComputedStyle(root).getPropertyValue("--boot")) >= 0.5)) {
+      if (!window.VZN_BOOT.forced && !(parseFloat(getComputedStyle(root).getPropertyValue("--boot")) >= 0.5)) {
         replay.textContent = "Switch it on above first";
         window.setTimeout(function () { replay.textContent = "Replay boot sequence"; }, 2000);
         return;
