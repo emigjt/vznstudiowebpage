@@ -87,14 +87,14 @@
 
   /* Boot sequence (assets/js/boot.js). 0 = off, 1 = on. Try it in edit mode first. */
   --boot: 0;
-  --boot-speed: 80ms;         /* time per letter */
+  --boot-speed: 75ms;         /* time per letter */
   --boot-delay: 400ms;        /* cursor blinking on an empty screen before typing */
   --boot-hold: 700ms;         /* "access granted" on screen before the logo */
-  --boot-load: 1200ms;        /* loading bar fill time */
+  --boot-load: 1150ms;        /* loading bar fill time */
   --boot-logo-time: 1400ms;   /* eye logo flicker and glitch */
   --boot-glitch: 0.7;         /* glitch strength, 0 (clean) to 1 (wild) */
   --boot-password: show;      /* show | hide (types *****) */
-  --boot-fade: 600ms;         /* fade from the boot screen to the page */
+  --boot-fade: 650ms;         /* fade from the boot screen to the page */
   --boot-size: 2rem;          /* text size (capped so it always fits a phone) */
   --boot-align: center;       /* center | top-left */
   --font-terminal: "Patchcode", ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
