@@ -15,10 +15,8 @@
 
   <link rel="icon" href="assets/brand/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
-  <link rel="preload" href="assets/js/boot.js" as="script">
   <link rel="preload" href="assets/brand/eye-grey.svg" as="image">
   <link rel="preload" href="assets/fonts/GamiyaRetro-Regular.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/Patchcode.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/InterTight-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
@@ -37,7 +35,37 @@
     <div class="boot-logo"><img class="boot-logo-img" src="assets/brand/eye-grey.svg" alt="" width="1214" height="1262"></div>
     <canvas class="boot-canvas"></canvas>
   </div>
-  <script src="assets/js/boot.js"></script>
+  <script>
+    /* The boot sequence's script and font are fetched only when it will play (--boot is 1
+       and this is the first page of the visit), with ?boot, or in edit mode. If it will
+       play, the screen is covered straight away so the page never flashes up first. */
+    (function () {
+      var root = document.documentElement, search = location.search;
+      var editing = /[?&]edit(?:[=&]|$)/.test(search) || location.hash === "#edit";
+      var forced = /[?&]boot(?:[=&]|$)/.test(search);
+      var on = getComputedStyle(root).getPropertyValue("--boot");
+      var seen = false;
+      try {
+        if (editing) {   // edit mode's saved tweaks count from the first frame
+          var saved = JSON.parse(localStorage.getItem("vzn-edit-v1") || "null");
+          if (saved && saved.vars && saved.vars["--boot"] != null) on = saved.vars["--boot"];
+        }
+        seen = sessionStorage.getItem("vzn-boot-seen") === "1";
+      } catch (e) { /* storage blocked */ }
+      var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var willPlay = forced || (parseFloat(on) >= 0.5 && !reduced && (editing || !seen));
+      if (!willPlay && !editing) return;
+      if (willPlay) root.classList.add("boot-on", "booting");
+      var font = document.createElement("link");
+      font.rel = "preload"; font.as = "font"; font.type = "font/woff2"; font.crossOrigin = "anonymous";
+      font.href = "assets/fonts/Patchcode.woff2";
+      document.head.appendChild(font);
+      var script = document.createElement("script");
+      script.src = "assets/js/boot.js";
+      script.onerror = function () { root.classList.remove("boot-on", "booting"); };
+      document.head.appendChild(script);
+    })();
+  </script>
 
   <div class="grain" aria-hidden="true"></div>
   <div class="scratches" aria-hidden="true"></div>
