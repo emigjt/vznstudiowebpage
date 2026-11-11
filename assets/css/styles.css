@@ -117,7 +117,14 @@
   --pad: clamp(16px, 3.5vw, 50px);
   --header-h: 88px;
   --section-pad: clamp(64px, 7vw, 100px);
-  --ease: cubic-bezier(.2, .7, .1, 1);
+
+  /* Motion: slow, weighty ease-outs. Two curves and four speeds cover everything. */
+  --ease-out: cubic-bezier(.2, .7, .1, 1);    /* things arriving or settling (the default) */
+  --ease-in-out: cubic-bezier(.6, 0, .2, 1);  /* things that swap in place (photo front / back) */
+  --dur-1: 150ms;             /* state changes: colour, outline, opacity on hover or press */
+  --dur-2: 300ms;             /* small interface moves: menu, header, photo flip */
+  --dur-3: 600ms;             /* media and logo moves */
+  --dur-4: 1000ms;            /* entrances */
   --mark-scale: 1.06;         /* hero logo size */
   --mark-ratio: 1214 / 1262;  /* the eye mark's proportions (width / height) */
 
@@ -285,7 +292,7 @@ em {
   font-size: var(--boot-size);
   line-height: 1.4;
   white-space: pre;
-  transition: opacity .25s ease;
+  transition: opacity var(--dur-2) var(--ease-out);
 }
 .boot-l { margin: 0; visibility: hidden; }
 .boot-l.is-shown { visibility: visible; }
@@ -308,7 +315,7 @@ em {
   translate: -50% -50%;
   opacity: 0;
   pointer-events: none;
-  transition: transform .8s ease;
+  transition: transform var(--dur-3) var(--ease-out);
 }
 .boot-logo img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .boot.is-logo .boot-term { opacity: 0; }
@@ -316,7 +323,7 @@ em {
 .boot.is-ending .boot-logo, .boot.is-ending .boot-canvas { transform: scale(1.05); }   /* settles to the hero logo's size */
 /* The glitch is drawn on a full-screen canvas by boot.js; the plain logo underneath
    is only a fallback (it flickers on) for browsers that can't draw the canvas */
-.boot-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: transform .8s ease; }
+.boot-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: transform var(--dur-3) var(--ease-out); }
 .boot.is-logo.has-canvas .boot-canvas { opacity: 1; }
 .boot.has-canvas .boot-logo { visibility: hidden; }
 .boot.is-logo:not(.has-canvas) .boot-logo-img { animation: boot-flicker var(--logo-time, 1.4s) linear both; }
@@ -355,9 +362,9 @@ em {
   pointer-events: none;
 }
 .site-header > * { pointer-events: auto; }
-.brand img { width: clamp(48px, 4.6vw, 68px); height: auto; transition: transform .6s var(--ease); }
+.brand img { width: clamp(48px, 4.6vw, 68px); height: auto; transition: transform var(--dur-3) var(--ease-out); }
 .brand:hover img { transform: rotate(-8deg); }
-.header-blurb, .header-contact { margin: 0; line-height: 1.35; transition: opacity .4s; }
+.header-blurb, .header-contact { margin: 0; line-height: 1.35; transition: opacity var(--dur-2) var(--ease-out); }
 .header-contact a:hover { text-decoration: underline; }
 .site-header.is-scrolled .header-blurb,
 .site-header.is-scrolled .header-contact { opacity: 0; pointer-events: none; }
@@ -382,7 +389,7 @@ em {
   .header-blurb { display: none; }
 }
 @media (max-width: 760px) {
-  .site-header { grid-template-columns: auto 1fr auto; mix-blend-mode: normal; transition: background .4s; }
+  .site-header { grid-template-columns: auto 1fr auto; mix-blend-mode: normal; transition: background var(--dur-2) var(--ease-out); }
   .site-header.is-scrolled, body.nav-open .site-header { background: var(--bg); }
   .header-blurb { display: none; }
   .nav-toggle { display: block; grid-column: 3; position: relative; z-index: var(--z-raised); }
@@ -396,7 +403,7 @@ em {
     background: var(--bg);
     opacity: 0;
     visibility: hidden;
-    transition: opacity .3s var(--ease), visibility .3s;
+    transition: opacity var(--dur-2) var(--ease-out), visibility var(--dur-2);
   }
   .site-nav.is-open { opacity: 1; visibility: visible; }
   .site-nav a { font-size: calc(var(--display-l) * var(--display-scale)); line-height: 1; }
@@ -428,7 +435,7 @@ em {
   aspect-ratio: var(--mark-ratio);
   max-width: 100%;
   margin: 0 auto clamp(-24px, -2vw, -8px);
-  animation: mark-in 1.6s var(--ease) backwards;
+  animation: mark-in var(--dur-4) var(--ease-out) backwards;
   will-change: transform;
 }
 .mark-main { position: relative; display: block; width: 100%; height: auto; }
@@ -458,7 +465,7 @@ em {
   line-height: calc(0.95 * var(--display-leading));
 }
 .hero-title .line, .hero-slogan .line { display: block; overflow: hidden; padding: 0 0.04em 0.16em; margin-bottom: -0.16em; }
-.hero-title .line > span, .hero-slogan .line > span { display: block; text-wrap: balance; animation: rise 1.3s var(--ease) both; }
+.hero-title .line > span, .hero-slogan .line > span { display: block; text-wrap: balance; animation: rise var(--dur-4) var(--ease-out) both; }
 .hero-title .line:nth-child(2) > span { animation-delay: .1s; }
 /* Slogan: the display face again, set smaller so the studio name leads */
 .hero-slogan {
@@ -472,8 +479,8 @@ em {
 .hero-slogan .line > span { animation-delay: .15s; }
 @keyframes rise { from { transform: translateY(100%); } }
 
-.hero-links { display: flex; justify-content: center; gap: var(--gap-wide); margin-top: clamp(var(--space-6), 6vh, var(--space-8)); animation: fade 1s .6s backwards; }
-.hero-links a { display: inline-block; text-transform: uppercase; transition: color .2s; }
+.hero-links { display: flex; justify-content: center; gap: var(--gap-wide); margin-top: clamp(var(--space-6), 6vh, var(--space-8)); animation: fade var(--dur-4) var(--ease-out) .6s backwards; }
+.hero-links a { display: inline-block; text-transform: uppercase; transition: color var(--dur-1) var(--ease-out); }
 .hero-links li:nth-child(1) a { transform: rotate(3deg) translateY(6px); }
 .hero-links li:nth-child(2) a { transform: rotate(-5deg) translateY(-10px); }
 .hero-links li:nth-child(3) a { transform: rotate(4deg) translateY(4px); }
@@ -605,7 +612,7 @@ em {
   letter-spacing: 0.06em;
   cursor: pointer;
   backdrop-filter: blur(6px);
-  transition: background .2s, color .2s;
+  transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
 }
 .card-play:hover:not(:disabled), .card-sound.is-playing .card-play { background: var(--text); color: var(--bg); }
 .card-play:disabled { cursor: default; opacity: .7; }
@@ -623,7 +630,7 @@ em {
   overflow: hidden;
 }
 .card-open:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
-.card-open img, .card-open .cover { display: block; height: 100%; width: auto; max-width: none; transition: transform .8s var(--ease); }
+.card-open img, .card-open .cover { display: block; height: 100%; width: auto; max-width: none; transition: transform var(--dur-3) var(--ease-out); }
 .card-open img { width: 100%; object-fit: cover; }   /* fills the space reserved for it */
 .card-open:hover img, .card-open:hover .cover { transform: scale(1.03); }
 
@@ -644,7 +651,7 @@ em {
   font-size: var(--text-s);
 }
 .work-tabs { display: flex; align-items: center; gap: var(--space-3); flex: 1; max-width: 520px; }
-.work-tabs a { opacity: .5; transition: opacity .2s; }
+.work-tabs a { opacity: .5; transition: opacity var(--dur-1) var(--ease-out); }
 .work-tabs a.is-active, .work-tabs a:hover { opacity: 1; }
 .work-progress { flex: 1; height: 1px; background: color-mix(in srgb, var(--on-blend) 30%, transparent); }
 .work-progress span { display: block; height: 100%; background: var(--on-blend); transform: scaleX(0); transform-origin: left; }
@@ -727,7 +734,7 @@ em {
 .product-media > img { width: 100%; height: 100%; object-fit: cover; }
 /* Front / back photos: clicking the photo or its button sets .show-back (main.js) */
 .product-media.has-back { cursor: pointer; }
-.product-media > img.is-back { position: absolute; inset: 0; opacity: 0; transition: opacity .45s var(--ease); }
+.product-media > img.is-back { position: absolute; inset: 0; opacity: 0; transition: opacity var(--dur-2) var(--ease-in-out); }
 .product-media.show-back > img.is-back { opacity: 1; }
 .product-flip {
   position: absolute;
@@ -771,7 +778,7 @@ em {
   background: var(--swatch);
   box-shadow: 0 0 0 3px var(--bg);
   cursor: pointer;
-  transition: box-shadow .2s;
+  transition: box-shadow var(--dur-1) var(--ease-out);
 }
 .product-swatch[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--text); }
 .product-swatch:hover:not([aria-pressed="true"]) { box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--muted); }
@@ -786,7 +793,7 @@ em {
   font-size: var(--text-s);
   border-bottom: 1px solid var(--text);
   padding-bottom: 2px;
-  transition: color .2s, border-color .2s;
+  transition: color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
 }
 a.product-buy:hover { color: var(--accent); border-color: var(--accent); }
 .product-buy.is-soon { color: var(--muted); border-color: transparent; }
@@ -807,7 +814,7 @@ a.product-buy:hover { color: var(--accent); border-color: var(--accent); }
   font: 400 clamp(var(--text-l), 4vw, var(--text-3xl))/1.1 var(--font-display);
   border-bottom: 1px solid var(--line-strong);
   word-break: break-word;
-  transition: color .2s, border-color .2s;
+  transition: color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
 }
 .contact-email:hover { color: var(--accent); border-color: var(--accent); }
 .contact-grid {
@@ -820,7 +827,7 @@ a.product-buy:hover { color: var(--accent); border-color: var(--accent); }
 .contact-lede { max-width: 44ch; color: var(--muted); margin-bottom: var(--space-6); }
 
 .contact-form { display: grid; gap: var(--space-1); }
-.field { display: grid; grid-template-columns: 12ch 1fr; gap: var(--space-4); align-items: baseline; border-bottom: 1px solid var(--line-strong); transition: border-color .2s; }
+.field { display: grid; grid-template-columns: 12ch 1fr; gap: var(--space-4); align-items: baseline; border-bottom: 1px solid var(--line-strong); transition: border-color var(--dur-1) var(--ease-out); }
 .field:focus-within { border-color: var(--text); }
 .field label { color: var(--muted); }
 .field input, .field select, .field textarea {
@@ -846,7 +853,7 @@ a.product-buy:hover { color: var(--accent); border-color: var(--accent); }
   font: inherit;
   text-transform: uppercase;
   cursor: pointer;
-  transition: color .2s;
+  transition: color var(--dur-1) var(--ease-out);
 }
 .btn:hover { color: var(--accent); }
 .form-status { margin: var(--space-2) 0 0; color: var(--muted); min-height: 1.5em; }
@@ -860,7 +867,7 @@ a.product-buy:hover { color: var(--accent); border-color: var(--accent); }
 .footer-row a:hover { color: var(--text); }
 
 /* Reveal on scroll ------------------------------------------------------- */
-.reveal { opacity: 0; transform: translateY(32px); transition: opacity 1s var(--ease), transform 1s var(--ease); }
+.reveal { opacity: 0; transform: translateY(32px); transition: opacity var(--dur-4) var(--ease-out), transform var(--dur-4) var(--ease-out); }
 .reveal.is-visible { opacity: 1; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
