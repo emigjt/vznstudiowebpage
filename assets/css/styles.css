@@ -205,7 +205,9 @@ em {
   text-shadow: 0 0 0.05em currentColor, 0 0 0.3em color-mix(in srgb, var(--muted) 50%, transparent);
 }
 ::selection { background: var(--text); color: var(--bg); }
-:focus-visible { outline: 1px solid currentColor; outline-offset: 3px; }
+/* Keyboard focus: one ring everywhere, in the colour of the text it surrounds, so it
+   shows on the dark page, on bone, and in the inverting header alike */
+:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .skip-link { position: absolute; left: -9999px; top: var(--space-2); z-index: var(--z-skip); background: var(--text); color: var(--bg); padding: var(--space-2) var(--space-4); }
@@ -232,10 +234,14 @@ em {
   font-family: inherit;
   line-height: 1.2;
   cursor: pointer;
-  transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
+  transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out);
 }
 .pill:hover:not(:disabled), .pill.is-on, .card-sound.is-playing .card-play { background: var(--text); color: var(--bg); border-color: var(--text); }
 .pill:disabled { cursor: default; opacity: .6; }
+/* Pressed: controls give slightly under the finger or cursor */
+.pill:active:not(:disabled):not(.is-small), .product-swatch:active { transform: scale(.96); }
+.site-nav a:active, .hero-links a:active, .footer-row a:active, .btn:active, a.product-buy:active, .contact-email:active, .work-tabs a:active, .nav-toggle:active { opacity: .6; }
+.card-open:active img, .card-open:active .cover { transform: scale(.99); }
 .pill.is-light { border-color: color-mix(in srgb, var(--ink) 35%, transparent); background: color-mix(in srgb, var(--paper) 85%, transparent); color: var(--ink); }
 .pill.is-light:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .pill.is-small { padding: var(--space-1) var(--space-3); background: none; color: var(--muted); cursor: default; }
@@ -644,7 +650,6 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .panel-visual .card-meta, .panel-visual .card-sub, .panel-visual .panel-lede,
 .panel-visual .rail-count, .panel-visual .panel-intro .kicker { color: var(--ink-muted); }
 .panel-visual .rail-group { border-color: color-mix(in srgb, var(--ink) 25%, transparent); }
-.panel-visual .card-open:focus-visible { outline-color: var(--ink); }
 
 .panel-intro { flex: none; width: clamp(240px, 28vw, 440px); align-self: center; }
 .panel-intro .kicker { color: var(--muted); }
@@ -703,7 +708,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   cursor: zoom-in;
   overflow: hidden;
 }
-.card-open:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
+.card-open:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 .card-open img, .card-open .cover { display: block; height: 100%; width: auto; max-width: none; transition: transform var(--dur-3) var(--ease-out); }
 .card-open img { width: 100%; object-fit: cover; }   /* fills the space reserved for it */
 .card-open:hover img, .card-open:hover .cover { transform: scale(1.03); }
@@ -723,7 +728,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 }
 .work-bar .kicker { font: inherit; letter-spacing: inherit; }
 .work-tabs { display: flex; align-items: center; gap: var(--space-3); flex: 1; max-width: 520px; }
-.work-tabs a { opacity: .5; transition: opacity var(--dur-1) var(--ease-out); }
+.work-tabs a { opacity: .65; transition: opacity var(--dur-1) var(--ease-out); }   /* dimmed, but still 4.5:1 on both sides */
 .work-tabs a.is-active, .work-tabs a:hover { opacity: 1; }
 .work-progress { flex: 1; height: 1px; background: color-mix(in srgb, var(--on-blend) 30%, transparent); }
 .work-progress span { display: block; height: 100%; background: var(--on-blend); transform: scaleX(0); transform-origin: left; }
@@ -865,7 +870,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   background: var(--swatch);
   box-shadow: 0 0 0 3px var(--bg);
   cursor: pointer;
-  transition: box-shadow var(--dur-1) var(--ease-out);
+  transition: box-shadow var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out);
 }
 .product-swatch[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--text); }
 .product-swatch:hover:not([aria-pressed="true"]) { box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--muted); }
@@ -907,9 +912,9 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .contact-lede { max-width: var(--measure-caption); text-wrap: balance; color: var(--muted); margin-bottom: var(--space-6); }
 
 .contact-form { display: grid; gap: var(--space-1); }
-.field { display: grid; grid-template-columns: 12ch 1fr; gap: var(--space-4); align-items: baseline; border-bottom: 1px solid var(--line-strong); transition: border-color var(--dur-1) var(--ease-out); }
+.field { display: grid; grid-template-columns: 12ch 1fr; gap: var(--space-4); align-items: baseline; border-bottom: 1px solid var(--line-strong); transition: border-color var(--dur-1) var(--ease-out), box-shadow var(--dur-1) var(--ease-out); }
 .field:focus-within { border-color: var(--text); }
-.field label { color: var(--muted); }
+.field label { color: var(--muted); transition: color var(--dur-1) var(--ease-out); }
 .field input, .field select, .field textarea {
   width: 100%;
   background: transparent;
@@ -919,7 +924,10 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   color: var(--text);
   font: inherit;
 }
+/* A field shows focus on its whole row: the underline brightens and thickens */
 .field input:focus, .field select:focus, .field textarea:focus { outline: none; }
+.field:focus-within { box-shadow: 0 1px 0 var(--text); }
+.field:focus-within label { color: var(--text); }
 .field select { appearance: none; cursor: pointer; }
 .field select option { background: var(--surface); }
 .field textarea { resize: vertical; }
