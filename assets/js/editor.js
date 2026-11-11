@@ -41,7 +41,7 @@
     ["Geist Mono", "wght@400;500", "monospace"],
     ["Martian Mono", "wght@400;500", "monospace"],
     ["Courier Prime", "ital,wght@0,400;0,700;1,400", "monospace"],
-    ["Inter Tight", "ital,wght@0,400;0,500;1,400", "sans-serif"],
+    ["Inter Tight", null, "sans-serif", "site"],
     ["Space Grotesk", "wght@400;500", "sans-serif"]
   ];
 

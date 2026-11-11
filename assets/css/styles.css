@@ -13,6 +13,16 @@
   font-style: normal;
   font-display: swap;
 }
+/* Inter Tight (SIL Open Font License): the body and interface face, self-hosted as a
+   Latin subset of the regular weight, with the arrows the labels use. No request
+   leaves the site for fonts. */
+@font-face {
+  font-family: "Inter Tight";
+  src: url("../fonts/InterTight-Regular.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 /* Coldag Serif by Delipensil: the previous display face, kept as an alternate (edit
    mode offers it; a face that isn't used is never downloaded). It has no . , : - /
    characters, so pair it with a fallback that does. */
