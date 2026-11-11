@@ -99,6 +99,8 @@
 
   --radius-pill: 999px;
   --label-tracking: 0.06em;   /* small uppercase labels */
+  --measure-caption: 38ch;    /* widest line of a short caption */
+  --measure-text: 60ch;       /* widest line of running text */
 
   /* Type: Gamiya Retro for display, a clean sans for everything else */
   --font-display: "Gamiya Retro", "Helvetica Neue", Arial, sans-serif;
@@ -187,8 +189,9 @@ body {
 }
 img, video, iframe { display: block; max-width: 100%; }
 a { color: inherit; text-decoration: none; }
-h1, h2, h3, h4 { margin: 0; font-weight: 400; }
-p { margin: 0 0 1em; }
+/* Headings break into even lines; paragraphs avoid leaving a word or two alone */
+h1, h2, h3, h4 { margin: 0; font-weight: 400; text-wrap: balance; }
+p { margin: 0 0 1em; text-wrap: pretty; }
 ul, ol, dl, dd { margin: 0; padding: 0; list-style: none; }
 /* Emphasis: the display face has no italic, so an emphasised word takes the logo's
    look instead: its soft grey, with a faint halo like the artwork's glowing edge. */
@@ -626,7 +629,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   line-height: calc(0.95 * var(--display-leading));
   margin: var(--space-2) 0 var(--space-5) -0.04em;
 }
-.panel-lede { color: var(--muted); max-width: 30ch; margin: 0; }
+.panel-lede { color: var(--muted); max-width: var(--measure-caption); margin: 0; }
 
 .rail { display: flex; align-items: flex-start; gap: var(--gap-fluid); }
 .rail-group {
@@ -751,7 +754,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .viewer-body { padding: var(--gap-fluid); }
 .viewer-meta { color: var(--muted); }
 .viewer-title { font: 400 clamp(var(--text-xl), 4vw, var(--text-3xl))/1 var(--font-display); margin: var(--space-2) 0 var(--space-3); }
-.viewer-desc { color: var(--muted); max-width: 60ch; margin: 0; }
+.viewer-desc { color: var(--muted); max-width: var(--measure-text); margin: 0; }
 
 /* Shop ------------------------------------------------------------------- */
 .shop-head { margin-bottom: var(--space-block); }
@@ -765,7 +768,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   line-height: calc(0.95 * var(--display-leading));
   margin-bottom: var(--space-5);
 }
-.shop-lede { color: var(--muted); max-width: 44ch; margin: 0; }
+.shop-lede { color: var(--muted); max-width: var(--measure-caption); margin: 0; }
 .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 420px)); gap: var(--gap-fluid); }
 .product-media { position: relative; aspect-ratio: 1; background: var(--surface); overflow: hidden; }
 .product-media > img { width: 100%; height: 100%; object-fit: cover; }
@@ -828,6 +831,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   font-size: calc(var(--display-xl) * var(--display-scale));
   line-height: calc(0.95 * var(--display-leading));
   margin-bottom: var(--space-5);
+  text-wrap: balance;
 }
 .contact-email {
   display: inline-block;
@@ -842,7 +846,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   margin-top: var(--section-pad);
   text-align: left;
 }
-.contact-lede { max-width: 44ch; color: var(--muted); margin-bottom: var(--space-6); }
+.contact-lede { max-width: var(--measure-caption); color: var(--muted); margin-bottom: var(--space-6); }
 
 .contact-form { display: grid; gap: var(--space-1); }
 .field { display: grid; grid-template-columns: 12ch 1fr; gap: var(--space-4); align-items: baseline; border-bottom: 1px solid var(--line-strong); transition: border-color var(--dur-1) var(--ease-out); }
