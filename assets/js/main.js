@@ -370,18 +370,21 @@
   var jumps = $$("[data-work-jump]");
   var distance = 0;
   var workTicking = false;
+  // The panels move sideways this many pixels for each pixel scrolled down, so Work
+  // takes less scrolling than its width.
+  var WORK_SPEED = 1.3;
 
   work.classList.add("is-pinned");
 
   function measureWork() {
     distance = Math.max(0, track.scrollWidth - workPin.clientWidth);
-    // The section is as tall as the sideways distance, so one pixel down = one pixel across.
-    work.style.height = (workPin.offsetHeight + distance) + "px";
+    // The section is tall enough to scroll the whole sideways distance at WORK_SPEED.
+    work.style.height = Math.round(workPin.offsetHeight + distance / WORK_SPEED) + "px";
     updateWork();
   }
 
   function workOffset() {
-    return Math.min(Math.max(-work.getBoundingClientRect().top, 0), distance);
+    return Math.min(Math.max(-work.getBoundingClientRect().top, 0) * WORK_SPEED, distance);
   }
 
   function updateWork() {
@@ -415,7 +418,7 @@
     var x = workOffset();
     if (left < x || left + card.offsetWidth > x + workPin.clientWidth) {
       var top = work.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({ top: top + Math.min(Math.max(left - workPin.clientWidth * 0.3, 0), distance), behavior: "instant" });
+      window.scrollTo({ top: top + Math.min(Math.max(left - workPin.clientWidth * 0.3, 0), distance) / WORK_SPEED, behavior: "instant" });
     }
   });
 
@@ -425,7 +428,7 @@
       e.preventDefault();
       var top = work.getBoundingClientRect().top + window.scrollY;
       var across = a.dataset.workJump === "visual" ? Math.min(visualPanel.offsetLeft, distance) : 0;
-      window.scrollTo({ top: top + across, behavior: reduceMotion ? "auto" : "smooth" });
+      window.scrollTo({ top: top + across / WORK_SPEED, behavior: reduceMotion ? "auto" : "smooth" });
     });
   });
 

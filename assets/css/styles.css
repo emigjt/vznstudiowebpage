@@ -153,7 +153,7 @@
   --fx-edge: 1.4px;           /* softness of the revealed logo's edge, like the artwork's */
   --fx-halo: 0.5;             /* glow left around the revealed logo, 0 (none) to 1 */
   --fx-scroll: 50svh;         /* scroll distance over which the reveal happens */
-  --fx-hold: 50svh;           /* extra scrolling with the logo held in place before the page moves on */
+  --fx-hold: 30svh;           /* extra scrolling with the logo held in place before the page moves on */
   --fx-mark-x: 0vw;           /* logo position from screen centre: + right, - left */
   --fx-mark-y: -2svh;         /* logo position from screen centre: + down, - up */
   --grain: 0.19;              /* film grain strength */
@@ -602,7 +602,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .work.is-pinned .work-track { position: absolute; inset: 0 auto 0 0; will-change: transform; }
 
 .work-panel {
-  --rail-h: min(46svh, 470px);
+  --rail-h: min(48svh, 560px);    /* height of the row of cards; grows with the screen */
   display: flex;
   align-items: center;
   gap: var(--gap-fluid);
@@ -727,7 +727,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
      let it adapt to the black and bone sides like the desktop header does */
   html.in-work body:not(.nav-open) .site-header { background: transparent; mix-blend-mode: difference; color: var(--on-blend); }
   .work-panel { --rail-h: min(40svh, 380px); padding-top: calc(var(--header-h) + var(--space-1)); padding-right: calc(var(--pad) * 2); }
-  .panel-intro { width: 78vw; }
+  .panel-intro { width: 62vw; }   /* narrow enough that the first cover peeks in beside it */
   .np-title { max-width: 30vw; }
   .work-tabs { gap: var(--space-2); }
 }
