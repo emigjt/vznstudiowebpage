@@ -90,13 +90,26 @@
 
   --radius-pill: 999px;
 
-  /* Type: Gamiya Retro for display, clean sans for everything else */
-  --font-serif: "Gamiya Retro", "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "Inter Tight", "Helvetica Neue", Arial, sans-serif;  /* body / UI font */
-  --text-size: 1.2rem;       /* body / UI text */
-  --display-scale: 0.84;      /* multiplies every big serif headline */
-  --display-leading: 1.16;    /* multiplies headline line spacing */
-  --display-tracking: -0.015em;
+  /* Type: Gamiya Retro for display, a clean sans for everything else */
+  --font-display: "Gamiya Retro", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+  --text-size: 1.2rem;        /* body / UI text: the base of the scale */
+
+  /* One scale: each step is 1.25 times the one below it */
+  --text-xs: calc(var(--text-size) * 0.64);    /* 12.3px  smallest labels */
+  --text-s: calc(var(--text-size) * 0.8);      /* 15.4px  labels, captions, pills */
+  --text-m: var(--text-size);                  /* 19.2px  body */
+  --text-l: calc(var(--text-size) * 1.25);     /* 24px    card titles */
+  --text-xl: calc(var(--text-size) * 1.5625);  /* 30px    product names, menu */
+  --text-2xl: calc(var(--text-size) * 1.953);  /* 37.5px */
+  --text-3xl: calc(var(--text-size) * 2.441);  /* 47px    slogan, email */
+  /* Two headline sizes, also 1.25 apart. Largest: the studio name and the Contact
+     line. Next: section titles. Both grow with the screen and always fit a phone. */
+  --display-xl: clamp(3.4rem, 10.4vw, 12rem);
+  --display-l: clamp(2.72rem, 8.32vw, 9.6rem);
+  --display-scale: 1;         /* multiplies both headline sizes */
+  --display-leading: 1;       /* multiplies headline line spacing */
+  --display-tracking: -0.01em;
   --display-weight: 400;
   --display-case: none;       /* none | uppercase | lowercase */
 
@@ -148,8 +161,8 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-mono);
-  font-size: var(--text-size);
+  font-family: var(--font-ui);
+  font-size: var(--text-m);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
@@ -173,7 +186,8 @@ em {
 .skip-link { position: absolute; left: -9999px; top: var(--space-2); z-index: var(--z-skip); background: var(--text); color: var(--bg); padding: var(--space-2) var(--space-4); }
 .skip-link:focus { left: var(--space-2); }
 
-.mono-title { font: 400 var(--text-size)/1.5 var(--font-mono); margin: 0; }
+/* Small line above a heading ("Shop", "01 / 02") */
+.kicker { font: 400 var(--text-m)/1.5 var(--font-ui); margin: 0; }
 .section { padding: var(--section-pad) var(--pad); border-top: 1px solid var(--line); }
 .section-label { margin-bottom: var(--space-block); }
 
@@ -349,7 +363,7 @@ em {
 .site-header.is-scrolled .header-contact { opacity: 0; pointer-events: none; }
 
 .site-nav { grid-column: 5; display: flex; gap: var(--gap-wide); }
-.site-nav a { font: 400 clamp(1.6rem, 2.6vw, 2.6rem)/1 var(--font-serif); letter-spacing: -0.01em; }
+.site-nav a { font: 400 clamp(var(--text-xl), 2.6vw, var(--text-2xl))/1 var(--font-display); letter-spacing: var(--display-tracking); }
 
 .nav-toggle {
   display: none;
@@ -385,7 +399,7 @@ em {
     transition: opacity .3s var(--ease), visibility .3s;
   }
   .site-nav.is-open { opacity: 1; visibility: visible; }
-  .site-nav a { font-size: clamp(3.4rem, 17vw, 5rem); line-height: 0.95; }
+  .site-nav a { font-size: calc(var(--display-l) * var(--display-scale)); line-height: 1; }
   .brand { position: relative; z-index: var(--z-raised); }
   body.nav-open { overflow: hidden; }
 }
@@ -436,12 +450,12 @@ em {
 .fx-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 @keyframes mark-in { from { opacity: 0; filter: blur(14px); transform: scale(.94); } }
 .hero-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-weight: var(--display-weight);
   text-transform: var(--display-case);
   letter-spacing: var(--display-tracking);
-  font-size: calc(clamp(3.2rem, 10.4vw, 11.5rem) * var(--display-scale));
-  line-height: calc(0.8 * var(--display-leading));
+  font-size: calc(var(--display-xl) * var(--display-scale));
+  line-height: calc(0.95 * var(--display-leading));
 }
 .hero-title .line, .hero-slogan .line { display: block; overflow: hidden; padding: 0 0.04em 0.16em; margin-bottom: -0.16em; }
 .hero-title .line > span, .hero-slogan .line > span { display: block; text-wrap: balance; animation: rise 1.3s var(--ease) both; }
@@ -449,9 +463,9 @@ em {
 /* Slogan: the display face again, set smaller so the studio name leads */
 .hero-slogan {
   margin: clamp(var(--space-2), 1.6vw, var(--space-5)) 0 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-weight: 400;
-  font-size: calc(clamp(1.5rem, 3.6vw, 3.6rem) * var(--display-scale));
+  font-size: clamp(var(--text-l), 3.2vw, var(--text-3xl));
   line-height: 1.05;
   letter-spacing: 0;
 }
@@ -466,8 +480,9 @@ em {
 .hero-links a:hover { color: var(--accent); }
 @keyframes fade { from { opacity: 0; } }
 @media (max-width: 760px) {
+  /* Phones: headlines scale faster with the narrower screen */
+  :root { --display-xl: clamp(3.4rem, 14.5vw, 7rem); --display-l: clamp(2.72rem, 11.6vw, 5.6rem); }
   .hero-mark { width: calc(min(62vw, 34svh) * var(--mark-scale)); }
-  .hero-title { font-size: calc(clamp(3.2rem, 17vw, 6rem) * var(--display-scale)); }
 }
 
 /* Scroll reveal (logo-fx.js adds .fx-on to <html> when --logo-fx is 1): the hero
@@ -531,19 +546,19 @@ em {
 /* The Visual side turns the page: black ink on bone, like the original logo artwork */
 .panel-visual { background: var(--paper); color: var(--ink); }
 .panel-visual .card-meta, .panel-visual .card-sub, .panel-visual .panel-lede,
-.panel-visual .rail-count, .panel-visual .panel-intro .mono-title { color: var(--ink-muted); }
+.panel-visual .rail-count, .panel-visual .panel-intro .kicker { color: var(--ink-muted); }
 .panel-visual .rail-group { border-color: color-mix(in srgb, var(--ink) 25%, transparent); }
 .panel-visual .card-open:focus-visible { outline-color: var(--ink); }
 
 .panel-intro { flex: none; width: clamp(240px, 28vw, 440px); align-self: center; }
-.panel-intro .mono-title { color: var(--muted); }
+.panel-intro .kicker { color: var(--muted); }
 .panel-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-weight: var(--display-weight);
   text-transform: var(--display-case);
   letter-spacing: var(--display-tracking);
-  font-size: calc(clamp(4rem, 11vw, 11rem) * var(--display-scale));
-  line-height: calc(0.85 * var(--display-leading));
+  font-size: calc(var(--display-l) * var(--display-scale));
+  line-height: calc(0.95 * var(--display-leading));
   margin: var(--space-2) 0 var(--space-5) -0.04em;
 }
 .panel-lede { color: var(--muted); max-width: 30ch; margin: 0; }
@@ -561,15 +576,15 @@ em {
   border-left: 1px solid var(--line-strong);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 0.8em;
+  font-size: var(--text-s);
 }
 .rail-count { color: var(--muted); }
 
 .card { flex: none; }
 .card-media { position: relative; display: block; overflow: hidden; background: var(--surface); }
-.card-meta { margin: var(--space-3) 0 var(--space-1); color: var(--muted); font-size: 0.85em; }
-.card-title { font: 400 clamp(1.3rem, 1.8vw, 1.7rem)/1.1 var(--font-serif); }
-.card-sub { margin: var(--space-1) 0 0; color: var(--muted); font-size: 0.9em; }
+.card-meta { margin: var(--space-3) 0 var(--space-1); color: var(--muted); font-size: var(--text-s); }
+.card-title { font: 400 var(--text-l)/1.1 var(--font-display); }
+.card-sub { margin: var(--space-1) 0 0; color: var(--muted); font-size: var(--text-s); }
 
 /* Sound cards: square covers with a play button and a progress line */
 .card-sound { width: min(var(--rail-h) * 0.72, 62vw); }
@@ -585,7 +600,7 @@ em {
   background: color-mix(in srgb, var(--bg) 60%, transparent);
   color: var(--text);
   font: inherit;
-  font-size: 0.8em;
+  font-size: var(--text-s);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   cursor: pointer;
@@ -626,7 +641,7 @@ em {
   mix-blend-mode: difference;    /* readable on both the black and the bone side */
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 0.8em;
+  font-size: var(--text-s);
 }
 .work-tabs { display: flex; align-items: center; gap: var(--space-3); flex: 1; max-width: 520px; }
 .work-tabs a { opacity: .5; transition: opacity .2s; }
@@ -652,11 +667,11 @@ em {
 .cover-play { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; translate: -50% -50%; border: 1px solid color-mix(in srgb, var(--text) 60%, transparent); border-radius: 50%; }
 .cover-play::after { content: ""; position: absolute; left: 55%; top: 50%; translate: -50% -50%; border-left: 12px solid var(--text); border-block: 8px solid transparent; }
 .cover .cover-mark { position: absolute; left: 50%; top: 52%; width: 38%; height: auto; translate: -50% -50%; opacity: .45; }
-.cover-label { position: absolute; left: var(--space-2); top: var(--space-2); right: var(--space-2); display: flex; justify-content: space-between; gap: var(--space-2); font-size: 0.65rem; text-transform: uppercase; color: color-mix(in srgb, var(--text) 75%, transparent); }
+.cover-label { position: absolute; left: var(--space-2); top: var(--space-2); right: var(--space-2); display: flex; justify-content: space-between; gap: var(--space-2); font-size: var(--text-xs); text-transform: uppercase; color: color-mix(in srgb, var(--text) 75%, transparent); }
 
 @media (max-width: 760px) {
   .work-bar { gap: var(--space-3); }
-  .work-bar > .mono-title { display: none; }   /* "Work" is already in the menu; room for the player */
+  .work-bar > .kicker { display: none; }   /* "Work" is already in the menu; room for the player */
   /* Inside Work nothing scrolls under the phone header, so drop its black bar and
      let it adapt to the black and bone sides like the desktop header does */
   html.in-work body:not(.nav-open) .site-header { background: transparent; mix-blend-mode: difference; color: var(--on-blend); }
@@ -680,7 +695,7 @@ em {
 .viewer-close {
   position: absolute; top: var(--space-3); right: var(--space-3); z-index: var(--z-raised);
   padding: 8px 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--bg) 70%, transparent); color: var(--text); font: inherit; font-size: 0.8em;
+  background: color-mix(in srgb, var(--bg) 70%, transparent); color: var(--text); font: inherit; font-size: var(--text-s);
   text-transform: uppercase; letter-spacing: 0.06em; cursor: pointer;
 }
 .viewer-close:hover { background: var(--text); color: var(--bg); }
@@ -691,19 +706,19 @@ em {
 .viewer-media iframe.is-spotify { aspect-ratio: auto; height: 352px; }
 .viewer-body { padding: var(--gap-fluid); }
 .viewer-meta { color: var(--muted); }
-.viewer-title { font: 400 clamp(2rem, 4vw, 3.4rem)/1 var(--font-serif); margin: var(--space-2) 0 var(--space-3); }
+.viewer-title { font: 400 clamp(var(--text-xl), 4vw, var(--text-3xl))/1 var(--font-display); margin: var(--space-2) 0 var(--space-3); }
 .viewer-desc { color: var(--muted); max-width: 60ch; margin: 0; }
 
 /* Shop ------------------------------------------------------------------- */
 .shop-head { margin-bottom: var(--space-block); }
 .shop-head .section-label { margin-bottom: var(--space-5); }
 .shop-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-weight: var(--display-weight);
   text-transform: var(--display-case);
   letter-spacing: var(--display-tracking);
-  font-size: calc(clamp(3rem, 9vw, 9rem) * var(--display-scale));
-  line-height: calc(0.85 * var(--display-leading));
+  font-size: calc(var(--display-l) * var(--display-scale));
+  line-height: calc(0.95 * var(--display-leading));
   margin-bottom: var(--space-5);
 }
 .shop-lede { color: var(--muted); max-width: 44ch; margin: 0; }
@@ -724,7 +739,7 @@ em {
   background: color-mix(in srgb, var(--paper) 85%, transparent);
   color: var(--ink);
   font: inherit;
-  font-size: 0.8em;
+  font-size: var(--text-s);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   cursor: pointer;
@@ -742,7 +757,7 @@ em {
 .mockup-poster .mockup-mark { top: 46%; width: 36%; }
 .product-info { padding-top: var(--space-4); }
 .product-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); }
-.product-name { font: 400 clamp(1.4rem, 2vw, 1.9rem)/1.1 var(--font-serif); }
+.product-name { font: 400 var(--text-xl)/1.1 var(--font-display); }
 .product-price { margin: 0; white-space: nowrap; }
 .product-type { margin: var(--space-1) 0 0; color: var(--muted); }
 /* Colour swatches */
@@ -760,15 +775,15 @@ em {
 }
 .product-swatch[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--text); }
 .product-swatch:hover:not([aria-pressed="true"]) { box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--muted); }
-.product-color-name { margin-left: var(--space-2); color: var(--muted); font-size: 0.9em; }
+.product-color-name { margin-left: var(--space-2); color: var(--muted); font-size: var(--text-s); }
 .product-sizes { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
-.product-sizes li { padding: 3px 10px; border: 1px solid var(--line-strong); border-radius: var(--radius-pill); font-size: 0.8em; color: var(--muted); }
+.product-sizes li { padding: 3px 10px; border: 1px solid var(--line-strong); border-radius: var(--radius-pill); font-size: var(--text-s); color: var(--muted); }
 .product-buy {
   display: inline-block;
   margin-top: var(--space-5);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 0.85em;
+  font-size: var(--text-s);
   border-bottom: 1px solid var(--text);
   padding-bottom: 2px;
   transition: color .2s, border-color .2s;
@@ -779,17 +794,17 @@ a.product-buy:hover { color: var(--accent); border-color: var(--accent); }
 /* Contact ---------------------------------------------------------------- */
 .contact { text-align: center; }
 .contact-headline {
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-weight: var(--display-weight);
   text-transform: var(--display-case);
   letter-spacing: var(--display-tracking);
-  font-size: calc(clamp(4rem, 15vw, 16rem) * var(--display-scale));
-  line-height: calc(0.8 * var(--display-leading));
+  font-size: calc(var(--display-xl) * var(--display-scale));
+  line-height: calc(0.95 * var(--display-leading));
   margin-bottom: var(--space-5);
 }
 .contact-email {
   display: inline-block;
-  font: 400 clamp(1.6rem, 4vw, 3.6rem)/1.1 var(--font-serif);
+  font: 400 clamp(var(--text-l), 4vw, var(--text-3xl))/1.1 var(--font-display);
   border-bottom: 1px solid var(--line-strong);
   word-break: break-word;
   transition: color .2s, border-color .2s;

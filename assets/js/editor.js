@@ -58,8 +58,8 @@
     { key: "--line-strong", label: "Lines (strong)", type: "color" },
 
     { group: "Type" },
-    { key: "--font-serif", label: "Headline font", type: "font", fonts: DISPLAY_FONTS },
-    { key: "--font-mono", label: "Body font", type: "font", fonts: BODY_FONTS },
+    { key: "--font-display", label: "Headline font", type: "font", fonts: DISPLAY_FONTS },
+    { key: "--font-ui", label: "Body font", type: "font", fonts: BODY_FONTS },
     { key: "--display-weight", label: "Headline weight", type: "select",
       options: [["300", "Light"], ["400", "Regular"], ["500", "Medium"], ["700", "Bold"], ["900", "Black"]] },
     { key: "--display-case", label: "Headline case", type: "select",
@@ -112,7 +112,7 @@
   var EDITABLE = [
     ".header-blurb", ".header-contact", ".site-nav a",
     ".hero-title .line > span", ".hero-slogan .line > span", ".hero-links a", ".hero-foot > span",
-    "#main .mono-title", ".panel-title", ".panel-lede", ".work-tabs a",
+    "#main .kicker", ".panel-title", ".panel-lede", ".work-tabs a",
     ".shop-title", ".shop-lede",
     ".contact-headline", ".contact-email", ".contact-lede", ".contact .details dt", ".contact .details a",
     ".field label", ".contact-form .btn", ".footer-row > *"
@@ -284,12 +284,12 @@
   /* Your own fonts: installed on this computer, or added as files ------------ */
   // Installed fonts are listed with the browser's Local Font Access (Chrome, Edge).
   // Font files work in any browser and are kept in this browser (IndexedDB).
-  var FONT_KEYS = ["--font-serif", "--font-mono"];
-  var GENERIC = { "--font-serif": "serif", "--font-mono": "sans-serif" };
+  var FONT_KEYS = ["--font-display", "--font-ui"];
+  var GENERIC = { "--font-display": "serif", "--font-ui": "sans-serif" };
   var GROUP_LABEL = { file: "Your font files", installed: "Installed on this computer" };
   var installedFamilies = [];
   var fileFamilies = [];
-  var browseTarget = "--font-serif";
+  var browseTarget = "--font-display";
 
   function isGoogleFont(key, family) { return !!fontFor(inputs[key].control.fonts, family); }
   function quoteFamily(family) { return '"' + String(family).replace(/["\\]/g, "") + '"'; }
@@ -414,15 +414,15 @@
   }
 
   // Font tools, under the two font pickers in the Type group
-  var typeGroup = inputs["--font-mono"].input.closest("fieldset");
-  var afterBody = inputs["--font-mono"].input.closest(".vzn-row");
+  var typeGroup = inputs["--font-ui"].input.closest("fieldset");
+  var afterBody = inputs["--font-ui"].input.closest(".vzn-row");
   var installedBtn = h("button", { type: "button", class: "vzn-btn", text: "Browse installed fonts" });
   var fileInput = h("input", { type: "file", id: "vzn-font-files", class: "vzn-file", multiple: "", accept: ".otf,.ttf,.woff,.woff2" });
   var fileBtn = h("label", { class: "vzn-btn", for: "vzn-font-files", text: "Add font files" });
   var fontStatus = h("p", { class: "vzn-note vzn-font-status", role: "status" });
   var fontSearch = h("input", { type: "search", id: "vzn-font-search", placeholder: "Search fonts", "aria-label": "Search fonts" });
-  var targetHead = h("button", { type: "button", class: "vzn-seg", "data-target": "--font-serif", text: "Headline" });
-  var targetBody = h("button", { type: "button", class: "vzn-seg", "data-target": "--font-mono", text: "Body" });
+  var targetHead = h("button", { type: "button", class: "vzn-seg", "data-target": "--font-display", text: "Headline" });
+  var targetBody = h("button", { type: "button", class: "vzn-seg", "data-target": "--font-ui", text: "Body" });
   var fontList = h("div", { class: "vzn-fontlist" });
   var forgetBtn = h("button", { type: "button", class: "vzn-link", text: "Remove added font files" });
   var browser = h("div", { class: "vzn-fontbrowser" }, [
@@ -480,8 +480,8 @@
   installedBtn.addEventListener("click", loadInstalledFonts);
   fileInput.addEventListener("change", function () { addFontFiles(fileInput.files); fileInput.value = ""; });
   fontSearch.addEventListener("input", filterFontList);
-  targetHead.addEventListener("click", function () { setTarget("--font-serif"); });
-  targetBody.addEventListener("click", function () { setTarget("--font-mono"); });
+  targetHead.addEventListener("click", function () { setTarget("--font-display"); });
+  targetBody.addEventListener("click", function () { setTarget("--font-ui"); });
   forgetBtn.addEventListener("click", function () {
     withFontStore("readwrite", function (s) { return s.clear(); }).catch(function () {});
     fileFamilies.forEach(function (f) { delete state.fonts[f]; });
@@ -506,7 +506,7 @@
     addFontFiles(e.dataTransfer.files);
   });
 
-  setTarget("--font-serif");
+  setTarget("--font-display");
   refreshOwnOptions();
   if (window.indexedDB) {
     withFontStore("readonly", function (s) { return s.getAll(); }).then(function (rows) {
