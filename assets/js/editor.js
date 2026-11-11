@@ -16,6 +16,7 @@
 
   // A fourth item "site" marks fonts the site hosts itself (assets/fonts).
   var DISPLAY_FONTS = [
+    ["Gamiya Retro", null, "sans-serif", "site"],
     ["ColdagSerif", null, "serif", "site"],
     ["ColdagSerif Outline", null, "serif", "site"],
     ["Instrument Serif", "ital@0;1", "serif"],
@@ -167,8 +168,11 @@
     document.head.appendChild(link);
   }
   function fontStack(font) {
-    // Site fonts lack some punctuation; keep the serif behind them for those characters.
-    return '"' + font[0] + '", ' + (font[3] === "site" ? '"Playfair Display", ' : "") + font[2];
+    // Coldag Serif has no . , : - / characters; Playfair Display sits behind it for those
+    // (fetched only when Coldag is picked, since the page itself no longer loads it).
+    var needsPunctuation = /^ColdagSerif/.test(font[0]);
+    if (needsPunctuation) loadFont(["Playfair Display", "ital,wght@0,400..900;1,400..900", "serif"]);
+    return '"' + font[0] + '", ' + (needsPunctuation ? '"Playfair Display", ' : "") + font[2];
   }
   function firstFamily(value) { return String(value).split(",")[0].replace(/["']/g, "").trim(); }
 

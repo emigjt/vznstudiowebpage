@@ -3,10 +3,19 @@
    Brand tokens live in :root. Swap colours and fonts here to rebrand.
    ========================================================================== */
 
-/* Coldag Serif by Delipensil, self-hosted from assets/fonts.
-   The files have one upright weight (Bold) and one italic, so each face covers
-   every weight: picking another weight never makes the browser fake one.
-   They have no . , : - / characters; those come from the next font in the stack. */
+/* Gamiya Retro by Nirmana Visual: the display face, self-hosted from assets/fonts
+   (a web subset of assets/fonts/source/GamiyaRetro-Regular.otf). One weight and no
+   italic, so the face covers every weight and the browser never fakes one. */
+@font-face {
+  font-family: "Gamiya Retro";
+  src: url("../fonts/GamiyaRetro-Regular.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+/* Coldag Serif by Delipensil: the previous display face, kept as an alternate (edit
+   mode offers it; a face that isn't used is never downloaded). It has no . , : - /
+   characters, so pair it with a fallback that does. */
 @font-face {
   font-family: "ColdagSerif";
   src: url("../fonts/ColdagSerif-Bold.woff2") format("woff2");
@@ -81,8 +90,8 @@
 
   --radius-pill: 999px;
 
-  /* Type: serif for display, clean sans for everything else */
-  --font-serif: "ColdagSerif", "Playfair Display", "Times New Roman", serif;
+  /* Type: Gamiya Retro for display, clean sans for everything else */
+  --font-serif: "Gamiya Retro", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "Inter Tight", "Helvetica Neue", Arial, sans-serif;  /* body / UI font */
   --text-size: 1.2rem;       /* body / UI text */
   --display-scale: 0.84;      /* multiplies every big serif headline */
@@ -147,7 +156,13 @@ a { color: inherit; text-decoration: none; }
 h1, h2, h3, h4 { margin: 0; font-weight: 400; }
 p { margin: 0 0 1em; }
 ul, ol, dl, dd { margin: 0; padding: 0; list-style: none; }
-em { font-style: italic; }
+/* Emphasis: the display face has no italic, so an emphasised word takes the logo's
+   look instead: its soft grey, with a faint halo like the artwork's glowing edge. */
+em {
+  font-style: normal;
+  color: var(--muted);
+  text-shadow: 0 0 0.05em currentColor, 0 0 0.3em color-mix(in srgb, var(--muted) 50%, transparent);
+}
 ::selection { background: var(--accent); color: #000; }
 :focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
 
@@ -332,7 +347,6 @@ em { font-style: italic; }
 
 .site-nav { grid-column: 5; display: flex; gap: var(--gap-wide); }
 .site-nav a { font: 400 clamp(1.6rem, 2.6vw, 2.6rem)/1 var(--font-serif); letter-spacing: -0.01em; }
-.site-nav a:hover { font-style: italic; }
 
 .nav-toggle {
   display: none;
@@ -429,11 +443,10 @@ em { font-style: italic; }
 .hero-title .line, .hero-slogan .line { display: block; overflow: hidden; padding: 0 0.04em 0.16em; margin-bottom: -0.16em; }
 .hero-title .line > span, .hero-slogan .line > span { display: block; text-wrap: balance; animation: rise 1.3s var(--ease) both; }
 .hero-title .line:nth-child(2) > span { animation-delay: .1s; }
-/* Slogan: same serif, set smaller and in italics so the studio name leads */
+/* Slogan: the display face again, set smaller so the studio name leads */
 .hero-slogan {
   margin: clamp(var(--space-2), 1.6vw, var(--space-5)) 0 0;
   font-family: var(--font-serif);
-  font-style: italic;
   font-weight: 400;
   font-size: calc(clamp(1.5rem, 3.6vw, 3.6rem) * var(--display-scale));
   line-height: 1.05;
