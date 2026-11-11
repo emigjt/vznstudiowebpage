@@ -15,6 +15,39 @@
     return node;
   }
 
+  /* Images ------------------------------------------------------------------- */
+  // data/media.js (written by tools/optimize-images.py) lists, for each JPEG, its size
+  // in pixels and the lighter AVIF / WebP copies beside it. A picture offers those to
+  // browsers that can show them and falls back to the JPEG; an image that isn't listed
+  // is shown as it is.
+  var MEDIA = window.VZN_MEDIA || {};
+  function swapExt(src, ext) { return src.replace(/\.[a-z0-9]+$/i, "." + ext); }
+  function setPicture(pic, src) {
+    var info = MEDIA[src] || {};
+    var img = $("img", pic);
+    pic.replaceChildren(img);             // drop the previous image's sources
+    ["avif", "webp"].forEach(function (format) {
+      if (!info[format]) return;
+      var source = document.createElement("source");
+      source.type = "image/" + format;
+      source.srcset = swapExt(src, format);
+      pic.insertBefore(source, img);
+    });
+    if (info.w && info.h) { img.width = info.w; img.height = info.h; }
+    img.src = src;
+  }
+  function picture(src, lazy) {
+    var pic = document.createElement("picture");
+    var img = document.createElement("img");
+    img.decoding = "async";
+    if (lazy) img.loading = "lazy";
+    pic.appendChild(img);
+    if (src) setPicture(pic, src);
+    return { node: pic, img: img };
+  }
+  // Fetch an image ahead of time, in the format this browser will actually use.
+  function warm(src) { return picture(src, false); }
+
   // Stable number from a string, used to vary generated covers per project.
   function hash(str) {
     var h = 0;
@@ -165,9 +198,23 @@
   function openViewer(item, kind) {
     var media = buildEmbed(item);
     if (!media && (item.full || item.image)) {
-      media = document.createElement("img");
-      media.src = item.full || item.image;
-      media.alt = item.title;
+      // The large version, or its 1000px copy on a narrow screen (listed in data/media.js)
+      var full = item.full || item.image;
+      var info = MEDIA[full] || {};
+      var view = picture(null, false);
+      ["avif", "webp"].forEach(function (format) {
+        if (!info[format]) return;
+        var source = document.createElement("source");
+        source.type = "image/" + format;
+        source.srcset = (info.medium ? swapExt(full.replace(/-large(\.[a-z0-9]+)$/i, "-medium$1"), format) + " " + info.medium + "w, " : "") +
+          swapExt(full, format) + " " + (info.w || 1600) + "w";
+        source.sizes = "(max-width: 760px) 100vw, 1100px";
+        view.node.insertBefore(source, view.img);
+      });
+      if (info.w && info.h) { view.img.width = info.w; view.img.height = info.h; }
+      view.img.src = full;
+      view.img.alt = item.title;
+      media = view.node;
     }
     if (!media && item.cover) {
       media = document.createElement("img");
@@ -548,15 +595,15 @@
         // Reserve the piece's width before the image arrives (the sideways scroll
         // length depends on it), then use the image's real proportions once loaded.
         setRatio(open, item.ratio || "1 / 1");
-        var img = document.createElement("img");
-        img.alt = "";
-        img.decoding = "async";
-        img.addEventListener("load", function () {
+        // Loaded as the card nears the screen; its space is already reserved above
+        var art = picture(null, true);
+        art.img.alt = "";
+        art.img.addEventListener("load", function () {
           if (this.naturalWidth) setRatio(open, this.naturalWidth + " / " + this.naturalHeight);
           measureWork();
         });
-        img.src = item.image;
-        open.appendChild(img);
+        setPicture(art.node, item.image);
+        open.appendChild(art.node);
       } else {
         open.appendChild(makeCover(item, isVideo ? "video" : "visual", isVideo ? "16 / 10" : RATIOS[i % RATIOS.length]));
       }
@@ -676,16 +723,17 @@
     var front = null, back = null, flip = null;
     var showingBack = false;   // the same on every device: only a click or tap flips it
     var photos = photosOf(current);
+    var frontPic = null, backPic = null;
     if (photos.length) {
-      front = document.createElement("img");
-      front.loading = "lazy";
-      media.appendChild(front);
+      frontPic = picture(null, true);
+      front = frontPic.img;
+      media.appendChild(frontPic.node);
       // A second photo is the back: shown on hover, or with the Front / Back button
       if (photos.length > 1) {
-        back = document.createElement("img");
-        back.loading = "lazy";
+        backPic = picture(null, true);
+        back = backPic.img;
         back.className = "is-back";
-        media.appendChild(back);
+        media.appendChild(backPic.node);
         media.classList.add("has-back");
         flip = el("button", "product-flip pill is-light", "Back");
         flip.type = "button";
@@ -713,8 +761,8 @@
     }
     function showPhotos() {
       var p = photosOf(current);
-      if (front && p[0]) { front.src = p[0]; front.alt = label(current) + (back ? ", front" : ""); }
-      if (back && p[1]) { back.src = p[1]; back.alt = label(current) + ", back"; }
+      if (front && p[0]) { setPicture(frontPic.node, p[0]); front.alt = label(current) + (back ? ", front" : ""); }
+      if (back && p[1]) { setPicture(backPic.node, p[1]); back.alt = label(current) + ", back"; }
       showSide();
     }
     showPhotos();
@@ -752,9 +800,16 @@
       });
       swatches.appendChild(colorName);
       info.appendChild(swatches);
-      // Fetch the other colours' photos once the page has settled, so switching is instant
-      window.addEventListener("load", function () {
-        colors.forEach(function (option) { photosOf(option).forEach(function (src) { new Image().src = src; }); });
+      // Fetch the other colours' photos the first time the visitor reaches for the product
+      // (pointer, touch or keyboard), so switching is instant without loading them up front
+      var warmed = false;
+      var warmColours = function () {
+        if (warmed) return;
+        warmed = true;
+        colors.forEach(function (option) { if (option !== current) photosOf(option).forEach(warm); });
+      };
+      ["pointerenter", "touchstart", "focusin"].forEach(function (type) {
+        li.addEventListener(type, warmColours, { passive: true });
       });
     }
 

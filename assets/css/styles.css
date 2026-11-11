@@ -194,6 +194,8 @@ body {
   overflow-x: hidden;
 }
 img, video, iframe { display: block; max-width: 100%; }
+img { height: auto; }                 /* images carry their pixel size; this keeps their proportions */
+picture { display: contents; }        /* a picture's image is laid out as if the wrapper weren't there */
 a { color: inherit; text-decoration: none; }
 /* Headings break into even lines; paragraphs avoid leaving a word or two alone */
 h1, h2, h3, h4 { margin: 0; font-weight: 400; text-wrap: balance; }
@@ -885,11 +887,11 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   .shop.has-single .product-info { grid-area: info; align-self: end; }
 }
 .product-media { position: relative; aspect-ratio: 1; background: var(--surface); overflow: hidden; }
-.product-media > img { width: 100%; height: 100%; object-fit: cover; }
+.product-media picture img { width: 100%; height: 100%; object-fit: cover; }
 /* Front / back photos: clicking the photo or its button sets .show-back (main.js) */
 .product-media.has-back { cursor: pointer; }
-.product-media > img.is-back { position: absolute; inset: 0; opacity: 0; transition: opacity var(--dur-2) var(--ease-in-out); }
-.product-media.show-back > img.is-back { opacity: 1; }
+.product-media picture img.is-back { position: absolute; inset: 0; opacity: 0; transition: opacity var(--dur-2) var(--ease-in-out); }
+.product-media.show-back picture img.is-back { opacity: 1; }
 .product-flip {
   position: absolute;
   left: var(--space-3);
