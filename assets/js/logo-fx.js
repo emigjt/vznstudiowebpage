@@ -43,22 +43,35 @@
     return img;
   }
 
-  // Layers, bottom to top: soft (blurred + warped + ghosts), mid (half-sharp), main (sharp)
-  var stack = el("div", "mark-stack");
-  var soft = el("div", "mark-soft");
-  var softImg = logoCopy();
-  var ghostA = el("div", "mark-layer is-ghost-a");
-  var ghostB = el("div", "mark-layer is-ghost-b");
-  soft.appendChild(ghostA);
-  soft.appendChild(ghostB);
-  soft.appendChild(softImg);
-  var mid = el("div", "mark-mid");
-  var midImg = logoCopy();
-  mid.appendChild(midImg);
-  mark.insertBefore(stack, main);
-  stack.appendChild(soft);
-  stack.appendChild(mid);
-  stack.appendChild(main);
+  // Layers, bottom to top: soft (blurred + warped + ghosts), mid (half-sharp), main (sharp).
+  // They are written in index.html so the resting state is there at first paint; they are
+  // only built here if the markup doesn't have them.
+  var stack = mark.querySelector(".mark-stack");
+  var soft, softImg, ghostA, ghostB, mid, midImg;
+  if (stack) {
+    soft = stack.querySelector(".mark-soft");
+    softImg = soft.querySelector("img");
+    ghostA = soft.querySelector(".is-ghost-a");
+    ghostB = soft.querySelector(".is-ghost-b");
+    mid = stack.querySelector(".mark-mid");
+    midImg = mid.querySelector("img");
+  } else {
+    stack = el("div", "mark-stack");
+    soft = el("div", "mark-soft");
+    softImg = logoCopy();
+    ghostA = el("div", "mark-layer is-ghost-a");
+    ghostB = el("div", "mark-layer is-ghost-b");
+    soft.appendChild(ghostA);
+    soft.appendChild(ghostB);
+    soft.appendChild(softImg);
+    mid = el("div", "mark-mid");
+    midImg = logoCopy();
+    mid.appendChild(midImg);
+    mark.insertBefore(stack, main);
+    stack.appendChild(soft);
+    stack.appendChild(mid);
+    stack.appendChild(main);
+  }
 
   /* Settings from CSS variables ------------------------------------------- */
   var cfg = { on: false };

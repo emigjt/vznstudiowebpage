@@ -141,6 +141,7 @@
   --dur-2: 300ms;             /* small interface moves: menu, header, photo flip */
   --dur-3: 600ms;             /* media and logo moves */
   --dur-4: 1000ms;            /* entrances */
+  --stagger: 60ms;            /* gap between things that enter one after another */
   --mark-scale: 1.06;         /* hero logo size */
   --mark-ratio: 1214 / 1262;  /* the eye mark's proportions (width / height) */
 
@@ -516,7 +517,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   aspect-ratio: var(--mark-ratio);
   max-width: 100%;
   margin: 0 auto clamp(-24px, -2vw, -8px);
-  animation: mark-in var(--dur-4) var(--ease-out) backwards;
+  animation: mark-in var(--dur-3) var(--ease-out) backwards;
   will-change: transform;
 }
 .mark-main { position: relative; display: block; width: 100%; height: auto; }
@@ -536,7 +537,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   mask: url("../brand/eye-white.svg") center / contain no-repeat;
 }
 .fx-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
-@keyframes mark-in { from { opacity: 0; filter: blur(14px); transform: scale(.94); } }
+@keyframes mark-in { from { opacity: 0; transform: scale(1.04); } }
 .hero-title {
   font-family: var(--font-display);
   font-weight: var(--display-weight);
@@ -546,7 +547,9 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   line-height: calc(0.95 * var(--display-leading));
 }
 .hero-title .line, .hero-slogan .line { display: block; overflow: hidden; padding: 0 0.04em 0.16em; margin-bottom: -0.16em; }
-.hero-title .line > span, .hero-slogan .line > span { display: block; text-wrap: balance; animation: rise var(--dur-4) var(--ease-out) both; }
+/* Entrance: the logo settles, then the name, slogan and links follow one --stagger
+   apart. Everything is in place 1.2 seconds after the page appears. */
+.hero-title .line > span, .hero-slogan .line > span { display: block; text-wrap: balance; animation: rise var(--dur-4) var(--ease-out) var(--stagger) both; }
 /* Slogan: the display face again, set smaller so the studio name leads */
 .hero-slogan {
   margin: clamp(var(--space-2), 1.6vw, var(--space-5)) 0 0;
@@ -556,15 +559,15 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   line-height: 1.05;
   letter-spacing: 0;
 }
-.hero-slogan .line > span { animation-delay: .15s; }
+.hero-slogan .line > span { animation-delay: calc(var(--stagger) * 2); }
 @keyframes rise { from { transform: translateY(100%); } }
 
-.hero-links { display: flex; justify-content: center; gap: var(--gap-wide); margin-top: clamp(var(--space-6), 6vh, var(--space-8)); animation: fade var(--dur-4) var(--ease-out) .6s backwards; }
+.hero-links { display: flex; justify-content: center; gap: var(--gap-wide); margin-top: clamp(var(--space-6), 6vh, var(--space-8)); animation: fade var(--dur-4) var(--ease-out) calc(var(--stagger) * 3) backwards; }
 .hero-links a { display: inline-block; }
 .hero-links li:nth-child(1) a { transform: rotate(3deg) translateY(6px); }
 .hero-links li:nth-child(2) a { transform: rotate(-5deg) translateY(-10px); }
 .hero-links li:nth-child(3) a { transform: rotate(4deg) translateY(4px); }
-@keyframes fade { from { opacity: 0; } }
+@keyframes fade { from { opacity: 0; transform: translateY(12px); } }
 @media (max-width: 760px) {
   /* Phones: headlines scale faster with the narrower screen */
   :root { --display-xl: clamp(3.4rem, 14.5vw, 7rem); --display-l: clamp(2.72rem, 11.6vw, 5.6rem); }
@@ -587,6 +590,12 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 }
 .fx-on .hero-title, .fx-on .hero-slogan, .fx-on .hero-links { position: relative; z-index: var(--z-raised); will-change: opacity, transform; }
 .fx-on .mark-soft, .fx-on .mark-mid { display: block; }
+/* The resting state, in the stylesheet so it is right at first paint: the logo faint and
+   blurred behind the headline. logo-fx.js then takes over these values as you scroll. */
+.fx-on .mark-stack { opacity: var(--fx-rest); }
+.fx-on .mark-soft { opacity: 1; }
+.fx-on .mark-soft > img { filter: blur(var(--fx-blur)); }
+.fx-on .mark-main { opacity: 0; }
 /* Own graphics layers, so scrolling only changes opacity and transform (no redraw) */
 .fx-on .mark-stack, .fx-on .mark-soft, .fx-on .mark-mid, .fx-on .mark-main { will-change: opacity, transform; }
 

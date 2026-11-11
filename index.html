@@ -19,6 +19,13 @@
   <link rel="preload" href="assets/fonts/GamiyaRetro-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/InterTight-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
+  <script>
+    /* The hero's pinned layout (logo scroll reveal) is decided here, before the first
+       paint, so the headline never jumps into place after it has appeared. */
+    if (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--logo-fx")) >= 0.5) {
+      document.documentElement.classList.add("fx-on");
+    }
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -103,9 +110,22 @@
       <div class="hero-media" aria-hidden="true"></div>
 
       <div class="hero-content">
+        <!-- The logo in three layers for the scroll reveal (assets/js/logo-fx.js): soft
+             (blurred, with two faint ghosts), mid (half-sharp) and the sharp logo on top.
+             They are in the page from the start so the resting state is drawn at first paint. -->
         <div class="hero-mark" data-parallax data-logo-fx>
-          <img class="mark-main" src="assets/brand/eye-grey.svg"
-               alt="VZN logo: an eye at the centre of a spiked sun" width="1214" height="1262">
+          <div class="mark-stack">
+            <div class="mark-soft" aria-hidden="true">
+              <div class="mark-layer is-ghost-a"></div>
+              <div class="mark-layer is-ghost-b"></div>
+              <img src="assets/brand/eye-grey.svg" alt="" width="1214" height="1262">
+            </div>
+            <div class="mark-mid" aria-hidden="true">
+              <img src="assets/brand/eye-grey.svg" alt="" width="1214" height="1262">
+            </div>
+            <img class="mark-main" src="assets/brand/eye-grey.svg"
+                 alt="VZN logo: an eye at the centre of a spiked sun" width="1214" height="1262">
+          </div>
         </div>
         <!-- Ink warp used by the logo scroll reveal (assets/js/logo-fx.js) -->
         <svg class="fx-defs" aria-hidden="true" focusable="false" width="0" height="0">
