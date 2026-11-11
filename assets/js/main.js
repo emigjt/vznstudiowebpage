@@ -74,11 +74,10 @@
     var cover = el("div", "cover");
     var x = 10 + (seed % 80);
     var y = 10 + ((seed >> 4) % 80);
-    var light = 18 + (seed % 14);
-    cover.style.background =
-      "radial-gradient(60% 50% at " + x + "% " + y + "%, hsl(30 3% " + light + "%), transparent 70%)," +
-      "radial-gradient(80% 60% at " + (100 - x) + "% " + (100 - y) + "%, hsl(220 4% 12%), transparent 70%)," +
-      "#0a0a0a";
+    // Where the patch of light falls and how strong it is; the colours are in the stylesheet.
+    cover.style.setProperty("--cx", x + "%");
+    cover.style.setProperty("--cy", y + "%");
+    cover.style.setProperty("--cl", (55 + (seed % 40)) + "%");
     if (ratio) cover.style.aspectRatio = ratio;
 
     var label = el("div", "cover-label");
