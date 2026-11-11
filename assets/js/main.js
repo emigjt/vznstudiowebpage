@@ -41,13 +41,17 @@
   var heroMark = $("[data-parallax]");
   var pointer = { x: 0, y: 0 };
   var ticking = false;
+  var SCROLLED_AFTER = 40;   // px of scrolling before the header drops its blurb and email
+  function revealOn() { return document.documentElement.classList.contains("fx-on"); }
 
   function render() {
     ticking = false;
     var y = window.scrollY;
-    header.classList.toggle("is-scrolled", y > 40);
-    // The logo scroll reveal (logo-fx.js) positions the logo itself when it's on.
-    if (heroMark && !reduceMotion && !document.documentElement.classList.contains("fx-on")) {
+    header.classList.toggle("is-scrolled", y > SCROLLED_AFTER);
+    // Only when the logo scroll reveal is switched off (--logo-fx: 0): the logo sits above
+    // the headline and drifts gently with the pointer and the scroll. With the reveal on
+    // (the default), logo-fx.js positions the logo itself.
+    if (heroMark && !reduceMotion && !revealOn()) {
       var p = Math.min(y / window.innerHeight, 1);
       heroMark.style.transform =
         "translate3d(" + (pointer.x * 16).toFixed(1) + "px," + (pointer.y * 12 - y * 0.15).toFixed(1) + "px,0)" +
@@ -62,7 +66,7 @@
     window.addEventListener("mousemove", function (e) {
       pointer.x = e.clientX / window.innerWidth - 0.5;
       pointer.y = e.clientY / window.innerHeight - 0.5;
-      requestRender();
+      if (!revealOn()) requestRender();
     }, { passive: true });
   }
   render();

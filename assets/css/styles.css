@@ -115,7 +115,8 @@
 
   /* Layout */
   --pad: clamp(16px, 3.5vw, 50px);
-  --header-h: 88px;
+  --header-h: 88px;           /* room the fixed header needs at the top of a screen */
+  --bar-h: 56px;              /* room Work's bottom bar needs */
   --section-pad: clamp(64px, 7vw, 100px);
 
   /* Motion: slow, weighty ease-outs. Two curves and four speeds cover everything. */
@@ -248,8 +249,9 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .section-label { margin-bottom: var(--space-block); }
 
 /* Key / value tables (contact socials) */
-.details { display: grid; gap: 14px; }
-.details > div { display: grid; grid-template-columns: 12ch 1fr; gap: 16px; }
+/* (used by the social links block that is commented out in index.html) */
+.details { display: grid; gap: var(--space-3); }
+.details > div { display: grid; grid-template-columns: 12ch 1fr; gap: var(--space-4); }
 .details dt { color: var(--muted); }
 
 /* Film grain, as fine as the grain in the logo artwork. Two layers of specks: light
@@ -513,7 +515,6 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 }
 .hero-title .line, .hero-slogan .line { display: block; overflow: hidden; padding: 0 0.04em 0.16em; margin-bottom: -0.16em; }
 .hero-title .line > span, .hero-slogan .line > span { display: block; text-wrap: balance; animation: rise var(--dur-4) var(--ease-out) both; }
-.hero-title .line:nth-child(2) > span { animation-delay: .1s; }
 /* Slogan: the display face again, set smaller so the studio name leads */
 .hero-slogan {
   margin: clamp(var(--space-2), 1.6vw, var(--space-5)) 0 0;
@@ -593,7 +594,9 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   align-items: center;
   gap: var(--gap-fluid);
   height: 100%;
-  padding: calc(var(--pad) + 96px) clamp(64px, 9vw, 160px) calc(var(--pad) + 56px) var(--pad);
+  /* Clear of the header above and the bar below; the wide right padding is the pause
+     between the Sound and Visual panels */
+  padding: calc(var(--pad) + var(--header-h) + var(--space-2)) clamp(var(--space-8), 9vw, 160px) calc(var(--pad) + var(--bar-h)) var(--pad);
 }
 /* The Visual side turns the page: black ink on bone, like the original logo artwork */
 .panel-visual { background: var(--paper); color: var(--ink); }
@@ -636,6 +639,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .card-sub { margin: var(--space-1) 0 0; color: var(--muted); font-size: var(--text-s); }
 
 /* Sound cards: square covers with a play button and a progress line */
+/* A cover is 72% of the row's height, which leaves room for its two lines of text below */
 .card-sound { width: min(var(--rail-h) * 0.72, 62vw); }
 .card-sound .card-media { aspect-ratio: 1; }
 .card-sound .card-media img, .card-sound .cover { width: 100%; height: 100%; object-fit: cover; }
@@ -709,7 +713,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   /* Inside Work nothing scrolls under the phone header, so drop its black bar and
      let it adapt to the black and bone sides like the desktop header does */
   html.in-work body:not(.nav-open) .site-header { background: transparent; mix-blend-mode: difference; color: var(--on-blend); }
-  .work-panel { --rail-h: min(40svh, 380px); padding-top: calc(var(--pad) + 76px); padding-right: calc(var(--pad) * 2); }
+  .work-panel { --rail-h: min(40svh, 380px); padding-top: calc(var(--header-h) + var(--space-1)); padding-right: calc(var(--pad) * 2); }
   .panel-intro { width: 78vw; }
   .np-title { max-width: 30vw; }
   .work-tabs { gap: var(--space-2); }
