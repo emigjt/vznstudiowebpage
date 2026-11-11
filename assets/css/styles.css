@@ -98,6 +98,7 @@
   --z-skip: 200;              /* skip link */
 
   --radius-pill: 999px;
+  --tap: 44px;                /* smallest comfortable touch target */
   --label-tracking: 0.06em;   /* small uppercase labels */
   --measure-caption: 38ch;    /* widest line of a short caption */
   --measure-text: 60ch;       /* widest line of running text */
@@ -108,13 +109,15 @@
   --text-size: 1.2rem;        /* body / UI text: the base of the scale */
 
   /* One scale: each step is 1.25 times the one below it */
-  --text-xs: calc(var(--text-size) * 0.64);    /* 12.3px  smallest labels */
-  --text-s: calc(var(--text-size) * 0.8);      /* 15.4px  labels, captions, pills */
-  --text-m: var(--text-size);                  /* 19.2px  body */
-  --text-l: calc(var(--text-size) * 1.25);     /* 24px    card titles */
-  --text-xl: calc(var(--text-size) * 1.5625);  /* 30px    product names, menu */
-  --text-2xl: calc(var(--text-size) * 1.953);  /* 37.5px */
-  --text-3xl: calc(var(--text-size) * 2.441);  /* 47px    slogan, email */
+  --text-xs: calc(var(--text-m) * 0.64);       /* 12.3px  smallest labels */
+  --text-s: calc(var(--text-m) * 0.8);         /* 15.4px  labels, captions, pills */
+  /* Body: the base size up to a 960px screen, then growing gently (about 21px at 1920)
+     so small text keeps pace with the headlines on large screens */
+  --text-m: max(var(--text-size), calc(var(--text-size) * 0.9 + 0.2vw));
+  --text-l: calc(var(--text-m) * 1.25);        /* 24px    card titles */
+  --text-xl: calc(var(--text-m) * 1.5625);     /* 30px    product names, menu */
+  --text-2xl: calc(var(--text-m) * 1.953);     /* 37.5px */
+  --text-3xl: calc(var(--text-m) * 2.441);     /* 47px    slogan, email */
   /* Two headline sizes, also 1.25 apart. Largest: the studio name and the Contact
      line. Next: section titles. Both grow with the screen and always fit a phone. */
   --display-xl: clamp(3.4rem, 10.4vw, 12rem);
@@ -236,6 +239,22 @@ em {
 .pill.is-light:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .pill.is-small { padding: var(--space-1) var(--space-3); background: none; color: var(--muted); cursor: default; }
 .pill.is-small:hover { background: none; color: var(--muted); border-color: var(--line-strong); }
+
+/* Touch targets: small controls keep their size on screen, but the area that responds
+   to a finger is at least --tap tall (and, for the round swatches, wide). */
+.pill:not(.is-small), .nav-toggle, .work-tabs a, .hero-links a, .btn, .footer-row a, .site-nav a, .product-swatch { position: relative; }
+.pill:not(.is-small)::before, .nav-toggle::before, .work-tabs a::before, .hero-links a::before, .btn::before, .footer-row a::before, .site-nav a::before, .product-swatch::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: max(100%, var(--tap));
+  translate: 0 -50%;
+}
+.product-swatch::before { left: 50%; right: auto; width: var(--tap); translate: -50% -50%; }
+/* Play is the main control on a phone, so there it is a full-size target in its own right */
+@media (pointer: coarse) { .card-play { min-height: var(--tap); padding-inline: var(--space-5); } }
 
 /* Text links: one hover everywhere, an underline that wipes in from the left.
    (Buy and the big email keep a faint resting underline; the wipe draws over it.) */
@@ -827,7 +846,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .product-price { margin: 0; white-space: nowrap; }
 .product-type { margin: var(--space-1) 0 0; color: var(--muted); }
 /* Colour swatches */
-.product-colors { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-4); }
+.product-colors { display: flex; align-items: center; gap: var(--space-4); margin-top: var(--space-4); }
 .product-swatch {
   width: 26px;
   height: 26px;
@@ -841,7 +860,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 }
 .product-swatch[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--text); }
 .product-swatch:hover:not([aria-pressed="true"]) { box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--muted); }
-.product-color-name { margin-left: var(--space-2); color: var(--muted); font-size: var(--text-s); }
+.product-color-name { color: var(--muted); font-size: var(--text-s); }
 .product-sizes { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
 .product-buy {
   display: inline-block;
