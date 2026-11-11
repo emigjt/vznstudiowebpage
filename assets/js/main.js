@@ -572,6 +572,11 @@
     li.appendChild(info);
     productList.appendChild(li);
   });
+  // A single product is laid out as a feature (photo beside its details); two or more
+  // go back to the grid.
+  var single = productList.children.length === 1;
+  productList.classList.toggle("is-single", single);
+  $("#shop").classList.toggle("has-single", single);
 
   /* Reveal on scroll ------------------------------------------------------- */
   $$(".section-label, .shop-head, .products, .contact-headline, .contact-grid, .footer-mark").forEach(function (n) {
