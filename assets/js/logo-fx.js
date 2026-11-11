@@ -70,6 +70,8 @@
     cfg.distort = num("--fx-distort");
     cfg.ghost = num("--fx-ghost");
     cfg.offset = num("--fx-offset");
+    cfg.edge = num("--fx-edge");
+    cfg.halo = Math.min(1, num("--fx-halo"));
     root.classList.toggle("fx-on", cfg.on);
     if (cfg.on) {
       mark.style.transform = "";   // the regular hero parallax steps aside
@@ -93,6 +95,8 @@
     if (disp) disp.setAttribute("scale", (cfg.distort * size).toFixed(1));
     softImg.style.filter = (disp && cfg.distort ? "url(#vzn-ink) " : "") + "blur(" + px(blur) + ")";
     midImg.style.filter = "blur(" + px(blur * 0.3) + ")";
+    // The sharp logo keeps a slightly soft edge, like the logo artwork
+    main.style.filter = cfg.edge ? "blur(" + px(cfg.edge * size) + ")" : "";
     // Ghosts sit in the soft layer and fade with it; kept fainter than the logo.
     var ghost = Math.min(1, cfg.ghost * 1.2).toFixed(3);
     var spread = cfg.offset * size;
@@ -110,6 +114,7 @@
       node.style.transform = "";
       node.style.visibility = "";
     });
+    main.style.filter = "";
     if (disp) disp.setAttribute("scale", "0");
   }
 
@@ -143,7 +148,8 @@
     // Crossfade soft → mid → sharp. Each layer stays put underneath until the one
     // above has taken over, so the logo never dims in between.
     soft.style.opacity = (1 - smoothstep((focus - 0.25) / 0.5)).toFixed(3);
-    mid.style.opacity = (smoothstep(focus / 0.45) * (1 - smoothstep((focus - 0.7) / 0.3))).toFixed(3);
+    // The half-sharp layer doesn't fade out completely: what stays is the glow around the logo
+    mid.style.opacity = (smoothstep(focus / 0.45) * (1 - (1 - cfg.halo) * smoothstep((focus - 0.7) / 0.3))).toFixed(3);
     main.style.opacity = smoothstep((focus - 0.35) / 0.65).toFixed(3);
 
     // Headline and links fade and lift away

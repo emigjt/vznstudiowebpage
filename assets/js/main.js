@@ -3,7 +3,7 @@
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  var LOGO = "assets/brand/logo-white.svg";
+  var LOGO = "assets/brand/eye-white.svg";
 
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
@@ -438,7 +438,7 @@
     wrap.innerHTML = '<svg viewBox="0 0 200 200" aria-hidden="true">' + (MOCKUPS[kind] || MOCKUPS.tee) + "</svg>";
     var mark = document.createElement("img");
     mark.className = "mockup-mark";
-    mark.src = kind === "poster" ? "assets/brand/logo-black.svg" : LOGO;
+    mark.src = kind === "poster" ? "assets/brand/eye-black.svg" : LOGO;
     mark.alt = "";
     wrap.appendChild(mark);
     return wrap;
