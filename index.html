@@ -161,10 +161,6 @@
             <span class="work-progress" aria-hidden="true"><span data-work-progress></span></span>
             <a href="#visual" data-work-jump="visual">Visual</a>
           </nav>
-          <div class="now-playing" data-now-playing hidden>
-            <button type="button" class="np-toggle" data-np-toggle>Pause</button>
-            <span class="np-title" data-np-title></span>
-          </div>
         </div>
 
         <div class="work-track" data-work-track>
@@ -260,6 +256,19 @@
       <a href="#top">Back to top [↑]</a>
     </div>
   </footer>
+
+  <!-- Player (main.js): appears when a beat is played and stays at the bottom of the
+       screen wherever you scroll. The line along its top edge is the progress; drag it,
+       or use the arrow keys, to move through the beat. -->
+  <div class="player" data-player hidden role="region" aria-label="Player">
+    <div class="player-scrub" data-player-scrub role="slider" tabindex="0" aria-label="Position in the beat"
+         aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0:00 of 0:00"><i></i></div>
+    <button type="button" class="player-toggle pill" data-player-toggle>Play</button>
+    <p class="player-info"><span class="player-title" data-player-title></span><span class="player-meta" data-player-meta></span></p>
+    <span class="player-time" data-player-time>0:00 / 0:00</span>
+    <button type="button" class="player-close" data-player-close aria-label="Stop and close the player"><span>Close </span>[×]</button>
+  </div>
+  <p class="sr-only" data-player-status role="status" aria-live="polite"></p>
 
   <!-- Project viewer: artwork, videos and linked players -->
   <dialog class="viewer" data-viewer aria-labelledby="viewer-title">

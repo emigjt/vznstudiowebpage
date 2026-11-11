@@ -92,6 +92,7 @@
   /* Stacking order, bottom to top */
   --z-below: -1;              /* scratch texture, behind the content */
   --z-raised: 2;              /* controls that sit over media */
+  --z-player: 40;             /* the player bar; the open phone menu covers it */
   --z-header: 50;
   --z-boot: 90;
   --z-grain: 100;             /* film grain over everything */
@@ -132,6 +133,7 @@
   --pad: clamp(16px, 3.5vw, 50px);
   --header-h: 88px;           /* room the fixed header needs at the top of a screen */
   --bar-h: 56px;              /* room Work's bottom bar needs */
+  --player-h: 60px;           /* height of the player bar */
   --section-pad: clamp(64px, 7vw, 100px);
 
   /* Motion: slow, weighty ease-outs. Two curves and four speeds cover everything. */
@@ -214,7 +216,7 @@ em {
 .skip-link:focus { left: var(--space-2); }
 
 /* Labels: the small uppercase "system" text in the corners, bars and buttons */
-.hero-links a, .hero-foot, .footer-row, .nav-toggle, .btn, .rail-group, .work-bar, .pill, .product-buy {
+.hero-links a, .hero-foot, .footer-row, .nav-toggle, .btn, .rail-group, .work-bar, .pill, .product-buy, .player-close {
   font-size: var(--text-s);
   text-transform: uppercase;
   letter-spacing: var(--label-tracking);
@@ -249,8 +251,10 @@ em {
 
 /* Touch targets: small controls keep their size on screen, but the area that responds
    to a finger is at least --tap tall (and, for the round swatches, wide). */
-.pill:not(.is-small), .nav-toggle, .work-tabs a, .hero-links a, .btn, .footer-row a, .site-nav a, .product-swatch { position: relative; }
-.pill:not(.is-small)::before, .nav-toggle::before, .work-tabs a::before, .hero-links a::before, .btn::before, .footer-row a::before, .site-nav a::before, .product-swatch::before {
+/* (:where keeps this rule weak, so controls that are positioned elsewhere, like the
+   Play pill on a cover, keep their own position) */
+:where(.pill:not(.is-small), .nav-toggle, .work-tabs a, .hero-links a, .btn, .footer-row a, .site-nav a, .product-swatch, .player-close) { position: relative; }
+.player-close::before, .pill:not(.is-small)::before, .nav-toggle::before, .work-tabs a::before, .hero-links a::before, .btn::before, .footer-row a::before, .site-nav a::before, .product-swatch::before {
   content: "";
   position: absolute;
   left: 0;
@@ -732,10 +736,58 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .work-tabs a.is-active, .work-tabs a:hover { opacity: 1; }
 .work-progress { flex: 1; height: 1px; background: color-mix(in srgb, var(--on-blend) 30%, transparent); }
 .work-progress span { display: block; height: 100%; background: var(--on-blend); transform: scaleX(0); transform-origin: left; }
-.now-playing[hidden] { display: none; }
-.now-playing { margin-left: auto; display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
-.np-toggle { background: none; border: 1px solid var(--on-blend); border-radius: var(--radius-pill); padding: 4px 12px; color: inherit; font: inherit; text-transform: inherit; letter-spacing: inherit; cursor: pointer; }
-.np-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: none; letter-spacing: 0; }
+
+/* Player: a bar fixed to the bottom of the screen while a beat is loaded. Its top edge
+   is the progress line. ------------------------------------------------------ */
+.player[hidden] { display: none; }
+.player {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: var(--z-player);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-4);
+  height: var(--player-h);
+  padding: 0 var(--pad);
+  background: var(--bg);
+  color: var(--text);
+  transform: translateY(100%);
+  transition: transform var(--dur-2) var(--ease-out);
+}
+.player.is-open { transform: none; }
+.player-toggle { min-width: 5.5em; }
+.player-info { margin: 0; min-width: 0; display: flex; align-items: baseline; gap: var(--space-3); white-space: nowrap; }
+.player-title { font: 400 var(--text-l)/1.1 var(--font-display); overflow: hidden; text-overflow: ellipsis; }
+.player-meta, .player-time { color: var(--muted); font-size: var(--text-s); font-variant-numeric: tabular-nums; }
+.player-close { background: none; border: 0; padding: 0; color: var(--muted); font-family: inherit; cursor: pointer; transition: color var(--dur-1) var(--ease-out); }
+.player-close:hover { color: var(--text); }
+/* The progress line: thin to look at, tall to grab */
+.player-scrub {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -14px;
+  height: 28px;
+  cursor: pointer;
+  touch-action: none;
+}
+.player-scrub::before, .player-scrub i { content: ""; position: absolute; left: 0; right: 0; top: 13px; height: 2px; }
+.player-scrub::before { background: var(--line); }
+.player-scrub i { background: var(--text); transform: scaleX(0); transform-origin: left; }
+.player-scrub:hover::before, .player-scrub:hover i, .player-scrub:focus-visible::before, .player-scrub:focus-visible i { top: 12px; height: 4px; }
+.player-scrub:focus-visible { outline: none; }
+.player-scrub:focus-visible i { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--text); }
+@media (pointer: coarse) { .player-scrub { top: -22px; height: 36px; } .player-scrub::before, .player-scrub i { top: 21px; } }
+/* While the player is open, things pinned to the bottom of the screen sit above it */
+.has-player .work-bar { bottom: calc(var(--pad) * 0.6 + var(--player-h)); }
+.has-player .hero-foot { bottom: calc(var(--pad) + var(--player-h)); }
+.has-player .site-footer { padding-bottom: calc(var(--pad) + var(--player-h)); }
+@media (max-width: 760px) {
+  .player { gap: var(--space-3); }
+  .player-meta, .player-close span { display: none; }
+  .player-title { font-size: var(--text-m); }
+}
 
 /* Generated covers: a soft patch of light on the page colour, in neutral grey.
    main.js sets where the light falls (--cx, --cy) and how strong it is (--cl). */
@@ -761,7 +813,6 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   html.in-work body:not(.nav-open) .site-header { background: transparent; mix-blend-mode: difference; color: var(--on-blend); }
   .work-panel { --rail-h: min(40svh, 380px); padding-top: calc(var(--header-h) + var(--space-1)); padding-right: calc(var(--pad) * 2); }
   .panel-intro { width: 62vw; }   /* narrow enough that the first cover peeks in beside it */
-  .np-title { max-width: 30vw; }
   .work-tabs { gap: var(--space-2); }
 }
 

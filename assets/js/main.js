@@ -180,7 +180,7 @@
       [item.type, item.artist || item.client, item.year].filter(Boolean).join(" / ");
     $("[data-viewer-title]").textContent = item.title;
     $("[data-viewer-desc]").textContent = item.description || "";
-    if (kind === "sound") audio.pause();
+    if (kind === "sound") pausePlayback();
     viewer.showModal();
   }
   // Closing (button, Esc or backdrop) stops anything playing inside.
@@ -188,62 +188,263 @@
   $("[data-viewer-close]").addEventListener("click", function () { viewer.close(); });
   viewer.addEventListener("click", function (e) { if (e.target === viewer) viewer.close(); });
 
-  /* Shared audio player for sound cards ------------------------------------ */
+  /* Player ------------------------------------------------------------------ */
+  // One audio element plays every beat, so two can never overlap. A bar fixed to the
+  // bottom of the screen shows what is loaded wherever the visitor scrolls: play /
+  // pause, title, a progress line that can be dragged, the time, and close.
   var audio = new Audio();
-  audio.preload = "none";
-  var playing = null;   // { item, card }
-  var nowPlaying = $("[data-now-playing]");
-  var npToggle = $("[data-np-toggle]");
-  var npTitle = $("[data-np-title]");
+  audio.preload = "none";       // nothing is fetched until Play is pressed
+  var FADE_MS = 200;            // fade on play, pause and when switching beats (no clicks)
+  var SEEK_STEP = 5;            // seconds per arrow key
+  var AUTO_ADVANCE = false;     // true: when a beat ends, the next one starts
+  var tracks = [];              // every beat with audio, in page order: { item, card, button }
+  var current = null;           // the loaded track (one of tracks) or null
+  var loading = false;          // Play was pressed and sound hasn't started yet
+  var fadeFrame = 0;
 
-  function cardButton(card) { return $(".card-play", card); }
+  var player = $("[data-player]");
+  var playerToggle = $("[data-player-toggle]");
+  var playerTitle = $("[data-player-title]");
+  var playerMeta = $("[data-player-meta]");
+  var playerTime = $("[data-player-time]");
+  var playerScrub = $("[data-player-scrub]");
+  var playerFill = $("i", playerScrub);
+  var playerStatus = $("[data-player-status]");
 
-  function showState() {
-    if (!playing) return;
-    var paused = audio.paused;
-    var btn = cardButton(playing.card);
-    btn.textContent = paused ? "Play" : "Pause";
-    btn.setAttribute("aria-label", (paused ? "Play " : "Pause ") + playing.item.title);
-    playing.card.classList.toggle("is-playing", !paused);
-    npToggle.textContent = paused ? "Play" : "Pause";
-    nowPlaying.hidden = false;
+  // iPhones and iPads ignore volume set by a page, so fades are skipped there.
+  var canFade = (function () {
+    try { var probe = new Audio(); probe.volume = 0.5; return probe.volume === 0.5; } catch (e) { return false; }
+  })();
+
+  function clock(seconds) {
+    if (!isFinite(seconds) || seconds < 0) seconds = 0;
+    var s = Math.floor(seconds % 60);
+    return Math.floor(seconds / 60) + ":" + (s < 10 ? "0" : "") + s;
   }
 
-  function toggleTrack(item, card) {
-    var media = item.media;
-    if (!media || !media.src) return;
-    if (media.kind !== "audio") { openViewer(item, "sound"); return; }
-    if (playing && playing.item === item) {
-      if (audio.paused) audio.play().catch(playFailed); else audio.pause();
-      return;
+  function fadeTo(target, done) {
+    window.cancelAnimationFrame(fadeFrame);
+    if (!canFade) { if (done) done(); return; }
+    var from = audio.volume, start = performance.now();
+    (function step(now) {
+      // (a frame's timestamp can be a hair earlier than "start", hence the clamps)
+      var t = Math.max(0, Math.min(1, (now - start) / FADE_MS));
+      audio.volume = Math.max(0, Math.min(1, from + (target - from) * t));
+      if (t < 1) fadeFrame = window.requestAnimationFrame(step);
+      else if (done) done();
+    })(start);
+  }
+
+  function startPlayback() {
+    loading = true;
+    renderPlayer();
+    if (canFade) audio.volume = 0;
+    var started = audio.play();
+    fadeTo(1);
+    if (started && started.catch) started.catch(playFailed);
+  }
+  function pausePlayback() {
+    if (audio.paused) return;
+    fadeTo(0, function () { audio.pause(); });
+  }
+  function togglePlayback() {
+    if (!current) return;
+    if (audio.paused) startPlayback(); else pausePlayback();
+  }
+  function playFailed(err) {
+    if (err && err.name === "AbortError") return;   // interrupted by a pause or another beat
+    loading = false;
+    if (!current) return;
+    renderPlayer();
+    current.button.textContent = "Can't play";
+    playerStatus.textContent = "Couldn't play " + current.item.title + ".";
+  }
+
+  function load(track) {
+    if (current) {
+      current.card.classList.remove("is-playing", "is-current");
+      setCardProgress(current, 0);
+      labelButton(current, false);
     }
-    if (playing) {
-      playing.card.classList.remove("is-playing");
-      cardButton(playing.card).textContent = "Play";
-      $(".card-progress i", playing.card).style.transform = "";
+    current = track;
+    track.card.classList.add("is-current");
+    audio.src = track.item.media.src;
+    playerTitle.textContent = track.item.title;
+    playerMeta.textContent = [track.item.artist, track.item.bpm ? track.item.bpm + " BPM" : ""].filter(Boolean).join(" · ");
+    playerStatus.textContent = "Now playing: " + track.item.title + ".";
+    showPlayer(true);
+    describeForSystem(track);
+    renderProgress();
+    startPlayback();
+  }
+
+  // Play on a card: toggles the loaded beat, or fades the old one out and starts this one.
+  function playTrack(track) {
+    if (current === track) { togglePlayback(); return; }
+    if (current && !audio.paused) fadeTo(0, function () { audio.pause(); load(track); });
+    else load(track);
+  }
+  function step(direction) {
+    if (!current) return;
+    var next = tracks[tracks.indexOf(current) + direction];
+    if (next) playTrack(next);
+  }
+  function seek(seconds) {
+    if (!current || !isFinite(audio.duration)) return;
+    audio.currentTime = Math.max(0, Math.min(audio.duration - 0.05, seconds));
+    renderProgress();
+  }
+  function closePlayer() {
+    if (!current) return;
+    var closing = current;
+    current = null;
+    loading = false;
+    fadeTo(0, function () { audio.pause(); });
+    closing.card.classList.remove("is-playing", "is-current");
+    setCardProgress(closing, 0);
+    labelButton(closing, false);
+    showPlayer(false);
+    playerStatus.textContent = "Player closed.";
+    if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "none";
+  }
+
+  /* What the visitor sees */
+  function labelButton(track, isPlaying) {
+    track.button.textContent = loading && track === current ? "Loading" : isPlaying ? "Pause" : "Play";
+    track.button.setAttribute("aria-label", (isPlaying ? "Pause " : "Play ") + track.item.title);
+    track.button.setAttribute("aria-busy", String(loading && track === current));
+  }
+  function setCardProgress(track, ratio) {
+    var line = $(".card-progress i", track.card);
+    if (line) line.style.transform = ratio ? "scaleX(" + ratio.toFixed(4) + ")" : "";
+  }
+  function renderPlayer() {
+    if (!current) return;
+    var isPlaying = !audio.paused;
+    current.card.classList.toggle("is-playing", isPlaying);
+    labelButton(current, isPlaying);
+    playerToggle.textContent = loading ? "Loading" : isPlaying ? "Pause" : "Play";
+    playerToggle.setAttribute("aria-label", (isPlaying ? "Pause " : "Play ") + current.item.title);
+    playerToggle.classList.toggle("is-on", isPlaying && !loading);
+    if ("mediaSession" in navigator) navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused";
+  }
+  function renderProgress() {
+    if (!current) return;
+    var duration = isFinite(audio.duration) ? audio.duration : 0;
+    var ratio = duration ? Math.min(1, audio.currentTime / duration) : 0;
+    playerFill.style.transform = "scaleX(" + ratio.toFixed(4) + ")";
+    setCardProgress(current, ratio);
+    playerTime.textContent = clock(audio.currentTime) + " / " + (duration ? clock(duration) : current.item.length || "0:00");
+    playerScrub.setAttribute("aria-valuenow", String(Math.round(ratio * 100)));
+    playerScrub.setAttribute("aria-valuetext", clock(audio.currentTime) + " of " + clock(duration));
+  }
+  // Progress follows the audio every frame while it plays (the browser's own
+  // "timeupdate" only fires about four times a second, which looks jerky).
+  var progressFrame = 0;
+  function followProgress() {
+    window.cancelAnimationFrame(progressFrame);
+    (function tick() {
+      renderProgress();
+      if (current && !audio.paused && !document.hidden) progressFrame = window.requestAnimationFrame(tick);
+    })();
+  }
+  function showPlayer(open) {
+    document.body.classList.toggle("has-player", open);
+    if (open) {
+      player.hidden = false;
+      void player.offsetWidth;            // so the slide-in runs from the hidden position
+      player.classList.add("is-open");
+    } else {
+      player.classList.remove("is-open");
+      window.setTimeout(function () { if (!current) player.hidden = true; }, 320);
     }
-    playing = { item: item, card: card };
-    npTitle.textContent = item.title + (item.artist ? " — " + item.artist : "");
-    audio.src = media.src;
-    audio.play().catch(playFailed);
-    showState();
   }
-  function playFailed() {
-    if (!playing) return;
-    cardButton(playing.card).textContent = "Can't play";
-    npToggle.textContent = "Play";
+
+  audio.addEventListener("play", function () { renderPlayer(); followProgress(); });
+  audio.addEventListener("playing", function () { loading = false; renderPlayer(); });
+  audio.addEventListener("waiting", function () { loading = true; renderPlayer(); });
+  audio.addEventListener("pause", function () { loading = false; renderPlayer(); renderProgress(); });
+  audio.addEventListener("durationchange", renderProgress);
+  audio.addEventListener("timeupdate", function () { if (document.hidden) renderProgress(); });
+  audio.addEventListener("error", function () { if (current) playFailed(); });
+  audio.addEventListener("ended", function () {
+    audio.currentTime = 0;                // back to the start, ready to play again
+    renderPlayer();
+    renderProgress();
+    if (AUTO_ADVANCE) step(1);
+  });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden && current && !audio.paused) followProgress(); });
+
+  playerToggle.addEventListener("click", togglePlayback);
+  $("[data-player-close]").addEventListener("click", closePlayer);
+
+  /* Dragging the progress line, or arrow keys while it has focus */
+  function scrubTo(e) {
+    var box = playerScrub.getBoundingClientRect();
+    if (isFinite(audio.duration)) seek((e.clientX - box.left) / box.width * audio.duration);
   }
-  audio.addEventListener("play", showState);
-  audio.addEventListener("pause", showState);
-  audio.addEventListener("ended", showState);
-  audio.addEventListener("timeupdate", function () {
-    if (!playing || !audio.duration) return;
-    $(".card-progress i", playing.card).style.transform = "scaleX(" + (audio.currentTime / audio.duration).toFixed(4) + ")";
+  playerScrub.addEventListener("pointerdown", function (e) {
+    playerScrub.setPointerCapture(e.pointerId);
+    scrubTo(e);
+    playerScrub.addEventListener("pointermove", scrubTo);
   });
-  npToggle.addEventListener("click", function () {
-    if (!playing) return;
-    if (audio.paused) audio.play().catch(playFailed); else audio.pause();
+  ["pointerup", "pointercancel"].forEach(function (type) {
+    playerScrub.addEventListener(type, function () { playerScrub.removeEventListener("pointermove", scrubTo); });
   });
+  playerScrub.addEventListener("keydown", function (e) {
+    var d = audio.duration;
+    if (!isFinite(d)) return;
+    var to = { ArrowRight: audio.currentTime + SEEK_STEP, ArrowUp: audio.currentTime + SEEK_STEP,
+      ArrowLeft: audio.currentTime - SEEK_STEP, ArrowDown: audio.currentTime - SEEK_STEP,
+      PageUp: audio.currentTime + d / 10, PageDown: audio.currentTime - d / 10, Home: 0, End: d }[e.key];
+    if (to == null) return;
+    e.preventDefault();
+    e.stopPropagation();
+    seek(to);
+  });
+
+  /* Keyboard, anywhere on the page: Space plays or pauses the loaded beat, the left
+     and right arrows skip five seconds. Typing in the form and controls that use
+     these keys themselves are left alone. */
+  document.addEventListener("keydown", function (e) {
+    if (!current || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (viewer.open || document.body.classList.contains("nav-open")) return;
+    var t = e.target;
+    var tag = t && t.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (t && t.isContentEditable)) return;
+    if (e.key === " " || e.code === "Space") {
+      if (tag === "BUTTON" || tag === "A" || (t && t.getAttribute && t.getAttribute("role") === "slider")) return;
+      e.preventDefault();
+      togglePlayback();
+    } else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      seek(audio.currentTime + (e.key === "ArrowRight" ? SEEK_STEP : -SEEK_STEP));
+    }
+  });
+
+  /* Lock screen, headphones and media keys (where the browser supports it) */
+  function describeForSystem(track) {
+    if (!("mediaSession" in navigator) || !window.MediaMetadata) return;
+    navigator.mediaSession.metadata = new window.MediaMetadata({
+      title: track.item.title,
+      artist: track.item.artist || "VZN",
+      album: "Vision Studio Co.",
+      artwork: [
+        { src: "assets/brand/icon-512.png", sizes: "512x512", type: "image/png" },
+        { src: "assets/brand/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
+      ]
+    });
+  }
+  if ("mediaSession" in navigator) {
+    [["play", startPlayback], ["pause", pausePlayback],
+      ["previoustrack", function () { step(-1); }], ["nexttrack", function () { step(1); }],
+      ["seekbackward", function (d) { seek(audio.currentTime - (d.seekOffset || SEEK_STEP)); }],
+      ["seekforward", function (d) { seek(audio.currentTime + (d.seekOffset || SEEK_STEP)); }],
+      ["seekto", function (d) { if (d.seekTime != null) seek(d.seekTime); }]
+    ].forEach(function (pair) {
+      try { navigator.mediaSession.setActionHandler(pair[0], pair[1]); } catch (e) { /* action not supported */ }
+    });
+  }
 
   /* Work rails --------------------------------------------------------------- */
   var portfolio = window.VZN_PORTFOLIO || {};
@@ -295,7 +496,14 @@
       } else {
         btn.textContent = item.media.kind === "audio" ? "Play" : "Listen";
         btn.setAttribute("aria-label", (item.media.kind === "audio" ? "Play " : "Listen to ") + item.title);
-        btn.addEventListener("click", function () { toggleTrack(item, card); });
+        if (item.media.kind === "audio") {
+          var track = { item: item, card: card, button: btn };
+          tracks.push(track);
+          btn.addEventListener("click", function () { playTrack(track); });
+        } else {
+          // SoundCloud, Spotify and YouTube links open in the viewer
+          btn.addEventListener("click", function () { openViewer(item, "sound"); });
+        }
       }
       media.appendChild(btn);
       var progress = el("span", "card-progress");
