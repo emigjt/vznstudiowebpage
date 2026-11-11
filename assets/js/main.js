@@ -281,7 +281,7 @@
       } else {
         media.appendChild(makeCover(item, "sound"));
       }
-      var btn = el("button", "card-play");
+      var btn = el("button", "card-play pill");
       btn.type = "button";
       var hasMedia = item.media && item.media.src;
       if (!hasMedia) {
@@ -472,7 +472,7 @@
         back.className = "is-back";
         media.appendChild(back);
         media.classList.add("has-back");
-        flip = el("button", "product-flip", "Back");
+        flip = el("button", "product-flip pill is-light", "Back");
         flip.type = "button";
         flip.setAttribute("aria-pressed", "false");
         media.appendChild(flip);
@@ -546,7 +546,7 @@
     if (product.sizes && product.sizes.length) {
       var sizes = el("ul", "product-sizes");
       sizes.setAttribute("aria-label", "Sizes");
-      product.sizes.forEach(function (s) { sizes.appendChild(el("li", null, s)); });
+      product.sizes.forEach(function (s) { sizes.appendChild(el("li", "pill is-small", s)); });
       info.appendChild(sizes);
     }
     var buySlot = el("div", "product-buy-slot");

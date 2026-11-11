@@ -50,7 +50,6 @@
     { key: "--bg", label: "Background", type: "color" },
     { key: "--text", label: "Text", type: "color" },
     { key: "--muted", label: "Muted text", type: "color" },
-    { key: "--accent", label: "Accent", type: "color" },
     { key: "--paper", label: "Visual side background", type: "color" },
     { key: "--ink", label: "Visual side text", type: "color" },
     { key: "--surface", label: "Covers / fields", type: "color" },
