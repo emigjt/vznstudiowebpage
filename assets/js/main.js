@@ -256,6 +256,7 @@
   var tracks = [];              // every beat with audio, in page order: { item, card, button }
   var current = null;           // the loaded track (one of tracks) or null
   var loading = false;          // Play was pressed and sound hasn't started yet
+  var startAt = null;           // a beat begun from a point on its waveform starts there (0 to 1)
   var fadeFrame = 0;
 
   var player = $("[data-player]");
@@ -316,7 +317,7 @@
     playerStatus.textContent = "Couldn't play " + current.item.title + ".";
   }
 
-  function load(track) {
+  function load(track, from) {
     if (current) {
       current.card.classList.remove("is-playing", "is-current");
       setCardProgress(current, 0);
@@ -326,6 +327,7 @@
     current = track;
     track.card.classList.add("is-current");
     if (track.scrub) track.scrub.tabIndex = 0;
+    startAt = from == null ? null : from;
     audio.src = track.item.media.src;
     playerTitle.textContent = track.item.title;
     playerMeta.textContent = [track.item.artist, track.item.bpm ? track.item.bpm + " BPM" : ""].filter(Boolean).join(" · ");
@@ -336,11 +338,12 @@
     startPlayback();
   }
 
-  // Play on a card: toggles the loaded beat, or fades the old one out and starts this one.
-  function playTrack(track) {
+  // Play on a card: toggles the loaded beat, or fades the old one out and starts this one
+  // ("from", 0 to 1, starts it part-way through: a press on its waveform).
+  function playTrack(track, from) {
     if (current === track) { togglePlayback(); return; }
-    if (current && !audio.paused) fadeTo(0, function () { audio.pause(); load(track); });
-    else load(track);
+    if (current && !audio.paused) fadeTo(0, function () { audio.pause(); load(track, from); });
+    else load(track, from);
   }
   function step(direction) {
     if (!current) return;
@@ -393,6 +396,7 @@
     var duration = isFinite(audio.duration) ? audio.duration : 0;
     var ratio = duration ? Math.min(1, audio.currentTime / duration) : 0;
     playerFill.style.transform = "scaleX(" + ratio.toFixed(4) + ")";
+    playerScrub.style.setProperty("--at", ratio.toFixed(4));     // where the playhead sits
     setCardProgress(current, ratio);
     playerTime.textContent = clock(audio.currentTime) + " / " + (duration ? clock(duration) : current.item.length || "0:00");
     playerScrub.setAttribute("aria-valuenow", String(Math.round(ratio * 100)));
@@ -424,6 +428,10 @@
   audio.addEventListener("playing", function () { loading = false; renderPlayer(); });
   audio.addEventListener("waiting", function () { loading = true; renderPlayer(); });
   audio.addEventListener("pause", function () { loading = false; renderPlayer(); renderProgress(); });
+  audio.addEventListener("loadedmetadata", function () {
+    if (startAt != null && isFinite(audio.duration)) audio.currentTime = startAt * audio.duration;
+    startAt = null;
+  });
   audio.addEventListener("durationchange", renderProgress);
   audio.addEventListener("timeupdate", function () { if (document.hidden) renderProgress(); });
   audio.addEventListener("error", function () { if (current) playFailed(); });
@@ -438,21 +446,38 @@
   playerToggle.addEventListener("click", togglePlayback);
   $("[data-player-close]").addEventListener("click", closePlayer);
 
-  /* Dragging a progress control, or arrow keys while it has focus. Used by the player's
-     line and by each cover's waveform; "active" says whether the control is live. */
-  function bindScrub(node, active) {
+  /* Pressing or dragging a progress control, or arrow keys while it has focus. Used by
+     the player's line and by each cover's waveform; "active" says whether the control is
+     live. On a waveform a finger has to move sideways a little before it counts as a
+     drag, so scrolling the page with a thumb on a cover doesn't move the playhead (a
+     plain tap is handled by the waveform's own click, below). */
+  var DRAG_SLOP = 8;            // px
+  function ratioAt(node, e) {
+    var box = node.getBoundingClientRect();
+    return Math.max(0, Math.min(1, (e.clientX - box.left) / box.width));
+  }
+  function bindScrub(node, active, waitForDrag) {
+    var downX = null;           // where a finger went down, until it has moved far enough
     function scrubTo(e) {
-      var box = node.getBoundingClientRect();
-      if (isFinite(audio.duration)) seek((e.clientX - box.left) / box.width * audio.duration);
+      if (downX != null) {
+        if (Math.abs(e.clientX - downX) < DRAG_SLOP) return;
+        downX = null;
+      }
+      if (isFinite(audio.duration)) seek(ratioAt(node, e) * audio.duration);
     }
     node.addEventListener("pointerdown", function (e) {
-      if (!active()) return;
+      if (!active() || e.button) return;
       node.setPointerCapture(e.pointerId);
+      node.classList.add("is-dragging");
+      downX = waitForDrag && e.pointerType === "touch" ? e.clientX : null;
       scrubTo(e);
       node.addEventListener("pointermove", scrubTo);
     });
     ["pointerup", "pointercancel"].forEach(function (type) {
-      node.addEventListener(type, function () { node.removeEventListener("pointermove", scrubTo); });
+      node.addEventListener(type, function () {
+        node.removeEventListener("pointermove", scrubTo);
+        node.classList.remove("is-dragging");
+      });
     });
     node.addEventListener("keydown", function (e) {
       var d = audio.duration;
@@ -490,7 +515,7 @@
       track.scrub.setAttribute("aria-valuetext", clock(audio.currentTime) + " of " + clock(isFinite(audio.duration) ? audio.duration : 0));
     }
   }
-  // A cover with a waveform gets a slider over its bars; dragging it moves through the beat.
+  // A cover with a waveform gets a slider over its bars; pressing or dragging it moves through the beat.
   function waveSetup(track, media) {
     if (!WAVE_PLAYER) return;
     var wave = $(".cover-wave", media);
@@ -506,7 +531,18 @@
     scrub.tabIndex = -1;                            // reachable by keyboard only while this beat is loaded
     media.appendChild(scrub);
     track.scrub = scrub;
-    bindScrub(scrub, function () { return current === track; });
+    bindScrub(scrub, function () { return current === track; }, true);
+    // A press anywhere on a waveform: the loaded beat jumps to that point; any other
+    // beat starts playing from it.
+    scrub.addEventListener("click", function (e) {
+      var at = ratioAt(scrub, e);
+      if (current !== track) playTrack(track, at);
+      else if (isFinite(audio.duration)) seek(at * audio.duration);
+    });
+    // With a mouse, a thin line follows the pointer to show where a press would land
+    scrub.addEventListener("pointermove", function (e) {
+      if (e.pointerType === "mouse") scrub.style.setProperty("--hover", ratioAt(scrub, e).toFixed(4));
+    });
   }
 
   /* Keyboard, anywhere on the page: Space plays or pauses the loaded beat, the left

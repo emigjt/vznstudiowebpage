@@ -768,7 +768,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .player-meta, .player-time { color: var(--muted); font-size: var(--text-s); font-variant-numeric: tabular-nums; }
 .player-close { background: none; border: 0; padding: 0; color: var(--muted); font-family: inherit; cursor: pointer; transition: color var(--dur-1) var(--ease-out); }
 .player-close:hover { color: var(--text); }
-/* The progress line: thin to look at, tall to grab */
+/* The progress line: thin to look at, tall to grab, with a playhead to drag */
 .player-scrub {
   position: absolute;
   left: 0;
@@ -782,9 +782,21 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .player-scrub::before { background: var(--line); }
 .player-scrub i { background: var(--text); transform: scaleX(0); transform-origin: left; }
 .player-scrub:hover::before, .player-scrub:hover i, .player-scrub:focus-visible::before, .player-scrub:focus-visible i { top: 12px; height: 4px; }
+.player-scrub b {
+  position: absolute;
+  top: 14px;                                   /* the middle of the line */
+  left: clamp(7px, calc(var(--at, 0) * 100%), calc(100% - 7px));
+  width: 12px; height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  background: var(--text);
+  box-shadow: 0 0 0 3px var(--bg);
+  transition: transform var(--dur-1) var(--ease-out);
+}
+.player-scrub:hover b, .player-scrub.is-dragging b, .player-scrub:focus-visible b { transform: scale(1.35); }
 .player-scrub:focus-visible { outline: none; }
 .player-scrub:focus-visible i { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--text); }
-@media (pointer: coarse) { .player-scrub { top: -22px; height: 36px; } .player-scrub::before, .player-scrub i { top: 21px; } }
+@media (pointer: coarse) { .player-scrub { top: -22px; height: 36px; } .player-scrub::before, .player-scrub i { top: 21px; } .player-scrub b { top: 22px; width: 14px; height: 14px; margin: -7px 0 0 -7px; } }
 /* While the player is open, things pinned to the bottom of the screen sit above it */
 .has-player .work-bar { bottom: calc(var(--pad) * 0.6 + var(--player-h)); }
 .has-player .hero-foot { bottom: calc(var(--pad) + var(--player-h)); }
@@ -807,13 +819,19 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .cover-wave { position: absolute; left: 14%; right: 14%; top: 35%; height: 30%; display: flex; align-items: center; gap: 2px; }
 .cover-wave i { flex: 1; background: var(--text); opacity: .85; }
 /* The waveform as the player (main.js, --wave-player): on the loaded beat the bars dim,
-   then fill from the left as it plays; an invisible slider over them takes the drag. */
+   then fill from the left as it plays. An invisible slider over the bars takes presses
+   and drags: on the loaded beat it moves the playhead, on any other it starts that beat
+   from that point. */
 .card-sound.has-wave .card-progress { display: none; }           /* the bars are the progress */
 .card-sound.has-wave .cover-wave i { transition: opacity var(--dur-1) var(--ease-out); }
 .card-sound.has-wave.is-current .cover-wave i { opacity: .32; }
 .card-sound.has-wave.is-current .cover-wave i.is-played { opacity: 1; }
-.wave-scrub { position: absolute; left: 14%; right: 14%; top: 22%; height: 56%; pointer-events: none; touch-action: pan-y; }
-.card-sound.is-current .wave-scrub { pointer-events: auto; cursor: ew-resize; }
+.wave-scrub { position: absolute; left: 14%; right: 14%; top: 22%; height: 56%; cursor: pointer; touch-action: pan-y; }
+/* With a mouse, a thin line follows the pointer to show where a press would land */
+@media (hover: hover) and (pointer: fine) {
+  .wave-scrub::after { content: ""; position: absolute; top: 12%; bottom: 12%; left: calc(var(--hover, 0) * 100%); width: 1px; background: var(--text); opacity: 0; transition: opacity var(--dur-1) var(--ease-out); pointer-events: none; }
+  .wave-scrub:hover::after { opacity: .7; }
+}
 .wave-scrub:focus-visible { outline-offset: 0; }
 .cover-play { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; translate: -50% -50%; border: 1px solid color-mix(in srgb, var(--text) 60%, transparent); border-radius: 50%; }
 .cover-play::after { content: ""; position: absolute; left: 55%; top: 50%; translate: -50% -50%; border-left: 12px solid var(--text); border-block: 8px solid transparent; }
