@@ -293,6 +293,7 @@
 
   function startPlayback() {
     loading = true;
+    listen();
     renderPlayer();
     if (canFade) audio.volume = 0;
     var started = audio.play();
@@ -321,9 +322,12 @@
       current.card.classList.remove("is-playing", "is-current");
       setCardProgress(current, 0);
       labelButton(current, false);
+      if (current.scrub) current.scrub.tabIndex = -1;
     }
     current = track;
     track.card.classList.add("is-current");
+    if (track.scrub) track.scrub.tabIndex = 0;
+    waveInView = true;
     audio.src = track.item.media.src;
     playerTitle.textContent = track.item.title;
     playerMeta.textContent = [track.item.artist, track.item.bpm ? track.item.bpm + " BPM" : ""].filter(Boolean).join(" · ");
@@ -359,6 +363,7 @@
     closing.card.classList.remove("is-playing", "is-current");
     setCardProgress(closing, 0);
     labelButton(closing, false);
+    if (closing.scrub) closing.scrub.tabIndex = -1;
     showPlayer(false);
     playerStatus.textContent = "Player closed.";
     if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "none";
@@ -373,6 +378,8 @@
   function setCardProgress(track, ratio) {
     var line = $(".card-progress i", track.card);
     if (line) line.style.transform = ratio ? "scaleX(" + ratio.toFixed(4) + ")" : "";
+    waveFill(track, ratio);
+    if (!ratio) waveStill(track);
   }
   function renderPlayer() {
     if (!current) return;
@@ -399,8 +406,9 @@
   var progressFrame = 0;
   function followProgress() {
     window.cancelAnimationFrame(progressFrame);
-    (function tick() {
+    (function tick(now) {
       renderProgress();
+      waveLive(now || 0);
       if (current && !audio.paused && !document.hidden) progressFrame = window.requestAnimationFrame(tick);
     })();
   }
@@ -419,7 +427,7 @@
   audio.addEventListener("play", function () { renderPlayer(); followProgress(); });
   audio.addEventListener("playing", function () { loading = false; renderPlayer(); });
   audio.addEventListener("waiting", function () { loading = true; renderPlayer(); });
-  audio.addEventListener("pause", function () { loading = false; renderPlayer(); renderProgress(); });
+  audio.addEventListener("pause", function () { loading = false; renderPlayer(); renderProgress(); if (current) waveStill(current); });
   audio.addEventListener("durationchange", renderProgress);
   audio.addEventListener("timeupdate", function () { if (document.hidden) renderProgress(); });
   audio.addEventListener("error", function () { if (current) playFailed(); });
@@ -434,30 +442,138 @@
   playerToggle.addEventListener("click", togglePlayback);
   $("[data-player-close]").addEventListener("click", closePlayer);
 
-  /* Dragging the progress line, or arrow keys while it has focus */
-  function scrubTo(e) {
-    var box = playerScrub.getBoundingClientRect();
-    if (isFinite(audio.duration)) seek((e.clientX - box.left) / box.width * audio.duration);
+  /* Dragging a progress control, or arrow keys while it has focus. Used by the player's
+     line and by each cover's waveform; "active" says whether the control is live. */
+  function bindScrub(node, active) {
+    function scrubTo(e) {
+      var box = node.getBoundingClientRect();
+      if (isFinite(audio.duration)) seek((e.clientX - box.left) / box.width * audio.duration);
+    }
+    node.addEventListener("pointerdown", function (e) {
+      if (!active()) return;
+      node.setPointerCapture(e.pointerId);
+      scrubTo(e);
+      node.addEventListener("pointermove", scrubTo);
+    });
+    ["pointerup", "pointercancel"].forEach(function (type) {
+      node.addEventListener(type, function () { node.removeEventListener("pointermove", scrubTo); });
+    });
+    node.addEventListener("keydown", function (e) {
+      var d = audio.duration;
+      if (!active() || !isFinite(d)) return;
+      var to = { ArrowRight: audio.currentTime + SEEK_STEP, ArrowUp: audio.currentTime + SEEK_STEP,
+        ArrowLeft: audio.currentTime - SEEK_STEP, ArrowDown: audio.currentTime - SEEK_STEP,
+        PageUp: audio.currentTime + d / 10, PageDown: audio.currentTime - d / 10, Home: 0, End: d }[e.key];
+      if (to == null) return;
+      e.preventDefault();
+      e.stopPropagation();
+      seek(to);
+    });
   }
-  playerScrub.addEventListener("pointerdown", function (e) {
-    playerScrub.setPointerCapture(e.pointerId);
-    scrubTo(e);
-    playerScrub.addEventListener("pointermove", scrubTo);
-  });
-  ["pointerup", "pointercancel"].forEach(function (type) {
-    playerScrub.addEventListener(type, function () { playerScrub.removeEventListener("pointermove", scrubTo); });
-  });
-  playerScrub.addEventListener("keydown", function (e) {
-    var d = audio.duration;
-    if (!isFinite(d)) return;
-    var to = { ArrowRight: audio.currentTime + SEEK_STEP, ArrowUp: audio.currentTime + SEEK_STEP,
-      ArrowLeft: audio.currentTime - SEEK_STEP, ArrowDown: audio.currentTime - SEEK_STEP,
-      PageUp: audio.currentTime + d / 10, PageDown: audio.currentTime - d / 10, Home: 0, End: d }[e.key];
-    if (to == null) return;
-    e.preventDefault();
-    e.stopPropagation();
-    seek(to);
-  });
+  bindScrub(playerScrub, function () { return !!current; });
+
+  /* The waveform is the player (--wave-player: 1 in styles.css; 0 switches all of this
+     off and the covers go back to a still waveform with a progress line under it) ---
+     On a beat's cover the bars fill from the left as it plays and can be dragged to
+     move through it. While it plays, the bars around the playhead move with the sound
+     itself: bass swells them, treble makes them shimmer. */
+  var WAVE_PLAYER = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--wave-player")) >= 0.5;
+  // Listening to the live sound means routing it through the Web Audio API. On phones
+  // and tablets that route can fall silent when the screen locks or the tab is in the
+  // background, so they get the fill and the dragging, and the bars stay still.
+  var WAVE_LIVE = WAVE_PLAYER && finePointer && !reduceMotion &&
+    !!(window.AudioContext || window.webkitAudioContext);
+  var LIVE_REACH = 5;            // bars either side of the playhead that move
+  var audioCtx = null, analyser = null, spectrum = null;
+  var bass = 0, treble = 0;      // smoothed levels, 0 to 1
+  var waveInView = true;
+
+  function listen() {
+    if (!WAVE_LIVE) return;
+    try {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 512;                     // 256 bands, about 86 Hz each
+        analyser.smoothingTimeConstant = 0.6;
+        audioCtx.createMediaElementSource(audio).connect(analyser);
+        analyser.connect(audioCtx.destination);
+        spectrum = new Uint8Array(analyser.frequencyBinCount);
+      }
+      if (audioCtx.state === "suspended") audioCtx.resume();
+    } catch (e) {
+      analyser = null;                              // no live movement; everything else still works
+    }
+  }
+  function level(from, to) {
+    var sum = 0;
+    for (var i = from; i < to; i++) sum += spectrum[i];
+    return sum / ((to - from) * 255);
+  }
+  // Rise quickly, fall slowly, so the bars move like a meter instead of jittering.
+  function follow(now, target) { return target > now ? now + (target - now) * 0.55 : now + (target - now) * 0.12; }
+
+  function waveFill(track, ratio) {
+    var bars = track.bars;
+    if (!bars) return;
+    var at = ratio * bars.length, head = Math.floor(at);
+    if (track.head !== head || !ratio) {
+      for (var i = 0; i < bars.length; i++) bars[i].classList.toggle("is-played", i < head);
+      if (track.head != null && bars[track.head]) bars[track.head].style.opacity = "";
+      track.head = ratio ? head : null;
+    }
+    // the bar under the playhead brightens as it is crossed
+    if (ratio && bars[head]) bars[head].style.opacity = (0.32 + 0.68 * (at - head)).toFixed(2);
+    if (track.scrub) {
+      track.scrub.setAttribute("aria-valuenow", String(Math.round(ratio * 100)));
+      track.scrub.setAttribute("aria-valuetext", clock(audio.currentTime) + " of " + clock(isFinite(audio.duration) ? audio.duration : 0));
+    }
+  }
+  function waveStill(track) {
+    if (!track.bars || !track.moved) return;
+    track.bars.forEach(function (bar) { bar.style.transform = ""; });
+    track.moved = false;
+  }
+  function waveLive(now) {
+    var track = current;
+    if (!analyser || !track || !track.bars || !waveInView || audio.paused) return;
+    analyser.getByteFrequencyData(spectrum);
+    bass = follow(bass, Math.min(1, level(1, 5) * 1.25));        // roughly 90 to 430 Hz
+    treble = follow(treble, Math.min(1, level(58, 140) * 3));    // roughly 5 to 12 kHz
+    var bars = track.bars, head = track.head == null ? 0 : track.head;
+    for (var i = 0; i < bars.length; i++) {
+      var far = Math.abs(i - head);
+      if (far > LIVE_REACH) { if (bars[i].style.transform) bars[i].style.transform = ""; continue; }
+      var near = 1 - far / (LIVE_REACH + 1);
+      var shimmer = Math.sin(now / 45 + i * 2.4) * 0.12 * treble;
+      bars[i].style.transform = "scaleY(" + (1 + near * (bass * 0.55 + shimmer)).toFixed(3) + ")";
+    }
+    track.moved = true;
+  }
+  // The live movement only runs while the playing cover is on screen
+  var waveWatcher = "IntersectionObserver" in window ? new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) { if (current && entry.target === current.card) waveInView = entry.isIntersecting; });
+  }) : null;
+
+  // A cover with a waveform gets a slider over its bars; dragging it moves through the beat.
+  function waveSetup(track, media) {
+    if (!WAVE_PLAYER) return;
+    var wave = $(".cover-wave", media);
+    if (!wave) return;                              // a cover image instead of a waveform
+    track.bars = $$("i", wave);
+    track.card.classList.add("has-wave");
+    var scrub = el("div", "wave-scrub");
+    scrub.setAttribute("role", "slider");
+    scrub.setAttribute("aria-label", "Position in " + track.item.title);
+    scrub.setAttribute("aria-valuemin", "0");
+    scrub.setAttribute("aria-valuemax", "100");
+    scrub.setAttribute("aria-valuenow", "0");
+    scrub.tabIndex = -1;                            // reachable by keyboard only while this beat is loaded
+    media.appendChild(scrub);
+    track.scrub = scrub;
+    bindScrub(scrub, function () { return current === track; });
+    if (waveWatcher) waveWatcher.observe(track.card);
+  }
 
   /* Keyboard, anywhere on the page: Space plays or pauses the loaded beat, the left
      and right arrows skip five seconds. Typing in the form and controls that use
@@ -555,6 +671,7 @@
         if (item.media.kind === "audio") {
           var track = { item: item, card: card, button: btn };
           tracks.push(track);
+          waveSetup(track, media);
           btn.addEventListener("click", function () { playTrack(track); });
         } else {
           // SoundCloud, Spotify and YouTube links open in the viewer

@@ -164,6 +164,8 @@
   --fx-mark-y: -2svh;         /* logo position from screen centre: + down, - up */
   --grain: 0.19;              /* film grain strength */
   --scratch: 0;               /* vintage scratch texture behind the content, 0 (off) to 1 */
+  --wave-player: 1;           /* 1: a beat's cover waveform shows progress, can be dragged, and
+                                 moves with the sound. 0: a still waveform with a line under it */
 
   /* Boot sequence (assets/js/boot.js). 0 = off, 1 = on. Try it in edit mode first. */
   --boot: 0;
@@ -805,6 +807,15 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 }
 .cover-wave { position: absolute; left: 14%; right: 14%; top: 35%; height: 30%; display: flex; align-items: center; gap: 2px; }
 .cover-wave i { flex: 1; background: var(--text); opacity: .85; }
+/* The waveform as the player (main.js, --wave-player): on the loaded beat the bars dim,
+   then fill from the left as it plays; an invisible slider over them takes the drag. */
+.card-sound.has-wave .card-progress { display: none; }           /* the bars are the progress */
+.card-sound.has-wave .cover-wave i { transition: opacity var(--dur-1) var(--ease-out); will-change: transform; }
+.card-sound.has-wave.is-current .cover-wave i { opacity: .32; }
+.card-sound.has-wave.is-current .cover-wave i.is-played { opacity: 1; }
+.wave-scrub { position: absolute; left: 14%; right: 14%; top: 22%; height: 56%; pointer-events: none; touch-action: pan-y; }
+.card-sound.is-current .wave-scrub { pointer-events: auto; cursor: ew-resize; }
+.wave-scrub:focus-visible { outline-offset: 0; }
 .cover-play { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; translate: -50% -50%; border: 1px solid color-mix(in srgb, var(--text) 60%, transparent); border-radius: 50%; }
 .cover-play::after { content: ""; position: absolute; left: 55%; top: 50%; translate: -50% -50%; border-left: 12px solid var(--text); border-block: 8px solid transparent; }
 .cover .cover-mark { position: absolute; left: 50%; top: 52%; width: 38%; height: auto; translate: -50% -50%; opacity: .45; }
