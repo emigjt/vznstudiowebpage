@@ -486,8 +486,8 @@
       artist: track.item.artist || "VZN",
       album: "Vision Studio Co.",
       artwork: [
-        { src: "assets/brand/icon-512.png", sizes: "512x512", type: "image/png" },
-        { src: "assets/brand/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
+        { src: "assets/brand/eye-icon-512.png", sizes: "512x512", type: "image/png" },
+        { src: "assets/brand/eye-icon-192.png", sizes: "192x192", type: "image/png" }
       ]
     });
   }
