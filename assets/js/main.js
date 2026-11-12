@@ -293,7 +293,6 @@
 
   function startPlayback() {
     loading = true;
-    listen();
     renderPlayer();
     if (canFade) audio.volume = 0;
     var started = audio.play();
@@ -327,7 +326,6 @@
     current = track;
     track.card.classList.add("is-current");
     if (track.scrub) track.scrub.tabIndex = 0;
-    waveInView = true;
     audio.src = track.item.media.src;
     playerTitle.textContent = track.item.title;
     playerMeta.textContent = [track.item.artist, track.item.bpm ? track.item.bpm + " BPM" : ""].filter(Boolean).join(" · ");
@@ -379,7 +377,6 @@
     var line = $(".card-progress i", track.card);
     if (line) line.style.transform = ratio ? "scaleX(" + ratio.toFixed(4) + ")" : "";
     waveFill(track, ratio);
-    if (!ratio) waveStill(track);
   }
   function renderPlayer() {
     if (!current) return;
@@ -406,9 +403,8 @@
   var progressFrame = 0;
   function followProgress() {
     window.cancelAnimationFrame(progressFrame);
-    (function tick(now) {
+    (function tick() {
       renderProgress();
-      waveLive(now || 0);
       if (current && !audio.paused && !document.hidden) progressFrame = window.requestAnimationFrame(tick);
     })();
   }
@@ -427,7 +423,7 @@
   audio.addEventListener("play", function () { renderPlayer(); followProgress(); });
   audio.addEventListener("playing", function () { loading = false; renderPlayer(); });
   audio.addEventListener("waiting", function () { loading = true; renderPlayer(); });
-  audio.addEventListener("pause", function () { loading = false; renderPlayer(); renderProgress(); if (current) waveStill(current); });
+  audio.addEventListener("pause", function () { loading = false; renderPlayer(); renderProgress(); });
   audio.addEventListener("durationchange", renderProgress);
   audio.addEventListener("timeupdate", function () { if (document.hidden) renderProgress(); });
   audio.addEventListener("error", function () { if (current) playFailed(); });
@@ -474,44 +470,9 @@
 
   /* The waveform is the player (--wave-player: 1 in styles.css; 0 switches all of this
      off and the covers go back to a still waveform with a progress line under it) ---
-     On a beat's cover the bars fill from the left as it plays and can be dragged to
-     move through it. While it plays, the bars around the playhead move with the sound
-     itself: bass swells them, treble makes them shimmer. */
+     On a beat's cover the bars fill from the left as it plays, and pressing or dragging
+     the waveform moves through the beat. */
   var WAVE_PLAYER = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--wave-player")) >= 0.5;
-  // Listening to the live sound means routing it through the Web Audio API. On phones
-  // and tablets that route can fall silent when the screen locks or the tab is in the
-  // background, so they get the fill and the dragging, and the bars stay still.
-  var WAVE_LIVE = WAVE_PLAYER && finePointer && !reduceMotion &&
-    !!(window.AudioContext || window.webkitAudioContext);
-  var LIVE_REACH = 5;            // bars either side of the playhead that move
-  var audioCtx = null, analyser = null, spectrum = null;
-  var bass = 0, treble = 0;      // smoothed levels, 0 to 1
-  var waveInView = true;
-
-  function listen() {
-    if (!WAVE_LIVE) return;
-    try {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 512;                     // 256 bands, about 86 Hz each
-        analyser.smoothingTimeConstant = 0.6;
-        audioCtx.createMediaElementSource(audio).connect(analyser);
-        analyser.connect(audioCtx.destination);
-        spectrum = new Uint8Array(analyser.frequencyBinCount);
-      }
-      if (audioCtx.state === "suspended") audioCtx.resume();
-    } catch (e) {
-      analyser = null;                              // no live movement; everything else still works
-    }
-  }
-  function level(from, to) {
-    var sum = 0;
-    for (var i = from; i < to; i++) sum += spectrum[i];
-    return sum / ((to - from) * 255);
-  }
-  // Rise quickly, fall slowly, so the bars move like a meter instead of jittering.
-  function follow(now, target) { return target > now ? now + (target - now) * 0.55 : now + (target - now) * 0.12; }
 
   function waveFill(track, ratio) {
     var bars = track.bars;
@@ -529,32 +490,6 @@
       track.scrub.setAttribute("aria-valuetext", clock(audio.currentTime) + " of " + clock(isFinite(audio.duration) ? audio.duration : 0));
     }
   }
-  function waveStill(track) {
-    if (!track.bars || !track.moved) return;
-    track.bars.forEach(function (bar) { bar.style.transform = ""; });
-    track.moved = false;
-  }
-  function waveLive(now) {
-    var track = current;
-    if (!analyser || !track || !track.bars || !waveInView || audio.paused) return;
-    analyser.getByteFrequencyData(spectrum);
-    bass = follow(bass, Math.min(1, level(1, 5) * 1.25));        // roughly 90 to 430 Hz
-    treble = follow(treble, Math.min(1, level(58, 140) * 3));    // roughly 5 to 12 kHz
-    var bars = track.bars, head = track.head == null ? 0 : track.head;
-    for (var i = 0; i < bars.length; i++) {
-      var far = Math.abs(i - head);
-      if (far > LIVE_REACH) { if (bars[i].style.transform) bars[i].style.transform = ""; continue; }
-      var near = 1 - far / (LIVE_REACH + 1);
-      var shimmer = Math.sin(now / 45 + i * 2.4) * 0.12 * treble;
-      bars[i].style.transform = "scaleY(" + (1 + near * (bass * 0.55 + shimmer)).toFixed(3) + ")";
-    }
-    track.moved = true;
-  }
-  // The live movement only runs while the playing cover is on screen
-  var waveWatcher = "IntersectionObserver" in window ? new IntersectionObserver(function (entries) {
-    entries.forEach(function (entry) { if (current && entry.target === current.card) waveInView = entry.isIntersecting; });
-  }) : null;
-
   // A cover with a waveform gets a slider over its bars; dragging it moves through the beat.
   function waveSetup(track, media) {
     if (!WAVE_PLAYER) return;
@@ -572,7 +507,6 @@
     media.appendChild(scrub);
     track.scrub = scrub;
     bindScrub(scrub, function () { return current === track; });
-    if (waveWatcher) waveWatcher.observe(track.card);
   }
 
   /* Keyboard, anywhere on the page: Space plays or pauses the loaded beat, the left
