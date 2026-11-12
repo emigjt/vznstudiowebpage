@@ -6,7 +6,7 @@ The site for **VZN — Vision Studio Co.**: one page with four parts — the hom
 No build step: plain HTML, CSS and JavaScript.
 
 Design direction: greyscale only, taken from the eye logo artwork. A charcoal page, soft
-greys, bone white and a fine film grain; no accent colour. Gamiya Retro
+greys and bone white; no accent colour. Gamiya Retro
 (self-hosted) for display type and Inter Tight (self-hosted) for everything else.
 In Work, scrolling down moves the page sideways from **Sound** (charcoal) into **Visual**
 (ink on bone).
@@ -93,9 +93,8 @@ and right arrows move 5 seconds, and the phone's lock screen and headphone butto
 (play, pause, next, previous).
 
 The waveform on the cover is part of the player: its bars fill from the left as the beat
-plays. Pressing a point on the waveform of the beat that is playing jumps there (dragging
-works too); pressing a point on any other beat's waveform starts that beat from there.
-With a mouse, a thin line follows the pointer to show where the press would land.
+plays. Pressing a point on any beat's waveform plays that beat from there (on the beat that
+is loaded, dragging works too).
 
 - `--wave-player: 0` in `assets/css/styles.css` switches the cover waveform back to a
   still picture with a thin progress line under it.
@@ -123,7 +122,7 @@ to get a design panel on the live page:
   on the panel too). In Font Book, right-click a font and choose **Show in Finder** to
   get its files. Added files are kept in that browser until you remove them.
 - sliders for headline size, line and letter spacing, body size, margins,
-  section spacing, hero logo size and film grain
+  section spacing and hero logo size
 - **Edit text**: click any heading or paragraph on the page and retype it
 
 Tweaks are kept in your browser only, so visitors never see them. A font you pick from
@@ -189,13 +188,9 @@ on every load so changes can be judged.
 To watch it while it's off, add `?boot` to the address (e.g. `…/vznstudiowebpage/?boot`,
 or `?edit&boot` with the panel): it then plays on every load, on any device.
 
-## Film grain and vintage scratches
+## Vintage scratches
 
-**Grain** is a fine layer of light and dark specks over the whole page, like the logo
-artwork's texture. It is balanced so it doesn't lighten or darken the page. `--grain`
-sets its strength (0 is off); it is **Film grain** in edit mode.
-
-**Scratches**: dust and scratch marks taken from a film texture
+Dust and scratch marks taken from a film texture
 (`assets/media/originals/vintage-scratches.jpg`, reduced to greyscale scratches only in
 `assets/media/texture/scratches.webp`), as a still texture behind all the content. It
 shows wherever nothing paints its own background: the hero, Sound, Shop and Contact (the
@@ -218,7 +213,7 @@ Everything the page is built from is a named value at the top of `assets/css/sty
 - **Motion**: two curves (`--ease-out`, `--ease-in-out`), four lengths (`--dur-1` to
   `--dur-4`: 150, 300, 600, 1000 ms) and one stagger (`--stagger`).
 - **Layers**: `--z-below` to `--z-skip` say what sits over what.
-- **Switches**: `--logo-fx`, `--focus-fx`, `--wave-player`, `--boot`, `--grain`,
+- **Switches**: `--logo-fx`, `--focus-fx`, `--wave-player`, `--boot`,
   `--scratch`.
 
 ## Rebranding

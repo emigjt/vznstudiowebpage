@@ -95,7 +95,6 @@
   --z-player: 40;             /* the player bar; the open phone menu covers it */
   --z-header: 50;
   --z-boot: 90;
-  --z-grain: 100;             /* film grain over everything */
   --z-skip: 200;              /* skip link */
 
   --radius-pill: 999px;
@@ -162,7 +161,6 @@
   --fx-hold: 30svh;           /* extra scrolling with the logo held in place before the page moves on */
   --fx-mark-x: 0vw;           /* logo position from screen centre: + right, - left */
   --fx-mark-y: -2svh;         /* logo position from screen centre: + down, - up */
-  --grain: 0.19;              /* film grain strength */
   --scratch: 0;               /* vintage scratch texture behind the content, 0 (off) to 1 */
   --focus-fx: 1;              /* 1: headlines and artwork come into view out of focus, then
                                  sharp, like the hero logo, and Work turns from black to bone
@@ -304,55 +302,6 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .details > div { display: grid; grid-template-columns: 12ch 1fr; gap: var(--space-4); }
 .details dt { color: var(--muted); }
 
-/* Film grain, as fine as the grain in the logo artwork. Two layers of specks: light
-   ones, which show on the dark page, and dark ones, which show on bone. Because each
-   layer is only specks (transparent in between), the grain adds texture without
-   lifting the page colour or dulling the text. The layers use different seeds and tile
-   sizes so they never line up into a visible repeat, and each holds still, then jumps
-   a few pixels, so the grain re-forms in place instead of sliding. Strength: --grain. */
-.grain {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-grain);
-  overflow: hidden;
-  pointer-events: none;
-  opacity: calc(var(--grain) * 0.9);
-}
-.grain::before, .grain::after {
-  content: "";
-  position: absolute;
-  inset: -8px;                /* room for the small jumps below */
-  will-change: transform;
-}
-.grain::before {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.3' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  5 0 0 0 -3.0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: grain-base 2.7s steps(1, end) infinite;
-}
-.grain::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='263' height='263'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.3' numOctaves='2' seed='17' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 5 0 0 -3.0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: grain-fine 1.3s steps(1, end) infinite;
-}
-@keyframes grain-base {
-  0% { transform: translate3d(0, 0, 0); }
-  17% { transform: translate3d(-1px, 2px, 0); }
-  41% { transform: translate3d(2px, 1px, 0); }
-  58% { transform: translate3d(1px, -2px, 0); }
-  76% { transform: translate3d(-2px, -1px, 0); }
-  89% { transform: translate3d(1px, 1px, 0); }
-}
-@keyframes grain-fine {
-  0% { transform: translate3d(0, 0, 0); }
-  9% { transform: translate3d(-3px, 2px, 0); }
-  21% { transform: translate3d(4px, -1px, 0); }
-  30% { transform: translate3d(-1px, -4px, 0); }
-  42% { transform: translate3d(2px, 3px, 0); }
-  55% { transform: translate3d(-4px, -2px, 0); }
-  63% { transform: translate3d(3px, 4px, 0); }
-  74% { transform: translate3d(-2px, 1px, 0); }
-  86% { transform: translate3d(4px, -3px, 0); }
-  93% { transform: translate3d(-3px, -3px, 0); }
-}
-
 /* Vintage scratches: dust and scratch marks taken from a film texture (greyscale), as
    a still texture behind all content. It shows wherever nothing paints its own
    background (the hero, Sound, Shop, Contact); the boot screen, the bone Visual side
@@ -371,8 +320,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 
 /* Boot sequence ---------------------------------------------------------- */
 /* An empty screen where a terminal types out, then the eye logo flickers on and the
-   screen fades to the page. Sits under the film grain (so it has the same texture)
-   and over everything else. */
+   screen fades to the page. Sits over everything else. */
 .boot { display: none; }
 .boot-on .boot {
   position: fixed;
@@ -1050,8 +998,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .focus-on .card-open.focus, .focus-on .card-media.focus, .focus-on .product-media.focus { position: relative; }
 .focus-on .card-media.focus > .focus-soft, .focus-on .card-open.focus > .focus-soft { position: absolute; inset: 0; width: 100%; height: 100%; filter: blur(14px); }
 .focus-on .focus picture > img.focus-soft { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(14px); }
-/* Work turns from black to bone through a soft edge instead of a hard line; the grain
-   over the page gives it the logo's texture */
+/* Work turns from black to bone through a soft edge instead of a hard line */
 .focus-on .panel-visual { position: relative; }
 .focus-on .panel-visual::before {
   content: "";
