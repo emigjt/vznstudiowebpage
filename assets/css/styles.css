@@ -206,13 +206,9 @@ a { color: inherit; text-decoration: none; }
 h1, h2, h3, h4 { margin: 0; font-weight: 400; text-wrap: balance; }
 p { margin: 0 0 1em; text-wrap: pretty; }
 ul, ol, dl, dd { margin: 0; padding: 0; list-style: none; }
-/* Emphasis: the display face has no italic, so an emphasised word takes the logo's
-   look instead: its soft grey, with a faint halo like the artwork's glowing edge. */
-em {
-  font-style: normal;
-  color: var(--muted);
-  text-shadow: 0 0 0.05em currentColor, 0 0 0.3em color-mix(in srgb, var(--muted) 50%, transparent);
-}
+/* Emphasis: the display face has no italic, and an emphasised word ("vision") is set
+   like the words around it. */
+em { font-style: normal; }
 ::selection { background: var(--text); color: var(--bg); }
 /* Keyboard focus: one ring everywhere, in the colour of the text it surrounds, so it
    shows on the dark page, on bone, and in the inverting header alike */
