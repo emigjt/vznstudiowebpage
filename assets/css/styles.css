@@ -822,11 +822,6 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .card-sound.has-wave.is-current .cover-wave i { opacity: .32; }
 .card-sound.has-wave.is-current .cover-wave i.is-played { opacity: 1; }
 .wave-scrub { position: absolute; left: 14%; right: 14%; top: 22%; height: 56%; cursor: pointer; touch-action: pan-y; }
-/* With a mouse, a thin line follows the pointer to show where a press would land */
-@media (hover: hover) and (pointer: fine) {
-  .wave-scrub::after { content: ""; position: absolute; top: 12%; bottom: 12%; left: calc(var(--hover, 0) * 100%); width: 1px; background: var(--text); opacity: 0; transition: opacity var(--dur-1) var(--ease-out); pointer-events: none; }
-  .wave-scrub:hover::after { opacity: .7; }
-}
 .wave-scrub:focus-visible { outline-offset: 0; }
 .cover-play { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; translate: -50% -50%; border: 1px solid color-mix(in srgb, var(--text) 60%, transparent); border-radius: 50%; }
 .cover-play::after { content: ""; position: absolute; left: 55%; top: 50%; translate: -50% -50%; border-left: 12px solid var(--text); border-block: 8px solid transparent; }

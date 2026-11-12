@@ -539,16 +539,13 @@
     media.appendChild(scrub);
     track.scrub = scrub;
     bindScrub(scrub, function () { return current === track; }, true);
-    // A press anywhere on a waveform: the loaded beat jumps to that point; any other
-    // beat starts playing from it.
+    // A press anywhere on a waveform plays from that point: the loaded beat jumps there
+    // (and starts again if it was paused); any other beat starts from there.
     scrub.addEventListener("click", function (e) {
       var at = ratioAt(scrub, e);
-      if (current !== track) playTrack(track, at);
-      else if (isFinite(audio.duration)) seek(at * audio.duration);
-    });
-    // With a mouse, a thin line follows the pointer to show where a press would land
-    scrub.addEventListener("pointermove", function (e) {
-      if (e.pointerType === "mouse") scrub.style.setProperty("--hover", ratioAt(scrub, e).toFixed(4));
+      if (current !== track) { playTrack(track, at); return; }
+      if (isFinite(audio.duration)) seek(at * audio.duration);
+      if (audio.paused) startPlayback();
     });
   }
 
