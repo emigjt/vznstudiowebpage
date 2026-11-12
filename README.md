@@ -6,10 +6,14 @@ The site for **VZN — Vision Studio Co.**: one page with four parts — the hom
 No build step: plain HTML, CSS and JavaScript.
 
 Design direction: greyscale only, taken from the eye logo artwork. A charcoal page, soft
-greys, bone white, a fine film grain and soft edges; no accent colour. Gamiya Retro
+greys, bone white and a fine film grain; no accent colour. Gamiya Retro
 (self-hosted) for display type and Inter Tight (self-hosted) for everything else.
 In Work, scrolling down moves the page sideways from **Sound** (charcoal) into **Visual**
 (ink on bone).
+
+The first page is only the logo in the top left corner and the centred headline, slogan
+and small Work / Shop / Contact links. The large menu in the top right (a Menu button on
+phones) comes in once the hero has been scrolled past.
 
 ## Preview locally
 
@@ -82,16 +86,16 @@ whoever maintains the site, or leave it out for a generated waveform.
 ## The player
 
 Pressing **Play** on a beat starts it and brings up a bar along the bottom of the screen
-with the title, the time, a progress line that can be dragged, and a close button. One
-beat plays at a time; switching fades the old one out. Space pauses and resumes, the left
+with play / pause, the title, the time, a close button, and a progress line along its
+top edge with a round playhead: drag the playhead, or press anywhere on the line, to move
+through the beat. One beat plays at a time; switching fades the old one out. Space pauses and resumes, the left
 and right arrows move 5 seconds, and the phone's lock screen and headphone buttons work
 (play, pause, next, previous).
 
 The waveform on the cover is part of the player: its bars fill from the left as the beat
-plays and can be dragged to move through it. On computers the bars around the playhead
-also move with the sound itself (bass swells them, treble makes them shimmer). Phones get
-the fill and the dragging without the live movement, because listening to the sound that
-way can silence playback when a phone's screen locks.
+plays. Pressing a point on the waveform of the beat that is playing jumps there (dragging
+works too); pressing a point on any other beat's waveform starts that beat from there.
+With a mouse, a thin line follows the pointer to show where the press would land.
 
 - `--wave-player: 0` in `assets/css/styles.css` switches the cover waveform back to a
   still picture with a thin progress line under it.
@@ -132,9 +136,8 @@ to whoever maintains the site. **Reset all** goes back to the original.
 
 The hero logo rests faint behind the headline: softly blurred, with a still greyscale
 double-exposure ghost. Scrolling holds the hero in place while the headline fades away
-and the logo sharpens into full view, then the page carries on. Revealed, it keeps the
-artwork's slightly soft edge and a faint glow. Nothing animates on its own; every change
-follows the scroll.
+and the logo sharpens into full view, crisp, then the page carries on. Nothing animates
+on its own; every change follows the scroll.
 
 To stay smooth, the blurred, half-sharp and sharp logos are separate layers whose blur
 never changes (drawn once); scrolling only crossfades them. The layers are in
@@ -149,8 +152,9 @@ It lives in `assets/js/logo-fx.js` and is controlled from `:root` in
 - `--fx-rest`, `--fx-blur`, `--fx-ghost`, `--fx-offset` and `--fx-scroll` set how it looks
   behind the text and how much scrolling the reveal takes. (`--fx-distort`, an ink warp
   made for the old line-drawn logo, is at 0.)
-- `--fx-edge` is the softness of the revealed logo's edge and `--fx-halo` the glow around
-  it (0 to 1).
+- `--fx-edge` is the softness of the revealed logo's edge and `--fx-halo` a glow around
+  it (0 to 1). Both are at 0, so the revealed logo is crisp; the logo artwork's own look
+  is about `1.4px` and `0.5`.
 - `--fx-hold` is how much further the visitor scrolls with the revealed logo held in
   place before the page moves on, so it isn't skipped by accident.
 - `--mark-scale` sets the logo size; `--fx-mark-y` and `--fx-mark-x` move it from the
