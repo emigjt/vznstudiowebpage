@@ -276,8 +276,8 @@ em { font-style: normal; }
 
 /* Text links: one hover everywhere, an underline that wipes in from the left.
    (Buy and the big email keep a faint resting underline; the wipe draws over it.) */
-.site-nav a, .header-contact a, .hero-links a, .footer-row a, .btn, a.product-buy, .contact-email { position: relative; }
-.site-nav a::after, .header-contact a::after, .hero-links a::after, .footer-row a::after, .btn::after, a.product-buy::after, .contact-email::after {
+.site-nav a, .hero-links a, .footer-row a, .btn, a.product-buy, .contact-email { position: relative; }
+.site-nav a::after, .hero-links a::after, .footer-row a::after, .btn::after, a.product-buy::after, .contact-email::after {
   content: "";
   position: absolute;
   left: 0;
@@ -289,8 +289,8 @@ em { font-style: normal; }
   transform-origin: left;
   transition: transform var(--dur-2) var(--ease-out);
 }
-.site-nav a:hover::after, .header-contact a:hover::after, .hero-links a:hover::after, .footer-row a:hover::after, .btn:hover::after, a.product-buy:hover::after, .contact-email:hover::after,
-.site-nav a:focus-visible::after, .header-contact a:focus-visible::after, .hero-links a:focus-visible::after, .footer-row a:focus-visible::after, .btn:focus-visible::after, a.product-buy:focus-visible::after, .contact-email:focus-visible::after { transform: scaleX(1); }
+.site-nav a:hover::after, .hero-links a:hover::after, .footer-row a:hover::after, .btn:hover::after, a.product-buy:hover::after, .contact-email:hover::after,
+.site-nav a:focus-visible::after, .hero-links a:focus-visible::after, .footer-row a:focus-visible::after, .btn:focus-visible::after, a.product-buy:focus-visible::after, .contact-email:focus-visible::after { transform: scaleX(1); }
 a.product-buy::after, .contact-email::after { bottom: -1px; }
 
 /* Small line above a heading ("Shop", "01 / 02") */
@@ -453,7 +453,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   inset: 0 0 auto 0;
   z-index: var(--z-header);
   display: grid;
-  grid-template-columns: auto minmax(0, 30ch) minmax(0, 26ch) 1fr auto;
+  grid-template-columns: auto 1fr auto;
   align-items: start;
   gap: var(--gap-fluid);
   padding: var(--pad);
@@ -464,34 +464,29 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .site-header > * { pointer-events: auto; }
 .brand img { width: clamp(48px, 4.6vw, 68px); height: auto; transition: transform var(--dur-3) var(--ease-out); }
 .brand:hover img { transform: rotate(-8deg); }
-.header-blurb, .header-contact { margin: 0; line-height: 1.35; transition: opacity var(--dur-2) var(--ease-out); }
-.site-header.is-scrolled .header-blurb,
-.site-header.is-scrolled .header-contact { opacity: 0; pointer-events: none; }
 
-.site-nav { grid-column: 5; display: flex; gap: var(--gap-wide); }
+.site-nav { grid-column: 3; display: flex; gap: var(--gap-wide); }
 .site-nav a { font: 400 clamp(var(--text-xl), 2.6vw, var(--text-2xl))/1 var(--font-display); letter-spacing: var(--display-tracking); }
 
 .nav-toggle {
   display: none;
-  grid-column: 5;
+  grid-column: 3;
   background: none; border: 0; padding: var(--space-2) 0;
   color: inherit; font-family: inherit; cursor: pointer;
 }
+/* On the first page the header is only the logo: the centred links under the headline
+   do the navigating. The menu comes in once the hero has been scrolled past. (.on-hero
+   is on <html>: set in the head for the first paint, then kept up to date by main.js.) */
+.site-nav, .nav-toggle { transition: opacity var(--dur-2) var(--ease-out), visibility var(--dur-2); }
+.on-hero .nav-toggle { opacity: 0; visibility: hidden; }
+@media (min-width: 761px) {
+  .on-hero .site-nav { opacity: 0; visibility: hidden; }
+}
 
-/* Hide the email column early so the blurb keeps the width its line breaks need */
-@media (max-width: 1280px) {
-  .header-contact { display: none; }
-  .site-header { grid-template-columns: auto minmax(0, 30ch) 1fr auto; }
-  .site-nav, .nav-toggle { grid-column: 4; }
-}
-@media (max-width: 960px) {
-  .header-blurb { display: none; }
-}
 @media (max-width: 760px) {
-  .site-header { grid-template-columns: auto 1fr auto; mix-blend-mode: normal; transition: background var(--dur-2) var(--ease-out); }
+  .site-header { mix-blend-mode: normal; transition: background var(--dur-2) var(--ease-out); }
   .site-header.is-scrolled, body.nav-open .site-header { background: var(--bg); }
-  .header-blurb { display: none; }
-  .nav-toggle { display: block; grid-column: 3; position: relative; z-index: var(--z-raised); }
+  .nav-toggle { display: block; position: relative; z-index: var(--z-raised); }
   .site-nav {
     position: fixed;
     inset: 0;

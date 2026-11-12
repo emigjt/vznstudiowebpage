@@ -83,13 +83,19 @@
   var heroMark = $("[data-parallax]");
   var pointer = { x: 0, y: 0 };
   var ticking = false;
-  var SCROLLED_AFTER = 40;   // px of scrolling before the header drops its blurb and email
+  var SCROLLED_AFTER = 40;   // px of scrolling before the phone header gets a solid background
+  var hero = $(".hero");
+  var PAST_HERO = 0.25;      // the menu comes in when this little of the hero is left on screen
   function revealOn() { return document.documentElement.classList.contains("fx-on"); }
 
   function render() {
     ticking = false;
     var y = window.scrollY;
     header.classList.toggle("is-scrolled", y > SCROLLED_AFTER);
+    // On the first page the header is only the logo; the menu comes in once the hero
+    // has been scrolled past.
+    document.documentElement.classList.toggle("on-hero",
+      !!hero && hero.getBoundingClientRect().bottom > window.innerHeight * PAST_HERO);
     // Only when the logo scroll reveal is switched off (--logo-fx: 0): the logo sits above
     // the headline and drifts gently with the pointer and the scroll. With the reveal on
     // (the default), logo-fx.js positions the logo itself.
@@ -104,6 +110,7 @@
     if (!ticking) { ticking = true; window.requestAnimationFrame(render); }
   }
   window.addEventListener("scroll", requestRender, { passive: true });
+  window.addEventListener("resize", requestRender);
   if (finePointer) {
     window.addEventListener("mousemove", function (e) {
       pointer.x = e.clientX / window.innerWidth - 0.5;

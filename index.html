@@ -91,6 +91,9 @@
     if (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--logo-fx")) >= 0.5) {
       document.documentElement.classList.add("fx-on");
     }
+    /* The page opens on the hero, where the header is only the logo (main.js keeps this
+       class up to date while scrolling). Set here so the menu never flashes up first. */
+    document.documentElement.classList.add("on-hero");
   </script>
 </head>
 <body>
@@ -147,16 +150,8 @@
     <a class="brand" href="#top" aria-label="Vision Studio Co. — home">
       <img src="assets/brand/eye-white.svg" alt="" width="1214" height="1262">
     </a>
-    <p class="header-blurb">
-      Vision Studio Co. (VZN) —<br>
-      your independent studio for<br>
-      all things sound and picture
-    </p>
-    <p class="header-contact">
-      <a href="mailto:vizionstudios.img@gmail.com" data-contact-email>vizionstudios.img@gmail.com</a><br>
-      Booking new projects
-    </p>
-
+    <!-- The menu is hidden on the first page (the centred links under the headline do
+         the navigating there) and comes in once the hero has been scrolled past. -->
     <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>Menu</button>
     <nav id="site-nav" class="site-nav" data-nav>
       <a href="#work">Work</a>
@@ -268,7 +263,7 @@
     <section class="section contact" id="contact" aria-labelledby="contact-title">
       <p class="kicker section-label">Contact</p>
       <h2 class="contact-headline" id="contact-title">Got a <em>vision?</em></h2>
-      <a class="contact-email" href="mailto:vizionstudios.img@gmail.com">vizionstudios.img@gmail.com</a>
+      <a class="contact-email" href="mailto:vizionstudios.img@gmail.com" data-contact-email>vizionstudios.img@gmail.com</a>
 
       <div class="contact-grid">
         <div>

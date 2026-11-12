@@ -109,7 +109,7 @@
   // Text you can click and retype while "Edit text" is on. Project entries come
   // from data/portfolio.js and are edited there instead.
   var EDITABLE = [
-    ".header-blurb", ".header-contact", ".site-nav a",
+    ".site-nav a",
     ".hero-title .line > span", ".hero-slogan .line > span", ".hero-links a", ".hero-foot > span",
     "#main .kicker", ".panel-title", ".panel-lede", ".work-tabs a",
     ".shop-title", ".shop-lede",
