@@ -970,22 +970,86 @@
   productList.classList.toggle("is-single", single);
   $("#shop").classList.toggle("has-single", single);
 
-  /* Reveal on scroll ------------------------------------------------------- */
-  $$(".section-label, .shop-head, .products, .contact-headline, .contact-grid, .footer-mark").forEach(function (n) {
+  /* Coming into view ------------------------------------------------------------ */
+  // With --focus-fx at 1 (styles.css), things arrive the way the hero logo does: out of
+  // focus, then sharp. A soft copy (a clone with a fixed blur) sits over the real thing
+  // and fades away while the real thing fades in, so the browser only ever animates
+  // opacity and a slight scale, never the blur itself. Headlines and artwork get the
+  // soft copy; small text and blocks simply fade and settle. With --focus-fx at 0,
+  // everything rises into place as it did before.
+  var canWatch = "IntersectionObserver" in window;
+  var editingText = /[?&]edit(?:[=&]|$)/.test(window.location.search) || window.location.hash === "#edit";
+  var FOCUS_FX = !reduceMotion && canWatch &&
+    parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--focus-fx")) >= 0.5;
+  document.documentElement.classList.toggle("focus-on", FOCUS_FX);
+
+  function softCopy(node) {
+    var copy = node.cloneNode(true);
+    copy.setAttribute("aria-hidden", "true");
+    copy.removeAttribute("id");
+    $$("[id]", copy).forEach(function (n) { n.removeAttribute("id"); });
+    return copy;
+  }
+
+  var focusTargets = [];
+  if (FOCUS_FX) {
+    // Headlines: [sharp original][soft copy laid exactly over it]. (Not in edit mode,
+    // where headlines are retyped in place and a second copy would get in the way.)
+    if (!editingText) {
+      $$(".panel-title, .shop-title, .contact-headline").forEach(function (heading) {
+        var sharp = el("span", "focus-sharp");
+        while (heading.firstChild) sharp.appendChild(heading.firstChild);
+        var soft = softCopy(sharp);
+        soft.className = "focus-soft";
+        heading.appendChild(sharp);
+        heading.appendChild(soft);
+        heading.classList.add("focus");
+        focusTargets.push(heading);
+      });
+    }
+    // Artwork, covers and the product photo: the frame holds a soft copy over the real one
+    $$(".card-sound .card-media, .card-open, .product-media").forEach(function (frame) {
+      var real = $(".cover, picture", frame);
+      if (!real) return;
+      var soft = softCopy(real);
+      var realFace = real.tagName === "PICTURE" ? $("img", real) : real;
+      var softFace = soft.tagName === "PICTURE" ? $("img", soft) : soft;
+      realFace.classList.add("focus-sharp");
+      softFace.classList.remove("is-back");
+      softFace.classList.add("focus-soft");
+      softFace.alt = "";
+      real.parentNode.insertBefore(soft, real.nextSibling);
+      frame.classList.add("focus");
+      focusTargets.push(frame);
+    });
+  }
+
+  $$(".section-label, .shop-lede, .product-info, .contact-email, .contact-grid, .footer-mark" +
+    (FOCUS_FX ? ", .panel-intro .kicker, .panel-lede" : ", .shop-title, .product-media, .contact-headline")).forEach(function (n) {
     n.classList.add("reveal");
   });
-  var revealables = $$(".reveal");
-  if (reduceMotion || !("IntersectionObserver" in window)) {
+  var revealables = $$(".reveal").concat(focusTargets);
+  if (reduceMotion || !canWatch) {
     revealables.forEach(function (n) { n.classList.add("is-visible"); });
   } else {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          io.unobserve(entry.target);
+        if (!entry.isIntersecting) return;
+        var node = entry.target;
+        node.classList.add("is-visible");
+        io.unobserve(node);
+        // Once sharp, the soft copy has done its job
+        if (node.classList.contains("focus")) {
+          window.setTimeout(function () {
+            $$(".focus-soft", node).forEach(function (soft) {
+              var holder = soft.parentNode.tagName === "PICTURE" ? soft.parentNode : soft;
+              if (holder.parentNode) holder.parentNode.removeChild(holder);
+            });
+            node.classList.add("is-settled");
+          }, 1400);
         }
       });
-    }, { rootMargin: "0px 0px -8% 0px" });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
     revealables.forEach(function (n) { io.observe(n); });
   }
 

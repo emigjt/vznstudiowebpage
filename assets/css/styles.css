@@ -164,6 +164,9 @@
   --fx-mark-y: -2svh;         /* logo position from screen centre: + down, - up */
   --grain: 0.19;              /* film grain strength */
   --scratch: 0;               /* vintage scratch texture behind the content, 0 (off) to 1 */
+  --focus-fx: 1;              /* 1: headlines and artwork come into view out of focus, then
+                                 sharp, like the hero logo, and Work turns from black to bone
+                                 through a soft edge. 0: they rise into place; hard edge */
   --wave-player: 1;           /* 1: a beat's cover waveform shows progress, can be dragged, and
                                  moves with the sound. 0: a still waveform with a line under it */
 
@@ -1022,8 +1025,45 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .reveal { opacity: 0; transform: translateY(32px); transition: opacity var(--dur-4) var(--ease-out), transform var(--dur-4) var(--ease-out); }
 .reveal.is-visible { opacity: 1; transform: none; }
 
+/* One focus language (main.js, --focus-fx). Things arrive the way the hero logo does:
+   a soft copy with a fixed blur sits over the real thing and fades out as the real thing
+   fades in. Only opacity and a slight scale ever animate. */
+.focus-on .reveal { transform: scale(1.02); }                    /* small text and blocks fade and settle */
+.focus-on .reveal.is-visible { transform: none; }
+.focus-on .focus { position: relative; }
+/* (once it has settled, .is-settled, none of this applies and the element is as normal) */
+.focus-on .focus:not(.is-settled) .focus-sharp { opacity: 0; transition: opacity var(--dur-3) var(--ease-out); }
+.focus-on .focus-soft { opacity: 1; transition: opacity var(--dur-4) var(--ease-out); pointer-events: none; user-select: none; }
+.focus-on .focus.is-visible:not(.is-settled) .focus-sharp { opacity: 1; }
+.focus-on .focus.is-visible .focus-soft { opacity: 0; }
+/* Headlines: the soft copy lies exactly over the words */
+.focus-on h2.focus, .focus-on h3.focus { transform: scale(1.03); transform-origin: left center; transition: transform var(--dur-4) var(--ease-out); }
+.focus-on .contact-headline.focus { transform-origin: center; }
+.focus-on h2.focus.is-visible, .focus-on h3.focus.is-visible { transform: none; }
+.focus-on h2.focus > .focus-sharp, .focus-on h3.focus > .focus-sharp { display: block; }
+.focus-on h2.focus > .focus-soft, .focus-on h3.focus > .focus-soft { position: absolute; inset: 0; filter: blur(0.1em); }
+/* Artwork, covers, product photo: the soft copy fills the same frame */
+.focus-on .card-open.focus, .focus-on .card-media.focus, .focus-on .product-media.focus { position: relative; }
+.focus-on .card-media.focus > .focus-soft, .focus-on .card-open.focus > .focus-soft { position: absolute; inset: 0; width: 100%; height: 100%; filter: blur(14px); }
+.focus-on .focus picture > img.focus-soft { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(14px); }
+/* Work turns from black to bone through a soft edge instead of a hard line; the grain
+   over the page gives it the logo's texture */
+.focus-on .panel-visual { position: relative; }
+.focus-on .panel-visual::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 100%;
+  width: clamp(var(--space-7), 7vw, 140px);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--paper) 10%, transparent) 30%, color-mix(in srgb, var(--paper) 45%, transparent) 65%, var(--paper));
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .reveal { opacity: 1; transform: none; }
+  .focus-sharp { opacity: 1 !important; }
+  .focus-soft { display: none !important; }
 }
