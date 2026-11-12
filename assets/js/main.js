@@ -60,15 +60,24 @@
   var nav = $("[data-nav]");
   var toggle = $("[data-nav-toggle]");
 
+  // The phone menu covers the page, so while it is open the page behind it is switched
+  // off for the keyboard and screen readers (inert): Tab stays within the menu, the logo
+  // and the Close button. Closing it puts focus back on the button that opened it.
   function setNav(open) {
+    var wasOpen = nav.classList.contains("is-open");
+    if (open === wasOpen) return;
     nav.classList.toggle("is-open", open);
     document.body.classList.toggle("nav-open", open);
     toggle.setAttribute("aria-expanded", String(open));
     toggle.textContent = open ? "Close" : "Menu";
+    $$("main, .site-footer, [data-player]").forEach(function (part) { part.inert = open; });
+    if (!open && nav.contains(document.activeElement)) toggle.focus();
   }
   toggle.addEventListener("click", function () { setNav(!nav.classList.contains("is-open")); });
   $$("a", nav).forEach(function (a) { a.addEventListener("click", function () { setNav(false); }); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") setNav(false); });
+  // Leaving phone width (rotating, resizing) closes it, since the menu becomes a plain row
+  window.matchMedia("(min-width: 761px)").addEventListener("change", function (e) { if (e.matches) setNav(false); });
 
   /* Scroll effects: header state + hero logo parallax ---------------------- */
   var heroMark = $("[data-parallax]");

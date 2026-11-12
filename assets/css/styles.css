@@ -213,6 +213,8 @@ em {
    shows on the dark page, on bone, and in the inverting header alike */
 :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 
+.noscript { position: relative; z-index: var(--z-raised); margin: 0; padding: calc(var(--header-h) + var(--space-5)) var(--pad) var(--space-5); color: var(--muted); }
+.noscript a { color: var(--text); text-decoration: underline; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .skip-link { position: absolute; left: -9999px; top: var(--space-2); z-index: var(--z-skip); background: var(--text); color: var(--bg); padding: var(--space-2) var(--space-4); }
 .skip-link:focus { left: var(--space-2); }
@@ -810,7 +812,9 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 
 @media (max-width: 760px) {
   .work-bar { gap: var(--space-3); }
-  .work-bar > .kicker { display: none; }   /* "Work" is already in the menu; room for the player */
+  /* "Work" is already in the menu, so it is hidden from view here, but stays a heading
+     for screen readers (the page's headings would otherwise skip a level) */
+  .work-bar > .kicker { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   /* Inside Work nothing scrolls under the phone header, so drop its black bar and
      let it adapt to the black and bone sides like the desktop header does */
   html.in-work body:not(.nav-open) .site-header { background: transparent; mix-blend-mode: difference; color: var(--on-blend); }
