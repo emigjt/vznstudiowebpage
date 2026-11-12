@@ -156,8 +156,8 @@
   --fx-distort: 0;            /* ink warp while behind the headline (suited the old line-drawn logo) */
   --fx-ghost: 0.06;           /* double-exposure ghost strength */
   --fx-offset: 3px;           /* ghost spread */
-  --fx-edge: 1.4px;           /* softness of the revealed logo's edge, like the artwork's */
-  --fx-halo: 0.5;             /* glow left around the revealed logo, 0 (none) to 1 */
+  --fx-edge: 0px;             /* softness of the revealed logo's edge (0: crisp; the artwork's is about 1.4px) */
+  --fx-halo: 0;               /* glow left around the revealed logo, 0 (none) to 1 */
   --fx-scroll: 50svh;         /* scroll distance over which the reveal happens */
   --fx-hold: 30svh;           /* extra scrolling with the logo held in place before the page moves on */
   --fx-mark-x: 0vw;           /* logo position from screen centre: + right, - left */
@@ -1014,7 +1014,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 /* Footer ----------------------------------------------------------------- */
 .site-footer { border-top: 1px solid var(--line); padding: var(--section-pad) var(--pad) var(--pad); }
 /* The footer mark has the artwork's soft edge and faint glow (drawn once, never animated) */
-.footer-mark { width: min(380px, 56vw); height: auto; margin: 0 auto var(--section-pad); filter: blur(0.8px) drop-shadow(0 0 14px color-mix(in srgb, var(--muted) 35%, transparent)); }
+.footer-mark { width: min(380px, 56vw); height: auto; margin: 0 auto var(--section-pad); }
 .footer-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-3); color: var(--muted); }
 
 /* Reveal on scroll ------------------------------------------------------- */
