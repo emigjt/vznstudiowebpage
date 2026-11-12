@@ -5,24 +5,96 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>VZN — Vision Studio Co. | Beats, Mixes &amp; Artwork</title>
   <meta name="description" content="VZN (Vision Studio Co.): beats, mixing and mastering, cover art and artwork. Listen, browse the work, shop merch and get in touch.">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#1c1b1b">
+  <link rel="canonical" href="https://emigjt.github.io/vznstudiowebpage/">
 
+  <!-- How the link looks when shared (Instagram, TikTok, iMessage, X, Discord...).
+       These need the site's full address: if the site moves to its own domain, change
+       every https://emigjt.github.io/vznstudiowebpage/ on this page. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Vision Studio Co.">
+  <meta property="og:url" content="https://emigjt.github.io/vznstudiowebpage/">
   <meta property="og:title" content="VZN — Vision Studio Co.">
   <meta property="og:description" content="Beats, mixes, cover art and merch from Vision Studio Co.">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="assets/brand/og-image.png">
+  <meta property="og:image" content="https://emigjt.github.io/vznstudiowebpage/assets/brand/share.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Vision Studios. your sound. your vision. Beside the words, the VZN eye mark.">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="VZN — Vision Studio Co.">
+  <meta name="twitter:description" content="Beats, mixes, cover art and merch from Vision Studio Co.">
+  <meta name="twitter:image" content="https://emigjt.github.io/vznstudiowebpage/assets/brand/share.jpg">
+  <meta name="twitter:image:alt" content="Vision Studios. your sound. your vision. Beside the words, the VZN eye mark.">
 
-  <link rel="icon" href="assets/brand/favicon-32.png" sizes="32x32" type="image/png">
-  <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
-  <link rel="preload" href="assets/js/boot.js" as="script">
-  <link rel="preload" href="assets/brand/logo-white.svg" as="image">
-  <link rel="preload" href="assets/fonts/ColdagSerif-Bold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/Patchcode.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/brand/eye-icon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="assets/brand/eye-icon-180.png">
+  <link rel="manifest" href="site.webmanifest">
+
+  <!-- Who the site belongs to, for search engines -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Vision Studio Co.",
+  "alternateName": [
+    "VZN",
+    "Vision Studios"
+  ],
+  "url": "https://emigjt.github.io/vznstudiowebpage/",
+  "logo": "https://emigjt.github.io/vznstudiowebpage/assets/brand/eye-icon-512.png",
+  "image": "https://emigjt.github.io/vznstudiowebpage/assets/brand/share.jpg",
+  "slogan": "your sound. your vision.",
+  "description": "An independent studio for sound and picture: beats, mixing and mastering, cover art and artwork, and merch.",
+  "email": "vizionstudios.img@gmail.com",
+  "makesOffer": [
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Beats and music production"
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Mixing and mastering"
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Cover art and artwork"
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Merchandise"
+      }
+    }
+  ]
+}
+  </script>
+
+  <link rel="preload" href="assets/brand/eye-grey.svg" as="image">
+  <link rel="preload" href="assets/fonts/GamiyaRetro-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/InterTight-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
+  <script>
+    /* The hero's pinned layout (logo scroll reveal) is decided here, before the first
+       paint, so the headline never jumps into place after it has appeared. */
+    if (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--logo-fx")) >= 0.5) {
+      document.documentElement.classList.add("fx-on");
+    }
+    /* The page opens on the hero, where the header is only the logo (main.js keeps this
+       class up to date while scrolling). Set here so the menu never flashes up first. */
+    document.documentElement.classList.add("on-hero");
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -36,28 +108,50 @@
        data-password="visionbeyondsight"
        data-granted="access granted">
     <div class="boot-term"></div>
-    <div class="boot-logo"><img class="boot-logo-img" src="assets/brand/logo-white.svg" alt="" width="1075" height="1056"></div>
+    <div class="boot-logo"><img class="boot-logo-img" src="assets/brand/eye-grey.svg" alt="" width="1214" height="1262"></div>
     <canvas class="boot-canvas"></canvas>
   </div>
-  <script src="assets/js/boot.js"></script>
+  <script>
+    /* The boot sequence's script and font are fetched only when it will play (--boot is 1
+       and this is the first page of the visit), with ?boot, or in edit mode. If it will
+       play, the screen is covered straight away so the page never flashes up first. */
+    (function () {
+      var root = document.documentElement, search = location.search;
+      var editing = /[?&]edit(?:[=&]|$)/.test(search) || location.hash === "#edit";
+      var forced = /[?&]boot(?:[=&]|$)/.test(search);
+      var on = getComputedStyle(root).getPropertyValue("--boot");
+      var seen = false;
+      try {
+        if (editing) {   // edit mode's saved tweaks count from the first frame
+          var saved = JSON.parse(localStorage.getItem("vzn-edit-v1") || "null");
+          if (saved && saved.vars && saved.vars["--boot"] != null) on = saved.vars["--boot"];
+        }
+        seen = sessionStorage.getItem("vzn-boot-seen") === "1";
+      } catch (e) { /* storage blocked */ }
+      var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var willPlay = forced || (parseFloat(on) >= 0.5 && !reduced && (editing || !seen));
+      if (!willPlay && !editing) return;
+      if (willPlay) root.classList.add("boot-on", "booting");
+      var font = document.createElement("link");
+      font.rel = "preload"; font.as = "font"; font.type = "font/woff2"; font.crossOrigin = "anonymous";
+      font.href = "assets/fonts/Patchcode.woff2";
+      document.head.appendChild(font);
+      var script = document.createElement("script");
+      script.src = "assets/js/boot.js";
+      script.onerror = function () { root.classList.remove("boot-on", "booting"); };
+      document.head.appendChild(script);
+    })();
+  </script>
 
   <div class="grain" aria-hidden="true"></div>
   <div class="scratches" aria-hidden="true"></div>
 
   <header class="site-header" data-header>
     <a class="brand" href="#top" aria-label="Vision Studio Co. — home">
-      <img src="assets/brand/logo-white.svg" alt="" width="1075" height="1056">
+      <img src="assets/brand/eye-white.svg" alt="" width="1214" height="1262">
     </a>
-    <p class="header-blurb">
-      Vision Studio Co. (VZN) —<br>
-      your independent studio for<br>
-      all things sound and picture
-    </p>
-    <p class="header-contact">
-      <a href="mailto:vizionstudios.img@gmail.com" data-contact-email>vizionstudios.img@gmail.com</a><br>
-      Booking new projects
-    </p>
-
+    <!-- The menu is hidden on the first page (the centred links under the headline do
+         the navigating there) and comes in once the hero has been scrolled past. -->
     <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>Menu</button>
     <nav id="site-nav" class="site-nav" data-nav>
       <a href="#work">Work</a>
@@ -67,6 +161,10 @@
   </header>
 
   <main id="main">
+    <noscript>
+      <p class="noscript">The work and the shop on this page need JavaScript to appear. You can
+        still reach the studio at <a href="mailto:vizionstudios.img@gmail.com">vizionstudios.img@gmail.com</a>.</p>
+    </noscript>
     <!-- HERO -->
     <section class="hero" id="top">
       <div class="hero-stage">
@@ -77,9 +175,22 @@
       <div class="hero-media" aria-hidden="true"></div>
 
       <div class="hero-content">
+        <!-- The logo in three layers for the scroll reveal (assets/js/logo-fx.js): soft
+             (blurred, with two faint ghosts), mid (half-sharp) and the sharp logo on top.
+             They are in the page from the start so the resting state is drawn at first paint. -->
         <div class="hero-mark" data-parallax data-logo-fx>
-          <img class="mark-main" src="assets/brand/logo-white.svg"
-               alt="VZN logo — an ink-drawn eye with the letters VZN" width="1075" height="1056">
+          <div class="mark-stack">
+            <div class="mark-soft" aria-hidden="true">
+              <div class="mark-layer is-ghost-a"></div>
+              <div class="mark-layer is-ghost-b"></div>
+              <img src="assets/brand/eye-grey.svg" alt="" width="1214" height="1262">
+            </div>
+            <div class="mark-mid" aria-hidden="true">
+              <img src="assets/brand/eye-grey.svg" alt="" width="1214" height="1262">
+            </div>
+            <img class="mark-main" src="assets/brand/eye-grey.svg"
+                 alt="VZN logo: an eye at the centre of a spiked sun" width="1214" height="1262">
+          </div>
         </div>
         <!-- Ink warp used by the logo scroll reveal (assets/js/logo-fx.js) -->
         <svg class="fx-defs" aria-hidden="true" focusable="false" width="0" height="0">
@@ -92,7 +203,7 @@
           <span class="line"><span>Vision Studios</span></span>
         </h1>
         <p class="hero-slogan">
-          <span class="line"><span>your sound. your vision.</span></span>
+          <span class="line"><span>your sound. your <em>vision.</em></span></span>
         </p>
         <ul class="hero-links">
           <li><a href="#work">Work</a></li>
@@ -109,22 +220,18 @@
     <section class="work" id="work" aria-labelledby="work-title" data-work>
       <div class="work-pin" data-work-pin>
         <div class="work-bar">
-          <h2 class="mono-title" id="work-title">Work</h2>
+          <h2 class="kicker" id="work-title">Work</h2>
           <nav class="work-tabs" aria-label="Work sections">
             <a href="#sound" class="is-active" data-work-jump="sound">Sound</a>
             <span class="work-progress" aria-hidden="true"><span data-work-progress></span></span>
             <a href="#visual" data-work-jump="visual">Visual</a>
           </nav>
-          <div class="now-playing" data-now-playing hidden>
-            <button type="button" class="np-toggle" data-np-toggle>Pause</button>
-            <span class="np-title" data-np-title></span>
-          </div>
         </div>
 
         <div class="work-track" data-work-track>
           <div class="work-panel panel-sound" id="sound">
             <div class="panel-intro">
-              <p class="mono-title">01 / 02</p>
+              <p class="kicker">01 / 02</p>
               <h3 class="panel-title">Sound</h3>
               <p class="panel-lede">Beats made in the studio. Press play on any cover.</p>
             </div>
@@ -132,7 +239,7 @@
           </div>
           <div class="work-panel panel-visual" id="visual">
             <div class="panel-intro">
-              <p class="mono-title">02 / 02</p>
+              <p class="kicker">02 / 02</p>
               <h3 class="panel-title">Visual</h3>
               <p class="panel-lede">Posters and artwork. Open any piece to see it larger.</p>
             </div>
@@ -145,7 +252,7 @@
     <!-- SHOP: products come from data/shop.js -->
     <section class="section shop" id="shop" aria-labelledby="shop-title">
       <div class="shop-head">
-        <p class="mono-title section-label">Shop</p>
+        <p class="kicker section-label">Shop</p>
         <h2 class="shop-title" id="shop-title">Wear the <em>vision</em></h2>
         <p class="shop-lede">Merch from the studio. Checkout opens on our store in a new tab.</p>
       </div>
@@ -153,10 +260,10 @@
     </section>
 
     <!-- CONTACT -->
-    <section class="section contact" id="contact">
-      <p class="mono-title section-label">Contact</p>
-      <p class="contact-headline">Got a <em>vision?</em></p>
-      <a class="contact-email" href="mailto:vizionstudios.img@gmail.com">vizionstudios.img@gmail.com</a>
+    <section class="section contact" id="contact" aria-labelledby="contact-title">
+      <p class="kicker section-label">Contact</p>
+      <h2 class="contact-headline" id="contact-title">Got a <em>vision?</em></h2>
+      <a class="contact-email" href="mailto:vizionstudios.img@gmail.com" data-contact-email>vizionstudios.img@gmail.com</a>
 
       <div class="contact-grid">
         <div>
@@ -207,7 +314,7 @@
   </main>
 
   <footer class="site-footer">
-    <img class="footer-mark" src="assets/brand/logo-white.svg" alt="" width="1075" height="1056">
+    <img class="footer-mark" src="assets/brand/eye-grey.svg" alt="" width="1214" height="1262">
     <div class="footer-row">
       <span>© <span data-year></span> Vision Studio Co.</span>
       <span>Audio / Visual</span>
@@ -215,12 +322,25 @@
     </div>
   </footer>
 
+  <!-- Player (main.js): appears when a beat is played and stays at the bottom of the
+       screen wherever you scroll. The line along its top edge is the progress; drag it,
+       or use the arrow keys, to move through the beat. -->
+  <div class="player" data-player hidden role="region" aria-label="Player">
+    <div class="player-scrub" data-player-scrub role="slider" tabindex="0" aria-label="Position in the beat"
+         aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0:00 of 0:00"><i></i><b></b></div>
+    <button type="button" class="player-toggle pill" data-player-toggle>Play</button>
+    <p class="player-info"><span class="player-title" data-player-title></span><span class="player-meta" data-player-meta></span></p>
+    <span class="player-time" data-player-time>0:00 / 0:00</span>
+    <button type="button" class="player-close" data-player-close aria-label="Stop and close the player"><span>Close </span>[×]</button>
+  </div>
+  <p class="sr-only" data-player-status role="status" aria-live="polite"></p>
+
   <!-- Project viewer: artwork, videos and linked players -->
   <dialog class="viewer" data-viewer aria-labelledby="viewer-title">
-    <button type="button" class="viewer-close" data-viewer-close>Close [×]</button>
+    <button type="button" class="viewer-close pill" data-viewer-close>Close [×]</button>
     <div class="viewer-media" data-viewer-media></div>
     <div class="viewer-body">
-      <p class="mono-title viewer-meta" data-viewer-meta></p>
+      <p class="kicker viewer-meta" data-viewer-meta></p>
       <h3 class="viewer-title" id="viewer-title" data-viewer-title></h3>
       <p class="viewer-desc" data-viewer-desc></p>
     </div>
@@ -228,6 +348,7 @@
 
   <script src="data/portfolio.js"></script>
   <script src="data/shop.js"></script>
+  <script src="data/media.js"></script>
   <script src="assets/js/main.js"></script>
   <script src="assets/js/logo-fx.js"></script>
 </body>

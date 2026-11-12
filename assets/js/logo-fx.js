@@ -43,22 +43,35 @@
     return img;
   }
 
-  // Layers, bottom to top: soft (blurred + warped + ghosts), mid (half-sharp), main (sharp)
-  var stack = el("div", "mark-stack");
-  var soft = el("div", "mark-soft");
-  var softImg = logoCopy();
-  var ghostA = el("div", "mark-layer is-ghost-a");
-  var ghostB = el("div", "mark-layer is-ghost-b");
-  soft.appendChild(ghostA);
-  soft.appendChild(ghostB);
-  soft.appendChild(softImg);
-  var mid = el("div", "mark-mid");
-  var midImg = logoCopy();
-  mid.appendChild(midImg);
-  mark.insertBefore(stack, main);
-  stack.appendChild(soft);
-  stack.appendChild(mid);
-  stack.appendChild(main);
+  // Layers, bottom to top: soft (blurred + warped + ghosts), mid (half-sharp), main (sharp).
+  // They are written in index.html so the resting state is there at first paint; they are
+  // only built here if the markup doesn't have them.
+  var stack = mark.querySelector(".mark-stack");
+  var soft, softImg, ghostA, ghostB, mid, midImg;
+  if (stack) {
+    soft = stack.querySelector(".mark-soft");
+    softImg = soft.querySelector("img");
+    ghostA = soft.querySelector(".is-ghost-a");
+    ghostB = soft.querySelector(".is-ghost-b");
+    mid = stack.querySelector(".mark-mid");
+    midImg = mid.querySelector("img");
+  } else {
+    stack = el("div", "mark-stack");
+    soft = el("div", "mark-soft");
+    softImg = logoCopy();
+    ghostA = el("div", "mark-layer is-ghost-a");
+    ghostB = el("div", "mark-layer is-ghost-b");
+    soft.appendChild(ghostA);
+    soft.appendChild(ghostB);
+    soft.appendChild(softImg);
+    mid = el("div", "mark-mid");
+    midImg = logoCopy();
+    mid.appendChild(midImg);
+    mark.insertBefore(stack, main);
+    stack.appendChild(soft);
+    stack.appendChild(mid);
+    stack.appendChild(main);
+  }
 
   /* Settings from CSS variables ------------------------------------------- */
   var cfg = { on: false };
@@ -70,6 +83,8 @@
     cfg.distort = num("--fx-distort");
     cfg.ghost = num("--fx-ghost");
     cfg.offset = num("--fx-offset");
+    cfg.edge = num("--fx-edge");
+    cfg.halo = Math.min(1, num("--fx-halo"));
     root.classList.toggle("fx-on", cfg.on);
     if (cfg.on) {
       mark.style.transform = "";   // the regular hero parallax steps aside
@@ -93,6 +108,8 @@
     if (disp) disp.setAttribute("scale", (cfg.distort * size).toFixed(1));
     softImg.style.filter = (disp && cfg.distort ? "url(#vzn-ink) " : "") + "blur(" + px(blur) + ")";
     midImg.style.filter = "blur(" + px(blur * 0.3) + ")";
+    // The sharp logo keeps a slightly soft edge, like the logo artwork
+    main.style.filter = cfg.edge ? "blur(" + px(cfg.edge * size) + ")" : "";
     // Ghosts sit in the soft layer and fade with it; kept fainter than the logo.
     var ghost = Math.min(1, cfg.ghost * 1.2).toFixed(3);
     var spread = cfg.offset * size;
@@ -110,6 +127,7 @@
       node.style.transform = "";
       node.style.visibility = "";
     });
+    main.style.filter = "";
     if (disp) disp.setAttribute("scale", "0");
   }
 
@@ -143,7 +161,8 @@
     // Crossfade soft → mid → sharp. Each layer stays put underneath until the one
     // above has taken over, so the logo never dims in between.
     soft.style.opacity = (1 - smoothstep((focus - 0.25) / 0.5)).toFixed(3);
-    mid.style.opacity = (smoothstep(focus / 0.45) * (1 - smoothstep((focus - 0.7) / 0.3))).toFixed(3);
+    // The half-sharp layer doesn't fade out completely: what stays is the glow around the logo
+    mid.style.opacity = (smoothstep(focus / 0.45) * (1 - (1 - cfg.halo) * smoothstep((focus - 0.7) / 0.3))).toFixed(3);
     main.style.opacity = smoothstep((focus - 0.35) / 0.65).toFixed(3);
 
     // Headline and links fade and lift away

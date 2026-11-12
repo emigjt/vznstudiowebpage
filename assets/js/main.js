@@ -3,7 +3,7 @@
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  var LOGO = "assets/brand/logo-white.svg";
+  var LOGO = "assets/brand/eye-white.svg";
 
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
@@ -14,6 +14,39 @@
     if (text != null) node.textContent = text;
     return node;
   }
+
+  /* Images ------------------------------------------------------------------- */
+  // data/media.js (written by tools/optimize-images.py) lists, for each JPEG, its size
+  // in pixels and the lighter AVIF / WebP copies beside it. A picture offers those to
+  // browsers that can show them and falls back to the JPEG; an image that isn't listed
+  // is shown as it is.
+  var MEDIA = window.VZN_MEDIA || {};
+  function swapExt(src, ext) { return src.replace(/\.[a-z0-9]+$/i, "." + ext); }
+  function setPicture(pic, src) {
+    var info = MEDIA[src] || {};
+    var img = $("img", pic);
+    pic.replaceChildren(img);             // drop the previous image's sources
+    ["avif", "webp"].forEach(function (format) {
+      if (!info[format]) return;
+      var source = document.createElement("source");
+      source.type = "image/" + format;
+      source.srcset = swapExt(src, format);
+      pic.insertBefore(source, img);
+    });
+    if (info.w && info.h) { img.width = info.w; img.height = info.h; }
+    img.src = src;
+  }
+  function picture(src, lazy) {
+    var pic = document.createElement("picture");
+    var img = document.createElement("img");
+    img.decoding = "async";
+    if (lazy) img.loading = "lazy";
+    pic.appendChild(img);
+    if (src) setPicture(pic, src);
+    return { node: pic, img: img };
+  }
+  // Fetch an image ahead of time, in the format this browser will actually use.
+  function warm(src) { return picture(src, false); }
 
   // Stable number from a string, used to vary generated covers per project.
   function hash(str) {
@@ -27,27 +60,46 @@
   var nav = $("[data-nav]");
   var toggle = $("[data-nav-toggle]");
 
+  // The phone menu covers the page, so while it is open the page behind it is switched
+  // off for the keyboard and screen readers (inert): Tab stays within the menu, the logo
+  // and the Close button. Closing it puts focus back on the button that opened it.
   function setNav(open) {
+    var wasOpen = nav.classList.contains("is-open");
+    if (open === wasOpen) return;
     nav.classList.toggle("is-open", open);
     document.body.classList.toggle("nav-open", open);
     toggle.setAttribute("aria-expanded", String(open));
     toggle.textContent = open ? "Close" : "Menu";
+    $$("main, .site-footer, [data-player]").forEach(function (part) { part.inert = open; });
+    if (!open && nav.contains(document.activeElement)) toggle.focus();
   }
   toggle.addEventListener("click", function () { setNav(!nav.classList.contains("is-open")); });
   $$("a", nav).forEach(function (a) { a.addEventListener("click", function () { setNav(false); }); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") setNav(false); });
+  // Leaving phone width (rotating, resizing) closes it, since the menu becomes a plain row
+  window.matchMedia("(min-width: 761px)").addEventListener("change", function (e) { if (e.matches) setNav(false); });
 
   /* Scroll effects: header state + hero logo parallax ---------------------- */
   var heroMark = $("[data-parallax]");
   var pointer = { x: 0, y: 0 };
   var ticking = false;
+  var SCROLLED_AFTER = 40;   // px of scrolling before the phone header gets a solid background
+  var hero = $(".hero");
+  var PAST_HERO = 0.25;      // the menu comes in when this little of the hero is left on screen
+  function revealOn() { return document.documentElement.classList.contains("fx-on"); }
 
   function render() {
     ticking = false;
     var y = window.scrollY;
-    header.classList.toggle("is-scrolled", y > 40);
-    // The logo scroll reveal (logo-fx.js) positions the logo itself when it's on.
-    if (heroMark && !reduceMotion && !document.documentElement.classList.contains("fx-on")) {
+    header.classList.toggle("is-scrolled", y > SCROLLED_AFTER);
+    // On the first page the header is only the logo; the menu comes in once the hero
+    // has been scrolled past.
+    document.documentElement.classList.toggle("on-hero",
+      !!hero && hero.getBoundingClientRect().bottom > window.innerHeight * PAST_HERO);
+    // Only when the logo scroll reveal is switched off (--logo-fx: 0): the logo sits above
+    // the headline and drifts gently with the pointer and the scroll. With the reveal on
+    // (the default), logo-fx.js positions the logo itself.
+    if (heroMark && !reduceMotion && !revealOn()) {
       var p = Math.min(y / window.innerHeight, 1);
       heroMark.style.transform =
         "translate3d(" + (pointer.x * 16).toFixed(1) + "px," + (pointer.y * 12 - y * 0.15).toFixed(1) + "px,0)" +
@@ -58,11 +110,12 @@
     if (!ticking) { ticking = true; window.requestAnimationFrame(render); }
   }
   window.addEventListener("scroll", requestRender, { passive: true });
+  window.addEventListener("resize", requestRender);
   if (finePointer) {
     window.addEventListener("mousemove", function (e) {
       pointer.x = e.clientX / window.innerWidth - 0.5;
       pointer.y = e.clientY / window.innerHeight - 0.5;
-      requestRender();
+      if (!revealOn()) requestRender();
     }, { passive: true });
   }
   render();
@@ -74,11 +127,10 @@
     var cover = el("div", "cover");
     var x = 10 + (seed % 80);
     var y = 10 + ((seed >> 4) % 80);
-    var light = 18 + (seed % 14);
-    cover.style.background =
-      "radial-gradient(60% 50% at " + x + "% " + y + "%, hsl(30 3% " + light + "%), transparent 70%)," +
-      "radial-gradient(80% 60% at " + (100 - x) + "% " + (100 - y) + "%, hsl(220 4% 12%), transparent 70%)," +
-      "#0a0a0a";
+    // Where the patch of light falls and how strong it is; the colours are in the stylesheet.
+    cover.style.setProperty("--cx", x + "%");
+    cover.style.setProperty("--cy", y + "%");
+    cover.style.setProperty("--cl", (55 + (seed % 40)) + "%");
     if (ratio) cover.style.aspectRatio = ratio;
 
     var label = el("div", "cover-label");
@@ -162,9 +214,23 @@
   function openViewer(item, kind) {
     var media = buildEmbed(item);
     if (!media && (item.full || item.image)) {
-      media = document.createElement("img");
-      media.src = item.full || item.image;
-      media.alt = item.title;
+      // The large version, or its 1000px copy on a narrow screen (listed in data/media.js)
+      var full = item.full || item.image;
+      var info = MEDIA[full] || {};
+      var view = picture(null, false);
+      ["avif", "webp"].forEach(function (format) {
+        if (!info[format]) return;
+        var source = document.createElement("source");
+        source.type = "image/" + format;
+        source.srcset = (info.medium ? swapExt(full.replace(/-large(\.[a-z0-9]+)$/i, "-medium$1"), format) + " " + info.medium + "w, " : "") +
+          swapExt(full, format) + " " + (info.w || 1600) + "w";
+        source.sizes = "(max-width: 760px) 100vw, 1100px";
+        view.node.insertBefore(source, view.img);
+      });
+      if (info.w && info.h) { view.img.width = info.w; view.img.height = info.h; }
+      view.img.src = full;
+      view.img.alt = item.title;
+      media = view.node;
     }
     if (!media && item.cover) {
       media = document.createElement("img");
@@ -177,7 +243,7 @@
       [item.type, item.artist || item.client, item.year].filter(Boolean).join(" / ");
     $("[data-viewer-title]").textContent = item.title;
     $("[data-viewer-desc]").textContent = item.description || "";
-    if (kind === "sound") audio.pause();
+    if (kind === "sound") pausePlayback();
     viewer.showModal();
   }
   // Closing (button, Esc or backdrop) stops anything playing inside.
@@ -185,62 +251,349 @@
   $("[data-viewer-close]").addEventListener("click", function () { viewer.close(); });
   viewer.addEventListener("click", function (e) { if (e.target === viewer) viewer.close(); });
 
-  /* Shared audio player for sound cards ------------------------------------ */
+  /* Player ------------------------------------------------------------------ */
+  // One audio element plays every beat, so two can never overlap. A bar fixed to the
+  // bottom of the screen shows what is loaded wherever the visitor scrolls: play /
+  // pause, title, a progress line that can be dragged, the time, and close.
   var audio = new Audio();
-  audio.preload = "none";
-  var playing = null;   // { item, card }
-  var nowPlaying = $("[data-now-playing]");
-  var npToggle = $("[data-np-toggle]");
-  var npTitle = $("[data-np-title]");
+  audio.preload = "none";       // nothing is fetched until Play is pressed
+  var FADE_MS = 200;            // fade on play, pause and when switching beats (no clicks)
+  var SEEK_STEP = 5;            // seconds per arrow key
+  var AUTO_ADVANCE = false;     // true: when a beat ends, the next one starts
+  var tracks = [];              // every beat with audio, in page order: { item, card, button }
+  var current = null;           // the loaded track (one of tracks) or null
+  var loading = false;          // Play was pressed and sound hasn't started yet
+  var startAt = null;           // a beat begun from a point on its waveform starts there (0 to 1)
+  var fadeFrame = 0;
 
-  function cardButton(card) { return $(".card-play", card); }
+  var player = $("[data-player]");
+  var playerToggle = $("[data-player-toggle]");
+  var playerTitle = $("[data-player-title]");
+  var playerMeta = $("[data-player-meta]");
+  var playerTime = $("[data-player-time]");
+  var playerScrub = $("[data-player-scrub]");
+  var playerFill = $("i", playerScrub);
+  var playerStatus = $("[data-player-status]");
 
-  function showState() {
-    if (!playing) return;
-    var paused = audio.paused;
-    var btn = cardButton(playing.card);
-    btn.textContent = paused ? "Play" : "Pause";
-    btn.setAttribute("aria-label", (paused ? "Play " : "Pause ") + playing.item.title);
-    playing.card.classList.toggle("is-playing", !paused);
-    npToggle.textContent = paused ? "Play" : "Pause";
-    nowPlaying.hidden = false;
+  // iPhones and iPads ignore volume set by a page, so fades are skipped there.
+  var canFade = (function () {
+    try { var probe = new Audio(); probe.volume = 0.5; return probe.volume === 0.5; } catch (e) { return false; }
+  })();
+
+  function clock(seconds) {
+    if (!isFinite(seconds) || seconds < 0) seconds = 0;
+    var s = Math.floor(seconds % 60);
+    return Math.floor(seconds / 60) + ":" + (s < 10 ? "0" : "") + s;
   }
 
-  function toggleTrack(item, card) {
-    var media = item.media;
-    if (!media || !media.src) return;
-    if (media.kind !== "audio") { openViewer(item, "sound"); return; }
-    if (playing && playing.item === item) {
-      if (audio.paused) audio.play().catch(playFailed); else audio.pause();
-      return;
+  function fadeTo(target, done) {
+    window.cancelAnimationFrame(fadeFrame);
+    if (!canFade) { if (done) done(); return; }
+    var from = audio.volume, start = performance.now();
+    (function step(now) {
+      // (a frame's timestamp can be a hair earlier than "start", hence the clamps)
+      var t = Math.max(0, Math.min(1, (now - start) / FADE_MS));
+      audio.volume = Math.max(0, Math.min(1, from + (target - from) * t));
+      if (t < 1) fadeFrame = window.requestAnimationFrame(step);
+      else if (done) done();
+    })(start);
+  }
+
+  function startPlayback() {
+    loading = true;
+    renderPlayer();
+    if (canFade) audio.volume = 0;
+    var started = audio.play();
+    fadeTo(1);
+    if (started && started.catch) started.catch(playFailed);
+  }
+  function pausePlayback() {
+    if (audio.paused) return;
+    fadeTo(0, function () { audio.pause(); });
+  }
+  function togglePlayback() {
+    if (!current) return;
+    if (audio.paused) startPlayback(); else pausePlayback();
+  }
+  function playFailed(err) {
+    if (err && err.name === "AbortError") return;   // interrupted by a pause or another beat
+    loading = false;
+    if (!current) return;
+    renderPlayer();
+    current.button.textContent = "Can't play";
+    playerStatus.textContent = "Couldn't play " + current.item.title + ".";
+  }
+
+  function load(track, from) {
+    if (current) {
+      current.card.classList.remove("is-playing", "is-current");
+      setCardProgress(current, 0);
+      labelButton(current, false);
+      if (current.scrub) current.scrub.tabIndex = -1;
     }
-    if (playing) {
-      playing.card.classList.remove("is-playing");
-      cardButton(playing.card).textContent = "Play";
-      $(".card-progress i", playing.card).style.transform = "";
+    current = track;
+    track.card.classList.add("is-current");
+    if (track.scrub) track.scrub.tabIndex = 0;
+    startAt = from == null ? null : from;
+    audio.src = track.item.media.src;
+    playerTitle.textContent = track.item.title;
+    playerMeta.textContent = [track.item.artist, track.item.bpm ? track.item.bpm + " BPM" : ""].filter(Boolean).join(" · ");
+    playerStatus.textContent = "Now playing: " + track.item.title + ".";
+    showPlayer(true);
+    describeForSystem(track);
+    renderProgress();
+    startPlayback();
+  }
+
+  // Play on a card: toggles the loaded beat, or fades the old one out and starts this one
+  // ("from", 0 to 1, starts it part-way through: a press on its waveform).
+  function playTrack(track, from) {
+    if (current === track) { togglePlayback(); return; }
+    if (current && !audio.paused) fadeTo(0, function () { audio.pause(); load(track, from); });
+    else load(track, from);
+  }
+  function step(direction) {
+    if (!current) return;
+    var next = tracks[tracks.indexOf(current) + direction];
+    if (next) playTrack(next);
+  }
+  function seek(seconds) {
+    if (!current || !isFinite(audio.duration)) return;
+    audio.currentTime = Math.max(0, Math.min(audio.duration - 0.05, seconds));
+    renderProgress();
+  }
+  function closePlayer() {
+    if (!current) return;
+    var closing = current;
+    current = null;
+    loading = false;
+    fadeTo(0, function () { audio.pause(); });
+    closing.card.classList.remove("is-playing", "is-current");
+    setCardProgress(closing, 0);
+    labelButton(closing, false);
+    if (closing.scrub) closing.scrub.tabIndex = -1;
+    showPlayer(false);
+    playerStatus.textContent = "Player closed.";
+    if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "none";
+  }
+
+  /* What the visitor sees */
+  function labelButton(track, isPlaying) {
+    track.button.textContent = loading && track === current ? "Loading" : isPlaying ? "Pause" : "Play";
+    track.button.setAttribute("aria-label", (isPlaying ? "Pause " : "Play ") + track.item.title);
+    track.button.setAttribute("aria-busy", String(loading && track === current));
+  }
+  function setCardProgress(track, ratio) {
+    var line = $(".card-progress i", track.card);
+    if (line) line.style.transform = ratio ? "scaleX(" + ratio.toFixed(4) + ")" : "";
+    waveFill(track, ratio);
+  }
+  function renderPlayer() {
+    if (!current) return;
+    var isPlaying = !audio.paused;
+    current.card.classList.toggle("is-playing", isPlaying);
+    labelButton(current, isPlaying);
+    playerToggle.textContent = loading ? "Loading" : isPlaying ? "Pause" : "Play";
+    playerToggle.setAttribute("aria-label", (isPlaying ? "Pause " : "Play ") + current.item.title);
+    playerToggle.classList.toggle("is-on", isPlaying && !loading);
+    if ("mediaSession" in navigator) navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused";
+  }
+  function renderProgress() {
+    if (!current) return;
+    var duration = isFinite(audio.duration) ? audio.duration : 0;
+    var ratio = duration ? Math.min(1, audio.currentTime / duration) : 0;
+    playerFill.style.transform = "scaleX(" + ratio.toFixed(4) + ")";
+    playerScrub.style.setProperty("--at", ratio.toFixed(4));     // where the playhead sits
+    setCardProgress(current, ratio);
+    playerTime.textContent = clock(audio.currentTime) + " / " + (duration ? clock(duration) : current.item.length || "0:00");
+    playerScrub.setAttribute("aria-valuenow", String(Math.round(ratio * 100)));
+    playerScrub.setAttribute("aria-valuetext", clock(audio.currentTime) + " of " + clock(duration));
+  }
+  // Progress follows the audio every frame while it plays (the browser's own
+  // "timeupdate" only fires about four times a second, which looks jerky).
+  var progressFrame = 0;
+  function followProgress() {
+    window.cancelAnimationFrame(progressFrame);
+    (function tick() {
+      renderProgress();
+      if (current && !audio.paused && !document.hidden) progressFrame = window.requestAnimationFrame(tick);
+    })();
+  }
+  function showPlayer(open) {
+    document.body.classList.toggle("has-player", open);
+    if (open) {
+      player.hidden = false;
+      void player.offsetWidth;            // so the slide-in runs from the hidden position
+      player.classList.add("is-open");
+    } else {
+      player.classList.remove("is-open");
+      window.setTimeout(function () { if (!current) player.hidden = true; }, 320);
     }
-    playing = { item: item, card: card };
-    npTitle.textContent = item.title + (item.artist ? " — " + item.artist : "");
-    audio.src = media.src;
-    audio.play().catch(playFailed);
-    showState();
   }
-  function playFailed() {
-    if (!playing) return;
-    cardButton(playing.card).textContent = "Can't play";
-    npToggle.textContent = "Play";
+
+  audio.addEventListener("play", function () { renderPlayer(); followProgress(); });
+  audio.addEventListener("playing", function () { loading = false; renderPlayer(); });
+  audio.addEventListener("waiting", function () { loading = true; renderPlayer(); });
+  audio.addEventListener("pause", function () { loading = false; renderPlayer(); renderProgress(); });
+  audio.addEventListener("loadedmetadata", function () {
+    if (startAt != null && isFinite(audio.duration)) audio.currentTime = startAt * audio.duration;
+    startAt = null;
+  });
+  audio.addEventListener("durationchange", renderProgress);
+  audio.addEventListener("timeupdate", function () { if (document.hidden) renderProgress(); });
+  audio.addEventListener("error", function () { if (current) playFailed(); });
+  audio.addEventListener("ended", function () {
+    audio.currentTime = 0;                // back to the start, ready to play again
+    renderPlayer();
+    renderProgress();
+    if (AUTO_ADVANCE) step(1);
+  });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden && current && !audio.paused) followProgress(); });
+
+  playerToggle.addEventListener("click", togglePlayback);
+  $("[data-player-close]").addEventListener("click", closePlayer);
+
+  /* Pressing or dragging a progress control, or arrow keys while it has focus. Used by
+     the player's line and by each cover's waveform; "active" says whether the control is
+     live. On a waveform a finger has to move sideways a little before it counts as a
+     drag, so scrolling the page with a thumb on a cover doesn't move the playhead (a
+     plain tap is handled by the waveform's own click, below). */
+  var DRAG_SLOP = 8;            // px
+  function ratioAt(node, e) {
+    var box = node.getBoundingClientRect();
+    return Math.max(0, Math.min(1, (e.clientX - box.left) / box.width));
   }
-  audio.addEventListener("play", showState);
-  audio.addEventListener("pause", showState);
-  audio.addEventListener("ended", showState);
-  audio.addEventListener("timeupdate", function () {
-    if (!playing || !audio.duration) return;
-    $(".card-progress i", playing.card).style.transform = "scaleX(" + (audio.currentTime / audio.duration).toFixed(4) + ")";
+  function bindScrub(node, active, waitForDrag) {
+    var downX = null;           // where a finger went down, until it has moved far enough
+    function scrubTo(e) {
+      if (downX != null) {
+        if (Math.abs(e.clientX - downX) < DRAG_SLOP) return;
+        downX = null;
+      }
+      if (isFinite(audio.duration)) seek(ratioAt(node, e) * audio.duration);
+    }
+    node.addEventListener("pointerdown", function (e) {
+      if (!active() || e.button) return;
+      node.setPointerCapture(e.pointerId);
+      node.classList.add("is-dragging");
+      downX = waitForDrag && e.pointerType === "touch" ? e.clientX : null;
+      scrubTo(e);
+      node.addEventListener("pointermove", scrubTo);
+    });
+    ["pointerup", "pointercancel"].forEach(function (type) {
+      node.addEventListener(type, function () {
+        node.removeEventListener("pointermove", scrubTo);
+        node.classList.remove("is-dragging");
+      });
+    });
+    node.addEventListener("keydown", function (e) {
+      var d = audio.duration;
+      if (!active() || !isFinite(d)) return;
+      var to = { ArrowRight: audio.currentTime + SEEK_STEP, ArrowUp: audio.currentTime + SEEK_STEP,
+        ArrowLeft: audio.currentTime - SEEK_STEP, ArrowDown: audio.currentTime - SEEK_STEP,
+        PageUp: audio.currentTime + d / 10, PageDown: audio.currentTime - d / 10, Home: 0, End: d }[e.key];
+      if (to == null) return;
+      e.preventDefault();
+      e.stopPropagation();
+      seek(to);
+    });
+  }
+  bindScrub(playerScrub, function () { return !!current; });
+
+  /* The waveform is the player (--wave-player: 1 in styles.css; 0 switches all of this
+     off and the covers go back to a still waveform with a progress line under it) ---
+     On a beat's cover the bars fill from the left as it plays, and pressing or dragging
+     the waveform moves through the beat. */
+  var WAVE_PLAYER = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--wave-player")) >= 0.5;
+
+  function waveFill(track, ratio) {
+    var bars = track.bars;
+    if (!bars) return;
+    var at = ratio * bars.length, head = Math.floor(at);
+    if (track.head !== head || !ratio) {
+      for (var i = 0; i < bars.length; i++) bars[i].classList.toggle("is-played", i < head);
+      if (track.head != null && bars[track.head]) bars[track.head].style.opacity = "";
+      track.head = ratio ? head : null;
+    }
+    // the bar under the playhead brightens as it is crossed
+    if (ratio && bars[head]) bars[head].style.opacity = (0.32 + 0.68 * (at - head)).toFixed(2);
+    if (track.scrub) {
+      track.scrub.setAttribute("aria-valuenow", String(Math.round(ratio * 100)));
+      track.scrub.setAttribute("aria-valuetext", clock(audio.currentTime) + " of " + clock(isFinite(audio.duration) ? audio.duration : 0));
+    }
+  }
+  // A cover with a waveform gets a slider over its bars; pressing or dragging it moves through the beat.
+  function waveSetup(track, media) {
+    if (!WAVE_PLAYER) return;
+    var wave = $(".cover-wave", media);
+    if (!wave) return;                              // a cover image instead of a waveform
+    track.bars = $$("i", wave);
+    track.card.classList.add("has-wave");
+    var scrub = el("div", "wave-scrub");
+    scrub.setAttribute("role", "slider");
+    scrub.setAttribute("aria-label", "Position in " + track.item.title);
+    scrub.setAttribute("aria-valuemin", "0");
+    scrub.setAttribute("aria-valuemax", "100");
+    scrub.setAttribute("aria-valuenow", "0");
+    scrub.tabIndex = -1;                            // reachable by keyboard only while this beat is loaded
+    media.appendChild(scrub);
+    track.scrub = scrub;
+    bindScrub(scrub, function () { return current === track; }, true);
+    // A press anywhere on a waveform: the loaded beat jumps to that point; any other
+    // beat starts playing from it.
+    scrub.addEventListener("click", function (e) {
+      var at = ratioAt(scrub, e);
+      if (current !== track) playTrack(track, at);
+      else if (isFinite(audio.duration)) seek(at * audio.duration);
+    });
+    // With a mouse, a thin line follows the pointer to show where a press would land
+    scrub.addEventListener("pointermove", function (e) {
+      if (e.pointerType === "mouse") scrub.style.setProperty("--hover", ratioAt(scrub, e).toFixed(4));
+    });
+  }
+
+  /* Keyboard, anywhere on the page: Space plays or pauses the loaded beat, the left
+     and right arrows skip five seconds. Typing in the form and controls that use
+     these keys themselves are left alone. */
+  document.addEventListener("keydown", function (e) {
+    if (!current || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (viewer.open || document.body.classList.contains("nav-open")) return;
+    var t = e.target;
+    var tag = t && t.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (t && t.isContentEditable)) return;
+    if (e.key === " " || e.code === "Space") {
+      if (tag === "BUTTON" || tag === "A" || (t && t.getAttribute && t.getAttribute("role") === "slider")) return;
+      e.preventDefault();
+      togglePlayback();
+    } else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      seek(audio.currentTime + (e.key === "ArrowRight" ? SEEK_STEP : -SEEK_STEP));
+    }
   });
-  npToggle.addEventListener("click", function () {
-    if (!playing) return;
-    if (audio.paused) audio.play().catch(playFailed); else audio.pause();
-  });
+
+  /* Lock screen, headphones and media keys (where the browser supports it) */
+  function describeForSystem(track) {
+    if (!("mediaSession" in navigator) || !window.MediaMetadata) return;
+    navigator.mediaSession.metadata = new window.MediaMetadata({
+      title: track.item.title,
+      artist: track.item.artist || "VZN",
+      album: "Vision Studio Co.",
+      artwork: [
+        { src: "assets/brand/eye-icon-512.png", sizes: "512x512", type: "image/png" },
+        { src: "assets/brand/eye-icon-192.png", sizes: "192x192", type: "image/png" }
+      ]
+    });
+  }
+  if ("mediaSession" in navigator) {
+    [["play", startPlayback], ["pause", pausePlayback],
+      ["previoustrack", function () { step(-1); }], ["nexttrack", function () { step(1); }],
+      ["seekbackward", function (d) { seek(audio.currentTime - (d.seekOffset || SEEK_STEP)); }],
+      ["seekforward", function (d) { seek(audio.currentTime + (d.seekOffset || SEEK_STEP)); }],
+      ["seekto", function (d) { if (d.seekTime != null) seek(d.seekTime); }]
+    ].forEach(function (pair) {
+      try { navigator.mediaSession.setActionHandler(pair[0], pair[1]); } catch (e) { /* action not supported */ }
+    });
+  }
 
   /* Work rails --------------------------------------------------------------- */
   var portfolio = window.VZN_PORTFOLIO || {};
@@ -282,7 +635,7 @@
       } else {
         media.appendChild(makeCover(item, "sound"));
       }
-      var btn = el("button", "card-play");
+      var btn = el("button", "card-play pill");
       btn.type = "button";
       var hasMedia = item.media && item.media.src;
       if (!hasMedia) {
@@ -292,7 +645,15 @@
       } else {
         btn.textContent = item.media.kind === "audio" ? "Play" : "Listen";
         btn.setAttribute("aria-label", (item.media.kind === "audio" ? "Play " : "Listen to ") + item.title);
-        btn.addEventListener("click", function () { toggleTrack(item, card); });
+        if (item.media.kind === "audio") {
+          var track = { item: item, card: card, button: btn };
+          tracks.push(track);
+          waveSetup(track, media);
+          btn.addEventListener("click", function () { playTrack(track); });
+        } else {
+          // SoundCloud, Spotify and YouTube links open in the viewer
+          btn.addEventListener("click", function () { openViewer(item, "sound"); });
+        }
       }
       media.appendChild(btn);
       var progress = el("span", "card-progress");
@@ -337,15 +698,15 @@
         // Reserve the piece's width before the image arrives (the sideways scroll
         // length depends on it), then use the image's real proportions once loaded.
         setRatio(open, item.ratio || "1 / 1");
-        var img = document.createElement("img");
-        img.alt = "";
-        img.decoding = "async";
-        img.addEventListener("load", function () {
+        // Loaded as the card nears the screen; its space is already reserved above
+        var art = picture(null, true);
+        art.img.alt = "";
+        art.img.addEventListener("load", function () {
           if (this.naturalWidth) setRatio(open, this.naturalWidth + " / " + this.naturalHeight);
           measureWork();
         });
-        img.src = item.image;
-        open.appendChild(img);
+        setPicture(art.node, item.image);
+        open.appendChild(art.node);
       } else {
         open.appendChild(makeCover(item, isVideo ? "video" : "visual", isVideo ? "16 / 10" : RATIOS[i % RATIOS.length]));
       }
@@ -367,18 +728,21 @@
   var jumps = $$("[data-work-jump]");
   var distance = 0;
   var workTicking = false;
+  // The panels move sideways this many pixels for each pixel scrolled down, so Work
+  // takes less scrolling than its width.
+  var WORK_SPEED = 1.3;
 
   work.classList.add("is-pinned");
 
   function measureWork() {
     distance = Math.max(0, track.scrollWidth - workPin.clientWidth);
-    // The section is as tall as the sideways distance, so one pixel down = one pixel across.
-    work.style.height = (workPin.offsetHeight + distance) + "px";
+    // The section is tall enough to scroll the whole sideways distance at WORK_SPEED.
+    work.style.height = Math.round(workPin.offsetHeight + distance / WORK_SPEED) + "px";
     updateWork();
   }
 
   function workOffset() {
-    return Math.min(Math.max(-work.getBoundingClientRect().top, 0), distance);
+    return Math.min(Math.max(-work.getBoundingClientRect().top, 0) * WORK_SPEED, distance);
   }
 
   function updateWork() {
@@ -404,15 +768,19 @@
   measureWork();
 
   // Keyboard focus on an off-screen card scrolls the page to bring it into view.
+  // Only keyboard focus: a press or tap also focuses the button, and scrolling then
+  // would move it out from under the finger before the click lands (a tap on a
+  // half-visible beat did nothing).
   track.addEventListener("focusin", function (e) {
     var card = e.target.closest(".card, .work-panel");
     if (!card) return;
     workPin.scrollLeft = 0;   // the browser may try to scroll the clipped track itself
+    try { if (!e.target.matches(":focus-visible")) return; } catch (err) { /* older browser: scroll as before */ }
     var left = card.offsetLeft + (card.offsetParent !== track ? card.offsetParent.offsetLeft : 0);
     var x = workOffset();
     if (left < x || left + card.offsetWidth > x + workPin.clientWidth) {
       var top = work.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({ top: top + Math.min(Math.max(left - workPin.clientWidth * 0.3, 0), distance), behavior: "instant" });
+      window.scrollTo({ top: top + Math.min(Math.max(left - workPin.clientWidth * 0.3, 0), distance) / WORK_SPEED, behavior: "instant" });
     }
   });
 
@@ -422,7 +790,7 @@
       e.preventDefault();
       var top = work.getBoundingClientRect().top + window.scrollY;
       var across = a.dataset.workJump === "visual" ? Math.min(visualPanel.offsetLeft, distance) : 0;
-      window.scrollTo({ top: top + across, behavior: reduceMotion ? "auto" : "smooth" });
+      window.scrollTo({ top: top + across / WORK_SPEED, behavior: reduceMotion ? "auto" : "smooth" });
     });
   });
 
@@ -439,7 +807,7 @@
     wrap.innerHTML = '<svg viewBox="0 0 200 200" aria-hidden="true">' + (MOCKUPS[kind] || MOCKUPS.tee) + "</svg>";
     var mark = document.createElement("img");
     mark.className = "mockup-mark";
-    mark.src = kind === "poster" ? "assets/brand/logo-black.svg" : LOGO;
+    mark.src = kind === "poster" ? "assets/brand/eye-black.svg" : LOGO;
     mark.alt = "";
     wrap.appendChild(mark);
     return wrap;
@@ -462,18 +830,19 @@
     var front = null, back = null, flip = null;
     var showingBack = false;   // the same on every device: only a click or tap flips it
     var photos = photosOf(current);
+    var frontPic = null, backPic = null;
     if (photos.length) {
-      front = document.createElement("img");
-      front.loading = "lazy";
-      media.appendChild(front);
+      frontPic = picture(null, true);
+      front = frontPic.img;
+      media.appendChild(frontPic.node);
       // A second photo is the back: shown on hover, or with the Front / Back button
       if (photos.length > 1) {
-        back = document.createElement("img");
-        back.loading = "lazy";
+        backPic = picture(null, true);
+        back = backPic.img;
         back.className = "is-back";
-        media.appendChild(back);
+        media.appendChild(backPic.node);
         media.classList.add("has-back");
-        flip = el("button", "product-flip", "Back");
+        flip = el("button", "product-flip pill is-light", "Back");
         flip.type = "button";
         flip.setAttribute("aria-pressed", "false");
         media.appendChild(flip);
@@ -499,8 +868,8 @@
     }
     function showPhotos() {
       var p = photosOf(current);
-      if (front && p[0]) { front.src = p[0]; front.alt = label(current) + (back ? ", front" : ""); }
-      if (back && p[1]) { back.src = p[1]; back.alt = label(current) + ", back"; }
+      if (front && p[0]) { setPicture(frontPic.node, p[0]); front.alt = label(current) + (back ? ", front" : ""); }
+      if (back && p[1]) { setPicture(backPic.node, p[1]); back.alt = label(current) + ", back"; }
       showSide();
     }
     showPhotos();
@@ -538,16 +907,23 @@
       });
       swatches.appendChild(colorName);
       info.appendChild(swatches);
-      // Fetch the other colours' photos once the page has settled, so switching is instant
-      window.addEventListener("load", function () {
-        colors.forEach(function (option) { photosOf(option).forEach(function (src) { new Image().src = src; }); });
+      // Fetch the other colours' photos the first time the visitor reaches for the product
+      // (pointer, touch or keyboard), so switching is instant without loading them up front
+      var warmed = false;
+      var warmColours = function () {
+        if (warmed) return;
+        warmed = true;
+        colors.forEach(function (option) { if (option !== current) photosOf(option).forEach(warm); });
+      };
+      ["pointerenter", "touchstart", "focusin"].forEach(function (type) {
+        li.addEventListener(type, warmColours, { passive: true });
       });
     }
 
     if (product.sizes && product.sizes.length) {
       var sizes = el("ul", "product-sizes");
       sizes.setAttribute("aria-label", "Sizes");
-      product.sizes.forEach(function (s) { sizes.appendChild(el("li", null, s)); });
+      product.sizes.forEach(function (s) { sizes.appendChild(el("li", "pill is-small", s)); });
       info.appendChild(sizes);
     }
     var buySlot = el("div", "product-buy-slot");
@@ -569,23 +945,115 @@
     li.appendChild(info);
     productList.appendChild(li);
   });
+  // A single product is laid out as a feature (photo beside its details); two or more
+  // go back to the grid.
+  var single = productList.children.length === 1;
+  productList.classList.toggle("is-single", single);
+  $("#shop").classList.toggle("has-single", single);
 
-  /* Reveal on scroll ------------------------------------------------------- */
-  $$(".section-label, .shop-head, .products, .contact-headline, .contact-grid, .footer-mark").forEach(function (n) {
+  /* Coming into view ------------------------------------------------------------ */
+  // With --focus-fx at 1 (styles.css), things arrive the way the hero logo does: out of
+  // focus, then sharp. A soft copy (a clone with a fixed blur) sits over the real thing
+  // and fades away while the real thing fades in, so the browser only ever animates
+  // opacity and a slight scale, never the blur itself. Headlines and artwork get the
+  // soft copy; small text and blocks simply fade and settle. With --focus-fx at 0,
+  // everything rises into place as it did before.
+  var canWatch = "IntersectionObserver" in window;
+  var editingText = /[?&]edit(?:[=&]|$)/.test(window.location.search) || window.location.hash === "#edit";
+  var FOCUS_FX = !reduceMotion && canWatch &&
+    parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--focus-fx")) >= 0.5;
+  document.documentElement.classList.toggle("focus-on", FOCUS_FX);
+
+  function softCopy(node) {
+    var copy = node.cloneNode(true);
+    copy.setAttribute("aria-hidden", "true");
+    copy.setAttribute("inert", "");                 // a copied Play button must not take focus
+    copy.removeAttribute("id");
+    $$("[id]", copy).forEach(function (n) { n.removeAttribute("id"); });
+    return copy;
+  }
+
+  // The soft copy is only made as its element nears the screen (a cover's copy repeats
+  // every bar of its waveform, so making them all up front nearly doubled the page).
+  function makeSoft(node) {
+    if (node.softReady) return;
+    node.softReady = true;
+    if (/^H\d$/.test(node.tagName)) {
+      var soft = softCopy($(".focus-sharp", node));
+      soft.className = "focus-soft";
+      node.appendChild(soft);
+      return;
+    }
+    var real = $(".cover, picture", node);
+    var copy = softCopy(real);
+    var face = copy.tagName === "PICTURE" ? $("img", copy) : copy;
+    face.classList.remove("is-back", "focus-sharp");
+    face.classList.add("focus-soft");
+    face.alt = "";
+    real.parentNode.insertBefore(copy, real.nextSibling);
+  }
+
+  var focusTargets = [];
+  if (FOCUS_FX) {
+    // Headlines: [sharp original][soft copy laid exactly over it]. (Not in edit mode,
+    // where headlines are retyped in place and a second copy would get in the way.)
+    if (!editingText) {
+      $$(".panel-title, .shop-title, .contact-headline").forEach(function (heading) {
+        var sharp = el("span", "focus-sharp");
+        while (heading.firstChild) sharp.appendChild(heading.firstChild);
+        heading.appendChild(sharp);
+        heading.classList.add("focus");
+        focusTargets.push(heading);
+      });
+    }
+    // Artwork, covers and the product photo: the frame holds a soft copy over the real one
+    $$(".card-sound .card-media, .card-open, .product-media").forEach(function (frame) {
+      var real = $(".cover, picture", frame);
+      if (!real) return;
+      (real.tagName === "PICTURE" ? $("img", real) : real).classList.add("focus-sharp");
+      frame.classList.add("focus");
+      focusTargets.push(frame);
+    });
+  }
+
+  $$(".section-label, .shop-lede, .product-info, .contact-email, .contact-grid, .footer-mark" +
+    (FOCUS_FX ? ", .panel-intro .kicker, .panel-lede" : ", .shop-title, .product-media, .contact-headline")).forEach(function (n) {
     n.classList.add("reveal");
   });
-  var revealables = $$(".reveal");
-  if (reduceMotion || !("IntersectionObserver" in window)) {
+  var revealables = $$(".reveal").concat(focusTargets);
+  if (reduceMotion || !canWatch) {
     revealables.forEach(function (n) { n.classList.add("is-visible"); });
   } else {
+    // one screen ahead in every direction: time to make the soft copy
+    var nearby = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        nearby.unobserve(entry.target);
+        makeSoft(entry.target);
+      });
+    }, { rootMargin: "100% 100% 100% 100%" });
+    focusTargets.forEach(function (n) { nearby.observe(n); });
+
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          io.unobserve(entry.target);
+        if (!entry.isIntersecting) return;
+        var node = entry.target;
+        io.unobserve(node);
+        if (node.classList.contains("focus")) {
+          nearby.unobserve(node);
+          if (!node.softReady) { makeSoft(node); void node.offsetWidth; }   // arrived by a jump: start soft all the same
+          // Once sharp, the soft copy has done its job
+          window.setTimeout(function () {
+            $$(".focus-soft", node).forEach(function (soft) {
+              var holder = soft.parentNode.tagName === "PICTURE" ? soft.parentNode : soft;
+              if (holder.parentNode) holder.parentNode.removeChild(holder);
+            });
+            node.classList.add("is-settled");
+          }, 1400);
         }
+        node.classList.add("is-visible");
       });
-    }, { rootMargin: "0px 0px -8% 0px" });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
     revealables.forEach(function (n) { io.observe(n); });
   }
 

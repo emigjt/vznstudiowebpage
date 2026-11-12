@@ -21,8 +21,8 @@
   and has a Replay button. Adding ?boot to the address plays it on every load even
   while it is off (and even with reduced motion): the way to preview it on any device.
 
-  This file loads at the top of <body>, before the page is drawn, so the page never
-  flashes up before the boot screen covers it.
+  A small inline script in index.html fetches this file only when the boot will play
+  (or in edit mode), and covers the screen first so the page never flashes up before it.
 */
 (function () {
   "use strict";
