@@ -791,9 +791,13 @@
   measureWork();
 
   // Keyboard focus on an off-screen card scrolls the page to bring it into view.
+  // Only keyboard focus: a press or tap also focuses the button, and scrolling then
+  // would move it out from under the finger before the click lands (a tap on a
+  // half-visible beat did nothing).
   track.addEventListener("focusin", function (e) {
     var card = e.target.closest(".card, .work-panel");
     if (!card) return;
+    try { if (!e.target.matches(":focus-visible")) return; } catch (err) { /* older browser: scroll as before */ }
     workPin.scrollLeft = 0;   // the browser may try to scroll the clipped track itself
     var left = card.offsetLeft + (card.offsetParent !== track ? card.offsetParent.offsetLeft : 0);
     var x = workOffset();
