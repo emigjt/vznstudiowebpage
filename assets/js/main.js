@@ -990,9 +990,30 @@
   function softCopy(node) {
     var copy = node.cloneNode(true);
     copy.setAttribute("aria-hidden", "true");
+    copy.setAttribute("inert", "");                 // a copied Play button must not take focus
     copy.removeAttribute("id");
     $$("[id]", copy).forEach(function (n) { n.removeAttribute("id"); });
     return copy;
+  }
+
+  // The soft copy is only made as its element nears the screen (a cover's copy repeats
+  // every bar of its waveform, so making them all up front nearly doubled the page).
+  function makeSoft(node) {
+    if (node.softReady) return;
+    node.softReady = true;
+    if (/^H\d$/.test(node.tagName)) {
+      var soft = softCopy($(".focus-sharp", node));
+      soft.className = "focus-soft";
+      node.appendChild(soft);
+      return;
+    }
+    var real = $(".cover, picture", node);
+    var copy = softCopy(real);
+    var face = copy.tagName === "PICTURE" ? $("img", copy) : copy;
+    face.classList.remove("is-back", "focus-sharp");
+    face.classList.add("focus-soft");
+    face.alt = "";
+    real.parentNode.insertBefore(copy, real.nextSibling);
   }
 
   var focusTargets = [];
@@ -1003,10 +1024,7 @@
       $$(".panel-title, .shop-title, .contact-headline").forEach(function (heading) {
         var sharp = el("span", "focus-sharp");
         while (heading.firstChild) sharp.appendChild(heading.firstChild);
-        var soft = softCopy(sharp);
-        soft.className = "focus-soft";
         heading.appendChild(sharp);
-        heading.appendChild(soft);
         heading.classList.add("focus");
         focusTargets.push(heading);
       });
@@ -1015,14 +1033,7 @@
     $$(".card-sound .card-media, .card-open, .product-media").forEach(function (frame) {
       var real = $(".cover, picture", frame);
       if (!real) return;
-      var soft = softCopy(real);
-      var realFace = real.tagName === "PICTURE" ? $("img", real) : real;
-      var softFace = soft.tagName === "PICTURE" ? $("img", soft) : soft;
-      realFace.classList.add("focus-sharp");
-      softFace.classList.remove("is-back");
-      softFace.classList.add("focus-soft");
-      softFace.alt = "";
-      real.parentNode.insertBefore(soft, real.nextSibling);
+      (real.tagName === "PICTURE" ? $("img", real) : real).classList.add("focus-sharp");
       frame.classList.add("focus");
       focusTargets.push(frame);
     });
@@ -1036,14 +1047,25 @@
   if (reduceMotion || !canWatch) {
     revealables.forEach(function (n) { n.classList.add("is-visible"); });
   } else {
+    // one screen ahead in every direction: time to make the soft copy
+    var nearby = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        nearby.unobserve(entry.target);
+        makeSoft(entry.target);
+      });
+    }, { rootMargin: "100% 100% 100% 100%" });
+    focusTargets.forEach(function (n) { nearby.observe(n); });
+
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
         var node = entry.target;
-        node.classList.add("is-visible");
         io.unobserve(node);
-        // Once sharp, the soft copy has done its job
         if (node.classList.contains("focus")) {
+          nearby.unobserve(node);
+          if (!node.softReady) { makeSoft(node); void node.offsetWidth; }   // arrived by a jump: start soft all the same
+          // Once sharp, the soft copy has done its job
           window.setTimeout(function () {
             $$(".focus-soft", node).forEach(function (soft) {
               var holder = soft.parentNode.tagName === "PICTURE" ? soft.parentNode : soft;
@@ -1052,6 +1074,7 @@
             node.classList.add("is-settled");
           }, 1400);
         }
+        node.classList.add("is-visible");
       });
     }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
     revealables.forEach(function (n) { io.observe(n); });
