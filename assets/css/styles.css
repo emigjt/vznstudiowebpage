@@ -523,10 +523,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 @keyframes rise { from { transform: translateY(100%); } }
 
 .hero-links { display: flex; justify-content: center; gap: var(--gap-wide); margin-top: clamp(var(--space-6), 6vh, var(--space-8)); animation: fade var(--dur-4) var(--ease-out) calc(var(--stagger) * 3) backwards; }
-.hero-links a { display: inline-block; }
-.hero-links li:nth-child(1) a { transform: rotate(3deg) translateY(6px); }
-.hero-links li:nth-child(2) a { transform: rotate(-5deg) translateY(-10px); }
-.hero-links li:nth-child(3) a { transform: rotate(4deg) translateY(4px); }
+.hero-links a { display: inline-block; }   /* one straight row, all on the same line */
 @keyframes fade { from { opacity: 0; transform: translateY(12px); } }
 @media (max-width: 760px) {
   /* Phones: headlines scale faster with the narrower screen */
