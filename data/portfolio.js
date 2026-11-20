@@ -79,6 +79,23 @@ window.VZN_PORTFOLIO = {
 
   visual: [
     {
+      title: ".01", type: "Brand Art", ratio: "1 / 1",
+      image: "assets/media/visual/blurred-vzn.jpg", full: "assets/media/visual/blurred-vzn-large.jpg"
+    },
+    {
+      title: ".02", type: "Brand Art", ratio: "1 / 1",
+      image: "assets/media/visual/vision-studios-logo.jpg", full: "assets/media/visual/vision-studios-logo-large.jpg"
+    },
+    {
+      title: ".03", type: "Brand Art", ratio: "1 / 1",
+      image: "assets/media/visual/beyond-sight.jpg", full: "assets/media/visual/beyond-sight-large.jpg"
+    },
+    {
+      title: "Bus Stop", type: "Album Cover", ratio: "1 / 1",
+      image: "assets/media/visual/bus-stop.jpg", full: "assets/media/visual/bus-stop-large.jpg",
+      description: "Sample album cover artwork."
+    },
+    {
       title: "Snake Eyes", type: "Poster", ratio: "1 / 1",
       image: "assets/media/visual/snake-eyes.jpg", full: "assets/media/visual/snake-eyes-large.jpg",
       description: "Better luck next time."
@@ -87,20 +104,14 @@ window.VZN_PORTFOLIO = {
       title: "Staring at the Sun", type: "Poster", ratio: "1 / 1",
       image: "assets/media/visual/staring-at-the-sun.jpg", full: "assets/media/visual/staring-at-the-sun-large.jpg",
       description: "Stared at the sun so long it started staring back."
-    },
+    }
+    /* Taken off the site (its images are still in assets/media/visual); to bring it back,
+       add a comma after the item above and move this inside the list:
     {
       title: "Three Blind Mice", type: "Poster", ratio: "1 / 1",
       image: "assets/media/visual/three-blind-mice.jpg", full: "assets/media/visual/three-blind-mice-large.jpg",
       description: "Vision beyond sight."
-    },
-    {
-      title: "Bus Stop", type: "Album Cover", ratio: "1 / 1",
-      image: "assets/media/visual/bus-stop.jpg", full: "assets/media/visual/bus-stop-large.jpg",
-      description: "Sample album cover artwork."
-    },
-    {
-      title: "Blurred VZN", type: "Artwork", ratio: "1 / 1",
-      image: "assets/media/visual/blurred-vzn.jpg", full: "assets/media/visual/blurred-vzn-large.jpg"
     }
+    */
   ]
 };

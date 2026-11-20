@@ -4,6 +4,19 @@
   (AVIF, WebP, and a 1000px "-medium" pair for phones) sit beside it.
 */
 window.VZN_MEDIA = {
+  "assets/media/visual/beyond-sight-large.jpg": {
+    "w": 1125,
+    "h": 1125,
+    "avif": true,
+    "webp": true,
+    "medium": 1000
+  },
+  "assets/media/visual/beyond-sight.jpg": {
+    "w": 800,
+    "h": 800,
+    "avif": true,
+    "webp": true
+  },
   "assets/media/visual/blurred-vzn-large.jpg": {
     "w": 1600,
     "h": 1600,
@@ -64,6 +77,19 @@ window.VZN_MEDIA = {
     "medium": 1000
   },
   "assets/media/visual/three-blind-mice.jpg": {
+    "w": 800,
+    "h": 800,
+    "avif": true,
+    "webp": true
+  },
+  "assets/media/visual/vision-studios-logo-large.jpg": {
+    "w": 1125,
+    "h": 1125,
+    "avif": true,
+    "webp": true,
+    "medium": 1000
+  },
+  "assets/media/visual/vision-studios-logo.jpg": {
     "w": 800,
     "h": 800,
     "avif": true,
