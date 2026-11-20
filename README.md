@@ -104,10 +104,9 @@ is loaded, dragging works too).
 ## Coming into view
 
 Headlines, covers, artwork and the product photo arrive the way the hero logo does: out of
-focus, then sharp. Small text fades and settles. Work turns from charcoal to bone through
-a soft edge. `--focus-fx: 0` in `assets/css/styles.css` goes back to everything rising
-into place, with a hard edge between Sound and Visual. Visitors who ask for reduced motion
-get neither.
+focus, then sharp. Small text fades and settles. `--focus-fx: 0` in
+`assets/css/styles.css` goes back to everything rising into place. Visitors who ask for
+reduced motion get neither.
 
 ## Edit mode
 

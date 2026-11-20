@@ -163,8 +163,7 @@
   --fx-mark-y: -2svh;         /* logo position from screen centre: + down, - up */
   --scratch: 0;               /* vintage scratch texture behind the content, 0 (off) to 1 */
   --focus-fx: 1;              /* 1: headlines and artwork come into view out of focus, then
-                                 sharp, like the hero logo, and Work turns from black to bone
-                                 through a soft edge. 0: they rise into place; hard edge */
+                                 sharp, like the hero logo. 0: they rise into place */
   --wave-player: 1;           /* 1: a beat's cover waveform fills as it plays and can be pressed or
                                  dragged to move through it. 0: a still waveform with a line under it */
 
@@ -966,7 +965,6 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 
 /* Footer ----------------------------------------------------------------- */
 .site-footer { border-top: 1px solid var(--line); padding: var(--section-pad) var(--pad) var(--pad); }
-/* The footer mark has the artwork's soft edge and faint glow (drawn once, never animated) */
 .footer-mark { width: min(380px, 56vw); height: auto; margin: 0 auto var(--section-pad); }
 .footer-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-3); color: var(--muted); }
 
@@ -995,19 +993,6 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .focus-on .card-open.focus, .focus-on .card-media.focus, .focus-on .product-media.focus { position: relative; }
 .focus-on .card-media.focus > .focus-soft, .focus-on .card-open.focus > .focus-soft { position: absolute; inset: 0; width: 100%; height: 100%; filter: blur(14px); }
 .focus-on .focus picture > img.focus-soft { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(14px); }
-/* Work turns from black to bone through a soft edge instead of a hard line */
-.focus-on .panel-visual { position: relative; }
-.focus-on .panel-visual::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 100%;
-  width: clamp(var(--space-7), 7vw, 140px);
-  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--paper) 10%, transparent) 30%, color-mix(in srgb, var(--paper) 45%, transparent) 65%, var(--paper));
-  pointer-events: none;
-}
-
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
