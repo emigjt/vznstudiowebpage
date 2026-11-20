@@ -37,6 +37,12 @@ window.VZN_SHOP = [
   },
   {
     name: "VZN Logo Hoodie", type: "Hoodie", price: "",
+    images: ["assets/media/shop/vzn-hoodie-front.jpg", "assets/media/shop/vzn-hoodie-back.jpg"],
+    url: ""
+  },
+  {
+    // The earlier two-colour version (charcoal and grey), kept for reference
+    name: "VZN Logo Hoodie (two colours)", type: "Hoodie", price: "", archived: true,
     colors: [
       {
         name: "Charcoal", swatch: "#434344",

@@ -81,6 +81,18 @@ window.VZN_MEDIA = {
     "avif": true,
     "webp": true
   },
+  "assets/media/shop/vzn-hoodie-back.jpg": {
+    "w": 1000,
+    "h": 1000,
+    "avif": true,
+    "webp": true
+  },
+  "assets/media/shop/vzn-hoodie-front.jpg": {
+    "w": 1000,
+    "h": 1000,
+    "avif": true,
+    "webp": true
+  },
   "assets/media/shop/vzn-logo-hoodie-charcoal-back.jpg": {
     "w": 1000,
     "h": 1000,
