@@ -234,8 +234,7 @@ Everything the page is built from is a named value at the top of `assets/css/sty
   `eye-icon-*.png` icons.
 - **Sharing tags:** the title, description and picture that messaging apps and search
   engines show are in the `<head>` of `index.html`. They contain the site's full address
-  (`https://emigjt.github.io/vznstudiowebpage/`); if the site moves to its own domain,
-  replace that address there and in `site.webmanifest`.
+  (`https://vznstudio.co/`); if the address ever changes, replace it there.
 - **Hero image/reel:** add an `<img>` or `<video>` inside `.hero-media` in `index.html`;
   it is shown desaturated behind the headline.
 
@@ -247,9 +246,12 @@ into `FORM_ENDPOINT` in `assets/js/main.js`.
 
 ## Publishing
 
-The live site is published by GitHub Pages straight from a branch (**Settings → Pages →
-Deploy from a branch**), so whatever is merged into that branch goes live, including the
-files the site never loads (`assets/media/originals/`, the `source/` folders, `tools/`).
+The live site is at **https://vznstudio.co/**. GitHub Pages publishes it straight from a
+branch (**Settings → Pages → Deploy from a branch**), so whatever is merged into that
+branch goes live there within a minute or two, including the files the site never loads
+(`assets/media/originals/`, the `source/` folders, `tools/`). The `CNAME` file at the top
+of the repository holds the domain; GitHub added it when the domain was set, so leave it
+in place. The old `emigjt.github.io/vznstudiowebpage/` address forwards to the domain.
 
 `.github/workflows/pages.yml` is an alternative that deploys on every push to `main`
 (**Settings → Pages → Source: GitHub Actions**); it is not in use.
