@@ -79,6 +79,63 @@
   // Leaving phone width (rotating, resizing) closes it, since the menu becomes a plain row
   window.matchMedia("(min-width: 761px)").addEventListener("change", function (e) { if (e.matches) setNav(false); });
 
+  /* Links to a section ------------------------------------------------------ */
+  // Work, Shop, Contact and Back to top move the page so the section's top edge sits
+  // exactly at the top of the screen. The page does this itself instead of leaving it to
+  // the browser: browsers disagree on how a fixed header's allowance applies to these
+  // jumps (Safari stopped short of, or past, Shop and Contact), and Work's height is only
+  // known once the page has measured it. After a smooth move it checks where it ended up
+  // and corrects, in case anything changed size on the way.
+  var SECTION_LINKS = "a[href='#top'], a[href='#work'], a[href='#shop'], a[href='#contact']";
+  var settleTimer = 0;
+  function sectionTop(id) {
+    var target = id === "top" ? null : document.getElementById(id);
+    return target ? Math.round(target.getBoundingClientRect().top + window.scrollY) : 0;
+  }
+  function goToSection(id, smooth) {
+    window.clearInterval(settleTimer);
+    smooth = smooth && !reduceMotion;
+    window.scrollTo({ top: sectionTop(id), behavior: smooth ? "smooth" : "auto" });
+    if (!smooth) return;
+    var last = -1, still = 0, started = Date.now();
+    settleTimer = window.setInterval(function () {
+      var y = window.scrollY;
+      still = Math.abs(y - last) < 1 ? still + 1 : 0;
+      last = y;
+      if (still < 2 && Date.now() - started < 4000) return;
+      window.clearInterval(settleTimer);
+      var top = sectionTop(id);
+      if (Math.abs(top - y) > 1) window.scrollTo({ top: top, behavior: "auto" });
+    }, 100);
+  }
+  // The visitor taking over (wheel, touch, keys) cancels the check
+  ["wheel", "touchstart", "keydown"].forEach(function (type) {
+    window.addEventListener(type, function () { window.clearInterval(settleTimer); }, { passive: true });
+  });
+  document.addEventListener("click", function (e) {
+    var link = e.target.closest ? e.target.closest(SECTION_LINKS) : null;
+    if (!link || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    var id = link.getAttribute("href").slice(1);
+    if (window.location.hash !== "#" + id) history.pushState(null, "", "#" + id);
+    goToSection(id, true);
+    // Keyboard and screen-reader users carry on from the section they jumped to
+    var target = document.getElementById(id === "top" ? "main" : id);
+    if (target) {
+      if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+    }
+  });
+  // Opening the site at one of these addresses (…/#contact): line it up once the page
+  // has its final size (fonts in, Work measured), since the browser jumped before that.
+  if (/^#(work|shop|contact)$/.test(window.location.hash)) {
+    var landOnHash = function () { goToSection(window.location.hash.slice(1), false); };
+    window.addEventListener("load", function () {
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { window.requestAnimationFrame(landOnHash); });
+      else landOnHash();
+    });
+  }
+
   /* Scroll effects: header state + hero logo parallax ---------------------- */
   var heroMark = $("[data-parallax]");
   var pointer = { x: 0, y: 0 };

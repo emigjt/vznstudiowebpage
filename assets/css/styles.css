@@ -184,7 +184,7 @@
 
 /* Base ------------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: var(--header-h); }
+html { scroll-behavior: smooth; }
 body {
   margin: 0;
   background: var(--bg);
@@ -563,12 +563,22 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   color: var(--muted);
 }
 
-/* Menu links land each section exactly at the top of the screen (not header-height
-   below it), so the end of the previous section never shows under the header. The
-   sections keep their content clear of the header themselves: Work's panels have
-   their own top padding, Shop and Contact get the header height added to theirs. */
-#work, #shop, #contact { scroll-margin-top: calc(-1 * var(--header-h)); }
-.shop, .contact { padding-top: calc(var(--section-pad) + var(--header-h)); }
+/* Menu links land each section exactly at the top of the screen (main.js), so the end
+   of the previous section never shows under the header. The sections keep their content
+   clear of the header themselves: Work's panels have their own top padding, Shop and
+   Contact get the header height added to theirs.
+   Shop and Contact each take at least a whole screen, with their content centred in it,
+   so the page reads one section at a time. 100vh is the full screen: on phones, the
+   screen with the browser's toolbar tucked away, so no sliver of the next section shows. */
+.shop, .contact {
+  padding-top: calc(var(--section-pad) + var(--header-h));
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+/* A section focused after a menu jump (for keyboard users) shows no ring itself */
+section[tabindex="-1"]:focus, main[tabindex="-1"]:focus { outline: none; }
 
 /* Work: Sound and Visual panels side by side; main.js pins the section and
    turns vertical scrolling into the sideways move. ------------------------- */
@@ -846,6 +856,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
     grid-template-columns: minmax(0, 1fr) minmax(0, min(44vw, 68svh, 640px));
     grid-template-rows: auto 1fr;
     grid-template-areas: "head media" "info media";
+    align-content: center;
     column-gap: var(--space-block);
   }
   .shop.has-single .shop-head { grid-area: head; }
@@ -904,7 +915,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
 .product-buy.is-soon { color: var(--muted); border-color: transparent; }
 
 /* Contact ---------------------------------------------------------------- */
-.contact { text-align: center; }
+.contact { text-align: center; align-items: center; }   /* centred column; the grid below spans it */
 .contact-headline {
   font-family: var(--font-display);
   font-weight: var(--display-weight);
@@ -922,6 +933,7 @@ a.product-buy::after, .contact-email::after { bottom: -1px; }
   word-break: break-word;
 }
 .contact-grid {
+  width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-block);
