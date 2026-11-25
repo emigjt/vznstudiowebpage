@@ -95,6 +95,19 @@ window.VZN_MEDIA = {
     "avif": true,
     "webp": true
   },
+  "assets/media/visual/you-are-the-architect-large.jpg": {
+    "w": 1125,
+    "h": 1125,
+    "avif": true,
+    "webp": true,
+    "medium": 1000
+  },
+  "assets/media/visual/you-are-the-architect.jpg": {
+    "w": 800,
+    "h": 800,
+    "avif": true,
+    "webp": true
+  },
   "assets/media/shop/beyond-sight-hoodie-back.jpg": {
     "w": 1000,
     "h": 1000,

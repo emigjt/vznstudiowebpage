@@ -66,28 +66,35 @@ window.VZN_PORTFOLIO = {
       peaks: [0.94,0.47,0.39,0.91,0.36,0.4,0.87,0.48,0.44,0.92,0.41,0.17,0.94,0.42,0.41,0.91,0.37,0.38,0.87,0.51,0.31,0.89,0.56,0.5,0.97,0.64,0.54,0.99,0.55,0.38,0.92,0.69,0.38,0.98,0.57,0.16,0.99,0.63,0.57,1.0,0.54,0.48,0.95,0.71,0.45,0.99,0.55,0.15]
     },
     {
-      title: "Feedback Interrupted", type: "Beat", bpm: "133", length: "0:38",
-      media: { kind: "audio", src: "assets/media/audio/feedback-interrupted.mp3" },
-      peaks: [0.38,0.35,0.36,0.27,0.35,0.34,0.37,0.37,0.38,0.35,0.38,0.27,0.35,0.36,0.35,0.39,0.36,0.35,0.36,0.28,0.36,0.35,0.38,0.39,0.37,0.35,0.38,0.31,0.34,0.35,0.38,0.39,0.99,0.79,0.8,0.92,0.89,0.65,0.37,0.38,1.0,0.79,0.81,0.93,0.88,0.65,0.34,0.39]
-    },
-    {
       title: "Lambo Long", type: "Beat", bpm: "141", length: "1:39",
       media: { kind: "audio", src: "assets/media/audio/lambo-long.mp3" },
       peaks: [0.27,0.23,0.25,0.24,0.26,0.28,0.63,0.67,0.85,0.62,0.63,1.0,0.35,0.66,0.9,0.57,0.78,0.75,0.8,0.28,0.28,0.22,0.22,0.24,0.23,0.28,0.64,0.76,0.74,0.72,0.66,0.93,0.3,0.66,0.58,0.45,0.79,0.74,0.68,0.59,0.37,0.64,0.45,0.65,0.59,0.49,0.26,0.06]
     }
   ],
 
+  /* Taken off the site (its audio is still in assets/media/audio); to bring it back,
+     move this into the sound list above:
+    {
+      title: "Feedback Interrupted", type: "Beat", bpm: "133", length: "0:38",
+      media: { kind: "audio", src: "assets/media/audio/feedback-interrupted.mp3" },
+      peaks: [0.38,0.35,0.36,0.27,0.35,0.34,0.37,0.37,0.38,0.35,0.38,0.27,0.35,0.36,0.35,0.39,0.36,0.35,0.36,0.28,0.36,0.35,0.38,0.39,0.37,0.35,0.38,0.31,0.34,0.35,0.38,0.39,0.99,0.79,0.8,0.92,0.89,0.65,0.37,0.38,1.0,0.79,0.81,0.93,0.88,0.65,0.34,0.39]
+    }
+  */
   visual: [
     {
       title: ".01", type: "Brand Art", ratio: "1 / 1",
-      image: "assets/media/visual/blurred-vzn.jpg", full: "assets/media/visual/blurred-vzn-large.jpg"
+      image: "assets/media/visual/you-are-the-architect.jpg", full: "assets/media/visual/you-are-the-architect-large.jpg"
     },
     {
       title: ".02", type: "Brand Art", ratio: "1 / 1",
-      image: "assets/media/visual/vision-studios-logo.jpg", full: "assets/media/visual/vision-studios-logo-large.jpg"
+      image: "assets/media/visual/blurred-vzn.jpg", full: "assets/media/visual/blurred-vzn-large.jpg"
     },
     {
       title: ".03", type: "Brand Art", ratio: "1 / 1",
+      image: "assets/media/visual/vision-studios-logo.jpg", full: "assets/media/visual/vision-studios-logo-large.jpg"
+    },
+    {
+      title: ".04", type: "Brand Art", ratio: "1 / 1",
       image: "assets/media/visual/beyond-sight.jpg", full: "assets/media/visual/beyond-sight-large.jpg"
     },
     {
